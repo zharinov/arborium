@@ -13,8 +13,8 @@ pub fn language() -> Language {
     unsafe { tree_sitter_sparql() }
 }
 
-/// The highlight query for sparql (empty - no highlights available).
-pub const HIGHLIGHTS_QUERY: &str = "";
+/// The highlight query for sparql.
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-sparql/queries/highlights.scm");
 
 /// The injections query for sparql (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

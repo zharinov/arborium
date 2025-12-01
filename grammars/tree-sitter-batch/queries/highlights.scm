@@ -17,95 +17,11 @@
 ; Labels (functions)
 (function_definition) @function
 
-; Echo off
+; Echo off directive
 (echooff) @keyword
 
-; Built-in commands
-[
-  "ASSOC"
-  "ATTRIB"
-  "CD"
-  "CHKDSK"
-  "CLS"
-  "COPY"
-  "DEL"
-  "DIR"
-  "ECHO"
-  "ERASE"
-  "EXIT"
-  "FC"
-  "FIND"
-  "FINDSTR"
-  "GOTO"
-  "IF"
-  "MD"
-  "MKDIR"
-  "MKLINK"
-  "MORE"
-  "MOVE"
-  "PATH"
-  "PAUSE"
-  "POPD"
-  "PRINT"
-  "PUSHD"
-  "RD"
-  "REM"
-  "REN"
-  "RENAME"
-  "RMDIR"
-  "SET"
-  "SETLOCAL"
-  "ENDLOCAL"
-  "SHIFT"
-  "SORT"
-  "START"
-  "TIME"
-  "TITLE"
-  "TREE"
-  "TYPE"
-  "VER"
-  "VOL"
-  "XCOPY"
-  "CALL"
-  "FOR"
-  "DO"
-  "IN"
-  "NOT"
-  "EXIST"
-  "ELSE"
-  "DEFINED"
-  "EQU"
-  "NEQ"
-  "LSS"
-  "LEQ"
-  "GTR"
-  "GEQ"
-  "NUL"
-  "CON"
-  "PRN"
-  "AUX"
-  "ERRORLEVEL"
-] @keyword
+; Keywords (the grammar bundles all keywords into a single node type)
+(keyword) @keyword
 
-; Operators
-[
-  "="
-  "=="
-  ">"
-  "<"
-  ">>"
-  "|"
-  "&"
-  "&&"
-  "||"
-] @operator
-
-; Punctuation
-[
-  "("
-  ")"
-  "%"
-  "@"
-  ":"
-  "::"
-] @punctuation.special
+; Identifiers
+(identifier) @variable

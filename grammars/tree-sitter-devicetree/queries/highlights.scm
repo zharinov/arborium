@@ -76,3 +76,9 @@
 (reference) @constant
 
 (comment) @comment
+
+(string_literal) @string
+
+(integer_literal) @number
+
+(byte_string_literal) @string

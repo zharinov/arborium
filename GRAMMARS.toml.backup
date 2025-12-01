@@ -1,0 +1,412 @@
+# Vendored tree-sitter grammars
+#
+# This file tracks the upstream sources and commit hashes for all vendored grammars.
+# Run `cargo xtask check-updates` to see if any grammars have newer versions available.
+# Run `cargo xtask vendor <grammar>` to update a specific grammar to the latest version.
+#
+# TODO: Add language metadata fields to each grammar entry:
+#   - inventor: Who created the language (e.g., "Guido van Rossum")
+#   - year: Year the language was first released (e.g., 1991)
+#   - description: Brief description of what the language is used for
+#   - wikipedia: Link to Wikipedia article
+#   - trivia: A short paragraph with interesting facts about the language
+#   - icon: Path to language icon/logo (SVG preferred)
+# This metadata will be used in the demo to show language information.
+#
+# TODO: Demo UI enhancement - show the language icon as a very low-contrast
+# watermark in the background of the code editor area.
+
+[asm]
+repo = "https://github.com/RubixDev/tree-sitter-asm"
+commit = "839741fef4dab5128952334624905c82b40c7133"
+license = "MIT"
+
+[bash]
+repo = "https://github.com/tree-sitter/tree-sitter-bash"
+commit = "20f55fb9663568f16ebceaac7673d2aa530add46"
+license = "MIT"
+
+[c]
+repo = "https://github.com/tree-sitter/tree-sitter-c"
+commit = "ae19b676b13bdcc13b7665397e6d9b14975473dd"
+license = "MIT"
+
+[c-sharp]
+repo = "https://github.com/tree-sitter/tree-sitter-c-sharp"
+commit = "485f0bae0274ac9114797fc10db6f7034e4086e3"
+license = "MIT"
+
+[clojure]
+repo = "https://github.com/sogaiu/tree-sitter-clojure"
+commit = "e43eff80d17cf34852dcd92ca5e6986d23a7040f"
+license = "Unlicense"
+
+[cpp]
+repo = "https://github.com/tree-sitter/tree-sitter-cpp"
+commit = "12bd6f7e96080d2e70ec51d4068f2f66120dde35"
+license = "MIT"
+
+[css]
+repo = "https://github.com/tree-sitter/tree-sitter-css"
+commit = "dda5cfc5722c429eaba1c910ca32c2c0c5bb1a3f"
+license = "MIT"
+
+[dart]
+repo = "https://github.com/UserNobody14/tree-sitter-dart"
+commit = "d4d8f3e337d8be23be27ffc35a0aef972343cd54"
+license = "MIT"
+inventor = "Lars Bak and Kasper Lund"
+year = 2011
+description = "Object-oriented language optimized for building user interfaces and mobile, desktop, and web applications"
+wikipedia = "https://en.wikipedia.org/wiki/Dart_(programming_language)"
+trivia = "Dart was created at Google with the original goal of replacing JavaScript as the primary language for web development. While it didn't achieve that goal, it found massive success as the language behind Flutter, Google's popular cross-platform UI framework. The language was designed by Lars Bak and Kasper Lund, who previously worked on the V8 JavaScript engine."
+
+[diff]
+repo = "https://github.com/the-mikedavis/tree-sitter-diff"
+commit = "2520c3f934b3179bb540d23e0ef45f75304b5fed"
+license = "MIT"
+
+[dockerfile]
+repo = "https://github.com/camdencheek/tree-sitter-dockerfile"
+commit = "971acdd908568b4531b0ba28a445bf0bb720aba5"
+license = "MIT"
+
+[elixir]
+repo = "https://github.com/elixir-lang/tree-sitter-elixir"
+commit = "d24cecee673c4c770f797bac6f87ae4b6d7ddec5"
+license = "Apache-2.0"
+
+[elm]
+repo = "https://github.com/elm-tooling/tree-sitter-elm"
+commit = "d0bec479c0422ed5eb01467790bd3912142fe987"
+license = "MIT"
+
+[fsharp]
+repo = "https://github.com/ionide/tree-sitter-fsharp"
+commit = "5141851c278a99958469eb1736c7afc4ec738e47"
+license = "MIT"
+# Note: This grammar has a subdirectory structure - using fsharp subdirectory
+
+[gleam]
+repo = "https://github.com/gleam-lang/tree-sitter-gleam"
+commit = "f4d55f3c5b690d4afe8853da892bc290d96deb34"
+license = "Apache-2.0"
+
+[go]
+repo = "https://github.com/tree-sitter/tree-sitter-go"
+commit = "2346a3ab1bb3857b48b29d779a1ef9799a248cd7"
+license = "MIT"
+inventor = "Robert Griesemer, Rob Pike, and Ken Thompson"
+year = 2009
+description = "Statically typed, compiled language designed for building simple, reliable, and efficient software"
+wikipedia = "https://en.wikipedia.org/wiki/Go_(programming_language)"
+trivia = "Go was created at Google by three legendary computer scientists: Robert Griesemer, Rob Pike, and Ken Thompson (who also co-created Unix and UTF-8). The language was born out of frustration with C++ compilation times and complexity. Its mascot, the Go Gopher, was designed by Renée French and has become one of the most beloved programming language mascots."
+
+[haskell]
+repo = "https://github.com/tree-sitter/tree-sitter-haskell"
+commit = "0975ef72fc3c47b530309ca93937d7d143523628"
+license = "MIT"
+
+[html]
+repo = "https://github.com/tree-sitter/tree-sitter-html"
+commit = "73a3947324f6efddf9e17c0ea58d454843590cc0"
+license = "MIT"
+
+[idris]
+repo = "https://github.com/kayhide/tree-sitter-idris"
+commit = "c56a25cf57c68ff929356db25505c1cc4c7820f6"
+license = "MIT"
+
+[ini]
+repo = "https://github.com/justinmk/tree-sitter-ini"
+commit = "bea223734aa9cea2c8793bf9098bd7fdef912f57"
+license = "Apache-2.0"
+
+[java]
+repo = "https://github.com/tree-sitter/tree-sitter-java"
+commit = "e10607b45ff745f5f876bfa3e94fbcc6b44bdc11"
+license = "MIT"
+
+[javascript]
+repo = "https://github.com/tree-sitter/tree-sitter-javascript"
+commit = "58404d8cf191d69f2674a8fd507bd5776f46cb11"
+license = "MIT"
+
+[jinja2]
+repo = "https://github.com/dbt-labs/tree-sitter-jinja2"
+commit = "922b28e1352c4966418b2e7e3772e0583d4532a2"
+license = "GPL-3.0"
+inventor = "Armin Ronacher"
+year = 2008
+description = "Template engine for Python inspired by Django's templating system"
+wikipedia = "https://en.wikipedia.org/wiki/Jinja_(template_engine)"
+trivia = "Jinja2 is named after the Jinja temple in Kyoto, Japan, and is part of the Pocoo project which also includes Flask and Werkzeug. Despite being designed for Python, Jinja2's syntax has influenced template engines in other languages, and it's widely used in DevOps tools like Ansible for configuration templating."
+
+[json]
+repo = "https://github.com/tree-sitter/tree-sitter-json"
+commit = "001c28d7a29832b06b0e831ec77845553c89b56d"
+license = "MIT"
+
+[lean]
+repo = "https://github.com/Julian/tree-sitter-lean"
+commit = "efe6b87145608d12f5996bd7f0cf6095a0e82261"
+license = "MIT"
+
+[lua]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-lua"
+commit = "d76023017f7485eae629cb60d406c7a1ca0f40c9"
+license = "MIT"
+
+[markdown]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
+commit = "2dfd57f547f06ca5631a80f601e129d73fc8e9f0"
+license = "MIT"
+
+[meson]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-meson"
+commit = "280b6e59186f18528bab1567f5cc43b78b9cd881"
+license = "MIT"
+
+[nix]
+repo = "https://github.com/nix-community/tree-sitter-nix"
+commit = "bfcb03e6ddccc5a1eb84cea0176096f85a7af333"
+license = "MIT"
+
+[perl]
+repo = "https://github.com/tree-sitter-perl/tree-sitter-perl"
+commit = "ad74e6db234c35d537de9358799a8e0cc4f5dee0"
+license = "MIT"
+
+[python]
+repo = "https://github.com/tree-sitter/tree-sitter-python"
+commit = "26855eabccb19c6abf499fbc5b8dc7cc9ab8bc64"
+license = "MIT"
+
+[rust]
+repo = "https://codeberg.org/grammar-orchard/tree-sitter-rust-orchard"
+commit = "261b20226c04ef601adbdf185a800512a5f66291"
+license = "MIT"
+
+[scala]
+repo = "https://github.com/tree-sitter/tree-sitter-scala"
+commit = "97aead18d97708190a51d4f551ea9b05b60641c9"
+license = "MIT"
+
+[scss]
+repo = "https://github.com/serenadeai/tree-sitter-scss"
+commit = "c478c6868648eff49eb04a4df90d703dc45b312a"
+license = "MIT"
+
+[sql]
+repo = "https://github.com/DerekStride/tree-sitter-sql"
+commit = "fe77f6868d6cdea593052a6af390116495093dc1"
+license = "MIT"
+inventor = "Donald D. Chamberlin and Raymond F. Boyce"
+year = 1974
+description = "Structured Query Language for managing and querying relational databases"
+wikipedia = "https://en.wikipedia.org/wiki/SQL"
+trivia = "SQL was initially called SEQUEL (Structured English Query Language) at IBM but had to be renamed due to a trademark conflict. Despite being standardized by ANSI in 1986, different database vendors implemented their own dialects, leading to the ongoing challenge of SQL portability across systems."
+
+[toml]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-toml"
+commit = "64b56832c2cffe41758f28e05c756a3a98d16f41"
+license = "MIT"
+
+[typescript]
+repo = "https://github.com/tree-sitter/tree-sitter-typescript"
+commit = "75b3874edb2dc714fb1fd77a32013d0f8699989f"
+license = "MIT"
+
+[verilog]
+repo = "https://github.com/tree-sitter/tree-sitter-verilog"
+commit = "227d277b6a1a5e2bf818d6206935722a7503de08"
+license = "MIT"
+inventor = "Phil Moorby and Prabhu Goel"
+year = 1984
+description = "Hardware description language for modeling digital circuits and systems"
+wikipedia = "https://en.wikipedia.org/wiki/Verilog"
+trivia = "Verilog was originally designed as a proprietary hardware modeling language by Gateway Design Automation, which was later acquired by Cadence Design Systems. The language was made an open standard in 1995 and became an IEEE standard (IEEE 1364) in the same year, which significantly accelerated its adoption in the digital design industry."
+
+[wasm]
+repo = "https://github.com/wasm-lsp/tree-sitter-wasm"
+commit = "2ca28a9f9d709847bf7a3de0942a84e912f59088"
+license = "Apache-2.0"
+# Note: This grammar has two sub-grammars: wat and wast
+
+[xml]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-xml"
+commit = "863dbc381f44f6c136a399e684383b977bb2beaa"
+license = "MIT"
+# Note: This grammar has two sub-grammars: xml and dtd
+
+[x86asm]
+repo = "local"
+commit = "n/a"
+license = "MIT"
+# Note: Custom grammar written for this project
+
+[yaml]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-yaml"
+commit = "7708026449bed86239b1cd5bce6e3c34dbca6415"
+license = "MIT"
+
+[zig]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-zig"
+commit = "6479aa13f32f701c383083d8b28360ebd682fb7d"
+license = "MIT"
+
+[r]
+repo = "https://github.com/r-lib/tree-sitter-r"
+commit = "0e6ef7741712c09dc3ee6e81c42e919820cc65ef"
+license = "MIT"
+
+[ron]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-ron"
+commit = "78938553b93075e638035f624973083451b29055"
+license = "MIT OR Apache-2.0"
+
+[caddy]
+repo = "https://github.com/Samonitari/tree-sitter-caddy"
+commit = "65b60437983933d00809c8927e7d8a29ca26dfa3"
+license = "MIT"
+
+[zsh]
+repo = "https://github.com/georgeharker/tree-sitter-zsh"
+commit = "c50ded6979eb7aae8b8da5da9ac2e9e984804881"
+license = "MIT"
+
+[nginx]
+repo = "https://gitlab.com/joncoole/tree-sitter-nginx"
+commit = "f6d13cf6281b25f2ce342a49a41a10a0381e00f0"
+license = "GPL-3.0"
+
+[devicetree]
+repo = "https://github.com/joelspadin/tree-sitter-devicetree"
+commit = "e685f1f6ac1702b046415efb476444167d63e41a"
+license = "MIT"
+
+[starlark]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-starlark"
+commit = "a453dbf3ba433db0e5ec621a38a7e59d72e4dc69"
+license = "MIT"
+# Note: grammar is incomplete - doesn't parse some Buck2/Bazel constructs correctly
+
+[hcl]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-hcl"
+commit = "fad991865fee927dd1de5e172fb3f08ac674d914"
+license = "Apache-2.0"
+
+[glsl]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-glsl"
+commit = "24a6c8ef698e4480fecf8340d771fbcb5de8fbb4"
+license = "MIT"
+inventor = "OpenGL Architecture Review Board"
+year = 2004
+description = "OpenGL Shading Language for writing shaders to control graphics pipeline"
+wikipedia = "https://en.wikipedia.org/wiki/OpenGL_Shading_Language"
+trivia = "GLSL was first introduced with OpenGL 2.0 to replace the fixed-function graphics pipeline with programmable shaders. Its syntax is based on C, making it familiar to many programmers. Despite competition from other shading languages like HLSL and Metal Shading Language, GLSL remains the standard for cross-platform graphics programming."
+
+[vim]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-vim"
+commit = "3dd4747082d1b717b8978211c06ef7b6cd16125b"
+license = "MIT"
+
+[objc]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-objc"
+commit = "181a81b8f23a2d593e7ab4259981f50122909fda"
+license = "MIT"
+
+[vue]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-vue"
+commit = "22bdfa6c9fc0f5ffa44c6e938ec46869ac8a99ff"
+license = "MIT"
+
+[svelte]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-svelte"
+commit = "ae5199db47757f785e43a14b332118a5474de1a2"
+license = "MIT"
+
+[hlsl]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-hlsl"
+commit = "bab9111922d53d43668fabb61869bec51bbcb915"
+license = "MIT"
+inventor = "Microsoft"
+year = 2002
+description = "High-Level Shading Language for programming GPU shaders in DirectX"
+wikipedia = "https://en.wikipedia.org/wiki/High-Level_Shading_Language"
+trivia = "HLSL was introduced alongside DirectX 9 as Microsoft's answer to GLSL, with a syntax heavily influenced by C and Cg (NVIDIA's shading language). While initially exclusive to DirectX, HLSL has expanded beyond Windows through projects like DirectX Shader Compiler (DXC), which can compile HLSL to SPIR-V for Vulkan, making it more portable across platforms."
+
+[thrift]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-thrift"
+commit = "68fd0d80943a828d9e6f49c58a74be1e9ca142cf"
+license = "MIT"
+
+[capnp]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-capnp"
+commit = "7b0883c03e5edd34ef7bcf703194204299d7099f"
+license = "MIT"
+
+[php]
+repo = "https://github.com/tree-sitter/tree-sitter-php"
+commit = "7d07b41ce2d442ca9a90ed85d0075eccc17ae315"
+license = "MIT"
+
+[xml]
+repo = "https://github.com/tree-sitter-grammars/tree-sitter-xml"
+commit = "863dbc381f44f6c136a399e684383b977bb2beaa"
+license = "MIT"
+
+[awk]
+repo = "https://github.com/Beaglefoot/tree-sitter-awk"
+commit = "34bbdc7cce8e803096f47b625979e34c1be38127"
+license = "MIT"
+
+[batch]
+repo = "https://github.com/davidevofficial/tree-sitter-batch"
+commit = "737a031b42240bf61bf7ea5e4356d4e0580dd6d9"
+license = "MIT"
+
+[jq]
+repo = "https://github.com/flurie/tree-sitter-jq"
+commit = "c204e36d2c3c6fce1f57950b12cabcc24e5cc4d9"
+license = "MIT"
+
+[vb]
+repo = "https://github.com/CodeAnt-AI/tree-sitter-vb-dotnet"
+commit = "cfca210ce8fdcb5245bd9cd5c47ce0a21a8488d5"
+license = "MIT"
+
+[powershell]
+repo = "https://github.com/airbus-cert/tree-sitter-powershell"
+commit = "9379c77984af1f3d3d7e3cc5e897de3496725280"
+license = "MIT"
+
+[vhdl]
+repo = "https://github.com/alemuller/tree-sitter-vhdl"
+commit = "a3b2d84990527c7f8f4ae219c332c00c33d2d8e5"
+license = "MIT"
+inventor = "U.S. Department of Defense"
+year = 1983
+description = "Hardware description language for electronic design automation and circuit simulation"
+wikipedia = "https://en.wikipedia.org/wiki/VHDL"
+trivia = "VHDL stands for VHSIC Hardware Description Language, where VHSIC itself is an acronym for Very High Speed Integrated Circuit. It was developed under the sponsorship of the U.S. Department of Defense to document and simulate the behavior of ASICs being designed for military equipment. The language became an IEEE standard (IEEE 1076) in 1987."
+
+[rescript]
+repo = "https://github.com/rescript-lang/tree-sitter-rescript"
+commit = "d2df8a285fff95de56a91d2f8152aeceb66f40ef"
+license = "MIT"
+
+[postscript]
+repo = "https://github.com/smoeding/tree-sitter-postscript"
+commit = "33718235e7ce32e355a8dc591b435637a329bc5b"
+license = "MIT"
+
+[tlaplus]
+repo = "https://github.com/tlaplus-community/tree-sitter-tlaplus"
+commit = "2d831940c782850f64dabf5b7b17e9e51f7f0ebb"
+license = "MIT"
+
+[prolog]
+repo = "https://codeberg.org/foxy/tree-sitter-prolog"
+commit = "d8d415f6a1cf80ca138524bcc395810b176d40fa"
+license = "MIT"

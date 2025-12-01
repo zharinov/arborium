@@ -13,8 +13,8 @@ pub fn language() -> Language {
     unsafe { tree_sitter_matlab() }
 }
 
-/// The highlight query for matlab (empty - no highlights available).
-pub const HIGHLIGHTS_QUERY: &str = "";
+/// The highlight query for matlab.
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-matlab/queries/highlights.scm");
 
 /// The injections query for matlab (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

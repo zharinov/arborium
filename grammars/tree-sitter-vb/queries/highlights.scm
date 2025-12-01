@@ -5,210 +5,167 @@
 
 ; Strings
 (string_literal) @string
-(interpolated_string) @string
+(interpolated_string_literal) @string
+(character_literal) @character
 
 ; Numbers
 (integer_literal) @number
-(real_literal) @number
+(floating_point_literal) @number
 
 ; Boolean
-(boolean_literal) @constant
+(boolean_literal) @constant.builtin
 
-; Nothing/null
-(nothing_literal) @constant
+; Date literals
+(date_literal) @string.special
 
-; Keywords
-[
-  "AddHandler"
-  "AddressOf"
-  "Alias"
-  "And"
-  "AndAlso"
-  "As"
-  "Boolean"
-  "ByRef"
-  "Byte"
-  "ByVal"
-  "Call"
-  "Case"
-  "Catch"
-  "CBool"
-  "CByte"
-  "CChar"
-  "CDate"
-  "CDbl"
-  "CDec"
-  "Char"
-  "CInt"
-  "Class"
-  "CLng"
-  "CObj"
-  "Const"
-  "Continue"
-  "CSByte"
-  "CShort"
-  "CSng"
-  "CStr"
-  "CType"
-  "CUInt"
-  "CULng"
-  "CUShort"
-  "Date"
-  "Decimal"
-  "Declare"
-  "Default"
-  "Delegate"
-  "Dim"
-  "DirectCast"
-  "Do"
-  "Double"
-  "Each"
-  "Else"
-  "ElseIf"
-  "End"
-  "EndIf"
-  "Enum"
-  "Erase"
-  "Error"
-  "Event"
-  "Exit"
-  "False"
-  "Finally"
-  "For"
-  "Friend"
-  "Function"
-  "Get"
-  "GetType"
-  "GetXMLNamespace"
-  "Global"
-  "GoSub"
-  "GoTo"
-  "Handles"
-  "If"
-  "Implements"
-  "Imports"
-  "In"
-  "Inherits"
-  "Integer"
-  "Interface"
-  "Is"
-  "IsNot"
-  "Let"
-  "Lib"
-  "Like"
-  "Long"
-  "Loop"
-  "Me"
-  "Mod"
-  "Module"
-  "MustInherit"
-  "MustOverride"
-  "MyBase"
-  "MyClass"
-  "Namespace"
-  "Narrowing"
-  "New"
-  "Next"
-  "Not"
-  "Nothing"
-  "NotInheritable"
-  "NotOverridable"
-  "Object"
-  "Of"
-  "On"
-  "Operator"
-  "Option"
-  "Optional"
-  "Or"
-  "OrElse"
-  "Out"
-  "Overloads"
-  "Overridable"
-  "Overrides"
-  "ParamArray"
-  "Partial"
-  "Private"
-  "Property"
-  "Protected"
-  "Public"
-  "RaiseEvent"
-  "ReadOnly"
-  "ReDim"
-  "REM"
-  "RemoveHandler"
-  "Resume"
-  "Return"
-  "SByte"
-  "Select"
-  "Set"
-  "Shadows"
-  "Shared"
-  "Short"
-  "Single"
-  "Static"
-  "Step"
-  "Stop"
-  "String"
-  "Structure"
-  "Sub"
-  "SyncLock"
-  "Then"
-  "Throw"
-  "To"
-  "True"
-  "Try"
-  "TryCast"
-  "TypeOf"
-  "UInteger"
-  "ULong"
-  "UShort"
-  "Using"
-  "Variant"
-  "Wend"
-  "When"
-  "While"
-  "Widening"
-  "With"
-  "WithEvents"
-  "WriteOnly"
-  "Xor"
-] @keyword
+; Type declarations
+(class_block
+  (identifier) @type.definition)
 
-; Types
-(primitive_type) @type.builtin
-(type_identifier) @type
-(namespace_name) @type
+(module_block
+  (identifier) @type.definition)
 
-; Functions and methods
-(function_statement
-  name: (identifier) @function)
-(sub_statement
-  name: (identifier) @function)
+(structure_block
+  (identifier) @type.definition)
+
+(interface_block
+  (identifier) @type.definition)
+
+(enum_block
+  (identifier) @type.definition)
+
+; Method declarations
 (method_declaration
-  name: (identifier) @function)
-(invocation_expression
-  function: (identifier) @function)
-(invocation_expression
-  function: (member_access_expression
-    name: (identifier) @function))
+  (identifier) @function.definition)
 
-; Variables and parameters
-(identifier) @variable
+; Property declarations
+(property_declaration
+  (identifier) @property)
+
+; Parameter list
 (parameter
-  name: (identifier) @variable.parameter)
+  (identifier) @variable.parameter)
 
-; Properties
-(property_statement
-  name: (identifier) @property)
-(member_access_expression
-  name: (identifier) @property)
+; Type references
+(primitive_type) @type.builtin
+
+; Member access
+(member_access
+  (identifier) @property)
+
+; Invocations
+(invocation
+  (identifier) @function.call)
+
+; Identifiers
+(identifier) @variable
+
+; Enum members
+(enum_member
+  (identifier) @constant)
+
+; Modifiers
+(modifier) @keyword.modifier
 
 ; Attributes
-(attribute
-  name: (identifier) @attribute)
+(attribute) @attribute
+
+; Keywords - use a simple list of common VB.NET keywords
+[
+  "Class"
+  "Module"
+  "Namespace"
+  "Structure"
+  "Interface"
+  "Enum"
+  "Sub"
+  "Function"
+  "Property"
+  "Get"
+  "Set"
+  "End"
+  "New"
+  "Dim"
+  "Const"
+  "As"
+  "Of"
+  "Inherits"
+  "Implements"
+  "Imports"
+  "Event"
+  "Private"
+  "Protected"
+  "Public"
+  "Friend"
+  "Shared"
+  "Static"
+  "ReadOnly"
+  "ByVal"
+  "ByRef"
+  "Optional"
+  "Me"
+  "MyBase"
+  "Nothing"
+  "If"
+  "Then"
+  "Else"
+  "ElseIf"
+  "Select"
+  "Case"
+  "For"
+  "Each"
+  "To"
+  "Step"
+  "Next"
+  "While"
+  "Do"
+  "Loop"
+  "Until"
+  "Continue"
+  "Exit"
+  "Try"
+  "Catch"
+  "Finally"
+  "Throw"
+  "Return"
+  "GoTo"
+  "True"
+  "False"
+  "And"
+  "Or"
+  "Not"
+  "Xor"
+  "Is"
+  "IsNot"
+  "Like"
+  "TypeOf"
+  "With"
+  "Using"
+  "SyncLock"
+  "ReDim"
+  "AddHandler"
+  "RemoveHandler"
+  "RaiseEvent"
+  "Overrides"
+  "Overloads"
+  "Overridable"
+  "MustOverride"
+  "MustInherit"
+  "NotInheritable"
+  "Partial"
+  "Shadows"
+  "WithEvents"
+  "Delegate"
+] @keyword
 
 ; Operators
 [
+  "="
+  "<>"
+  "<"
+  ">"
+  "<="
+  ">="
   "+"
   "-"
   "*"
@@ -216,19 +173,10 @@
   "\\"
   "^"
   "&"
-  "="
-  "<>"
-  "<"
-  ">"
-  "<="
-  ">="
   "+="
   "-="
   "*="
   "/="
-  "\\="
-  "^="
-  "&="
 ] @operator
 
 ; Punctuation
@@ -242,7 +190,6 @@
 ] @punctuation.bracket
 
 [
-  "."
   ","
-  ":"
+  "."
 ] @punctuation.delimiter

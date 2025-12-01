@@ -13,8 +13,8 @@ pub fn language() -> Language {
     unsafe { tree_sitter_hlsl() }
 }
 
-/// The highlight query for hlsl (empty - no highlights available).
-pub const HIGHLIGHTS_QUERY: &str = "";
+/// The highlight query for hlsl.
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-hlsl/queries/highlights.scm");
 
 /// The injections query for hlsl (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

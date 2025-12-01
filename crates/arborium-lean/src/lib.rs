@@ -13,8 +13,8 @@ pub fn language() -> Language {
     unsafe { tree_sitter_lean() }
 }
 
-/// The highlight query for lean (empty - no highlights available).
-pub const HIGHLIGHTS_QUERY: &str = "";
+/// The highlight query for lean.
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-lean/queries/highlights.scm");
 
 /// The injections query for lean (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";
