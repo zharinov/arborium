@@ -8,3 +8,8 @@ description = "Progressive JavaScript framework for UIs; official docs at [vuejs
 wikipedia = "https://en.wikipedia.org/wiki/Vue.js"
 trivia = "You released Vue in Feb 2014 after working on Angular at Google; the [release notes](https://github.com/vuejs/core/releases) and guide document its evolution from 0.10 to Vue 3/4 composition API."
 
+[[samples]]
+path = "samples/App.vue"
+description = "Vue 3 example component with template, script setup, and scoped styles."
+link = "https://github.com/vuejs/core/blob/main/packages/vue/examples/official-pkg-usage/App.vue"
+license = "MIT"
