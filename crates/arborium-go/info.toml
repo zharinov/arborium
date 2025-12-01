@@ -13,3 +13,10 @@ path = "samples/implements.go"
 description = "Example using go/types to check interface implementation, with imports, interfaces, structs, and error handling."
 link = "https://github.com/golang/example/blob/master/gotypes/implements/main.go"
 license = "BSD-3-Clause"
+
+# amos-picked sample
+[[samples]]
+path = "samples/repo.go"
+description = "Gitea explore/repo handler showing routing, templating, pagination, and service calls."
+link = "https://github.com/go-gitea/gitea/blob/main/routers/web/explore/repo.go"
+license = "MIT"
