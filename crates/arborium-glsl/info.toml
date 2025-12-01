@@ -1,4 +1,7 @@
 name = "glsl"
+tag = "code"
+icon = "devicon-plain:opengl"
+aliases = ["vert", "frag"]
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-glsl"
 commit = "24a6c8ef698e4480fecf8340d771fbcb5de8fbb4"
 license = "MIT"

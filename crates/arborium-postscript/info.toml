@@ -1,4 +1,7 @@
 name = "postscript"
+tag = "code"
+icon = "mdi:printer"
+aliases = ["ps"]
 repo = "https://github.com/smoeding/tree-sitter-postscript"
 commit = "33718235e7ce32e355a8dc591b435637a329bc5b"
 license = "MIT"

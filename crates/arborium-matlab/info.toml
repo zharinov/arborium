@@ -1,4 +1,7 @@
 name = "matlab"
+tag = "code"
+icon = "devicon-plain:matlab"
+aliases = ["m"]
 repo = ""
 commit = ""
 license = ""

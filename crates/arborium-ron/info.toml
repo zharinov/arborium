@@ -1,4 +1,6 @@
 name = "ron"
+tag = "data"
+icon = "devicon-plain:rust"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-ron"
 commit = "78938553b93075e638035f624973083451b29055"
 license = "MIT OR Apache-2.0"

@@ -1,4 +1,7 @@
 name = "query"
+tag = "query"
+icon = "mdi:file-tree-outline"
+aliases = ["scm"]
 repo = ""
 commit = ""
 license = ""

@@ -1,4 +1,6 @@
 name = "devicetree"
+tag = "config"
+icon = "mdi:file-tree"
 repo = "https://github.com/joelspadin/tree-sitter-devicetree"
 commit = "e685f1f6ac1702b046415efb476444167d63e41"
 license = "MIT"

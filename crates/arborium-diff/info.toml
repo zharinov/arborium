@@ -1,4 +1,7 @@
 name = "diff"
+tag = "data"
+icon = "mdi:file-compare"
+aliases = ["patch"]
 repo = "https://github.com/the-mikedavis/tree-sitter-diff"
 commit = "2520c3f934b3179bb540d23e0ef45f75304b5fed"
 license = "MIT"

@@ -30,7 +30,7 @@ use owo_colors::OwoColorize;
 use rayon::prelude::*;
 
 /// Files to keep in each grammar directory (note: all .js and .mjs files are also kept)
-const KEEP_FILES: &[&str] = &["grammar.js", "package.json", "LICENSE", "LICENSE.md", "COPYING.txt", "README.md"];
+const KEEP_FILES: &[&str] = &["grammar.js", "package.json", "LICENSE", "LICENSE.md", "COPYING.txt", "README.md", "grammar-crate-config.toml"];
 
 /// Directories to keep
 const KEEP_DIRS: &[&str] = &["src", "queries", "grammar", "common", "rules", "lib"];
@@ -347,6 +347,16 @@ fn regenerate(filter: Option<&str>) {
     });
 
     println!("\r{}", "C sources copied to crates.".dimmed());
+
+    // Step 8: Copy queries to crates
+    print!("\r{}", "Copying queries to crates...".dimmed());
+    std::io::stdout().flush().ok();
+
+    grammars.par_iter().for_each(|grammar| {
+        let _ = copy_queries_to_crate(&repo_root, grammar);
+    });
+
+    println!("\r{}", "Queries copied to crates.".dimmed());
 
     // Summary
     let total_duration = start_time.elapsed();
@@ -823,6 +833,138 @@ fn copy_grammar_sources_to_crate(repo_root: &Path, grammar_dir: &Path) -> Result
             // Copy subdirectories like tree_sitter/
             let dest_dir = crate_grammar_src.join(entry.file_name());
             copy_dir_recursive(&path, &dest_dir)?;
+        }
+    }
+
+    Ok(())
+}
+
+/// Copy query files from a grammar's queries/ to the corresponding crate's queries/
+/// Also handles inherits_queries_from by copying base language queries
+fn copy_queries_to_crate(repo_root: &Path, grammar_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
+    let name = grammar_dir
+        .file_name()
+        .unwrap()
+        .to_string_lossy()
+        .strip_prefix("tree-sitter-")
+        .unwrap_or(&grammar_dir.file_name().unwrap().to_string_lossy())
+        .to_string();
+
+    let crate_name = format!("arborium-{}", name);
+    let crate_dir = repo_root.join("crates").join(&crate_name);
+    let crate_queries_dir = crate_dir.join("queries");
+
+    // Skip if crate doesn't exist
+    if !crate_dir.exists() {
+        return Ok(());
+    }
+
+    // Load grammar config to check for inherits_queries_from
+    let config_file = grammar_dir.join("grammar-crate-config.toml");
+    let config = parse_grammar_crate_config(&config_file);
+
+    let inherits_queries_from: Vec<String> = config
+        .as_ref()
+        .and_then(|c| c.get("inherits_queries_from"))
+        .and_then(|v| v.as_array())
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(|s| s.to_string()))
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let query_path = config
+        .as_ref()
+        .and_then(|c| c.get("query_path"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+        .unwrap_or_default();
+
+    let parent_repo = config
+        .as_ref()
+        .and_then(|c| c.get("parent_repo"))
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+
+    // Find queries directory (may be in parent for sub-grammars)
+    let queries_dir = if grammar_dir.join("queries").exists() {
+        grammar_dir.join("queries")
+    } else if let Some(parent) = grammar_dir.parent() {
+        if parent.join("queries").exists() {
+            parent.join("queries")
+        } else {
+            grammar_dir.join("queries")
+        }
+    } else {
+        grammar_dir.join("queries")
+    };
+
+    // Apply query_path prefix if specified
+    let query_base = if query_path.is_empty() {
+        queries_dir.clone()
+    } else {
+        queries_dir.join(&query_path)
+    };
+
+    // Check if we have any queries to copy
+    let has_own_queries = query_base.join("highlights.scm").exists()
+        || query_base.join("injections.scm").exists()
+        || query_base.join("locals.scm").exists();
+
+    if !has_own_queries && inherits_queries_from.is_empty() {
+        return Ok(());
+    }
+
+    // Create queries/ directory in crate
+    if crate_queries_dir.exists() {
+        fs::remove_dir_all(&crate_queries_dir)?;
+    }
+    fs::create_dir_all(&crate_queries_dir)?;
+
+    // Copy inherited queries first (they get prepended)
+    for base_lang in &inherits_queries_from {
+        let base_grammar_dir = repo_root.join("grammars").join(format!("tree-sitter-{}", base_lang));
+        let base_queries_dir = base_grammar_dir.join("queries");
+
+        for query_file in &["highlights.scm", "injections.scm", "locals.scm"] {
+            let src_path = base_queries_dir.join(query_file);
+            if src_path.exists() {
+                // Name it as inherited-{base}-{query_file}
+                let dest_name = format!("inherited-{}-{}", base_lang, query_file);
+                let dest_path = crate_queries_dir.join(&dest_name);
+                fs::copy(&src_path, &dest_path)?;
+            }
+        }
+    }
+
+    // Copy this grammar's own queries
+    for query_file in &["highlights.scm", "injections.scm", "locals.scm"] {
+        let src_path = query_base.join(query_file);
+        if src_path.exists() {
+            let dest_path = crate_queries_dir.join(query_file);
+            fs::copy(&src_path, &dest_path)?;
+        }
+    }
+
+    // For sub-grammars, also check parent_repo for queries if they weren't found
+    if let Some(parent) = &parent_repo {
+        let parent_grammar_dir = repo_root.join("grammars").join(format!("tree-sitter-{}", parent));
+        let parent_queries_base = if query_path.is_empty() {
+            parent_grammar_dir.join("queries")
+        } else {
+            parent_grammar_dir.join("queries").join(&query_path)
+        };
+
+        for query_file in &["highlights.scm", "injections.scm", "locals.scm"] {
+            let dest_path = crate_queries_dir.join(query_file);
+            // Only copy if we don't already have it
+            if !dest_path.exists() {
+                let src_path = parent_queries_base.join(query_file);
+                if src_path.exists() {
+                    fs::copy(&src_path, &dest_path)?;
+                }
+            }
         }
     }
 
@@ -1517,87 +1659,6 @@ fn parse_samples_from_info_toml(path: &Path) -> Vec<String> {
     samples
 }
 
-/// Sample metadata parsed from info.toml
-struct SampleInfo {
-    path: Option<String>,
-    description: Option<String>,
-    link: Option<String>,
-    license: Option<String>,
-}
-
-/// Parse the first [[samples]] entry from info.toml
-fn parse_sample_info(content: &str) -> Option<SampleInfo> {
-    let mut in_samples_block = false;
-    let mut path = None;
-    let mut description = None;
-    let mut link = None;
-    let mut license = None;
-
-    for line in content.lines() {
-        let line = line.trim();
-
-        if line == "[[samples]]" {
-            if in_samples_block {
-                // Already found first sample, stop
-                break;
-            }
-            in_samples_block = true;
-            continue;
-        }
-
-        if in_samples_block {
-            if let Some(value) = extract_toml_string(line, "path") {
-                path = Some(value);
-            } else if let Some(value) = extract_toml_string(line, "description") {
-                description = Some(value);
-            } else if let Some(value) = extract_toml_string(line, "link") {
-                link = Some(value);
-            } else if let Some(value) = extract_toml_string(line, "license") {
-                license = Some(value);
-            }
-        }
-    }
-
-    // Only return if we found a path
-    if path.is_some() {
-        Some(SampleInfo { path, description, link, license })
-    } else {
-        None
-    }
-}
-
-/// Convert SampleInfo to JSON for the demo (without path)
-fn sample_info_to_json(info: &SampleInfo) -> Option<serde_json::Value> {
-    if info.description.is_none() && info.link.is_none() {
-        return None;
-    }
-    let mut obj = serde_json::Map::new();
-    if let Some(d) = &info.description {
-        obj.insert("description".to_string(), serde_json::Value::String(d.clone()));
-    }
-    if let Some(l) = &info.link {
-        obj.insert("link".to_string(), serde_json::Value::String(l.clone()));
-    }
-    if let Some(lic) = &info.license {
-        obj.insert("license".to_string(), serde_json::Value::String(lic.clone()));
-    }
-    Some(serde_json::Value::Object(obj))
-}
-
-/// Helper to extract a string value from a TOML line like `key = "value"`
-fn extract_toml_string(line: &str, key: &str) -> Option<String> {
-    if line.starts_with(key) {
-        if let Some(value) = line.split('=').nth(1) {
-            let value = value.split('#').next().unwrap_or(value); // strip comments
-            let value = value.trim().trim_matches('"').trim_matches('\'');
-            if !value.is_empty() {
-                return Some(value.to_string());
-            }
-        }
-    }
-    None
-}
-
 /// Generate Cargo.toml for a grammar crate
 fn generate_cargo_toml(config: &GrammarCrateConfig, license: &str) -> String {
     let crate_name = format!("arborium-{}", config.name);
@@ -1740,68 +1801,74 @@ pub fn {}_language() -> Language {{
         ));
     }
 
-    // Query constants - queries are in grammars/tree-sitter-{name}/queries/
-    // For sub-grammars (e.g., tsx in tree-sitter-typescript), use parent_repo for the path
-    let repo_name = config.parent_repo.as_ref().unwrap_or(&config.name);
-    let query_prefix = if config.query_path.is_empty() {
-        format!("../../../grammars/tree-sitter-{}/queries/", repo_name)
-    } else {
-        format!("../../../grammars/tree-sitter-{}/queries/{}", repo_name, config.query_path)
+    // Query constants - queries are vendored in the crate's queries/ directory
+    // For grammars with inherits_queries_from, we concatenate inherited queries first
+
+    // Helper to generate query constant with optional inheritance
+    let generate_query_const = |query_type: &str, has_query: bool| -> String {
+        let query_file = format!("{}.scm", query_type);
+        let const_name = format!("{}_QUERY", query_type.to_uppercase());
+
+        if !has_query && config.inherits_queries_from.is_empty() {
+            return format!(
+                r#"/// The {} query for {} (empty - no {} available).
+pub const {}: &str = "";
+
+"#,
+                query_type, config.name, query_type, const_name
+            );
+        }
+
+        // Build the include_str! parts
+        let mut parts: Vec<String> = Vec::new();
+
+        // Add inherited queries first (they get prepended)
+        for base_lang in &config.inherits_queries_from {
+            let inherited_file = format!("inherited-{}-{}", base_lang, query_file);
+            parts.push(format!(r#"include_str!("../queries/{}")"#, inherited_file));
+        }
+
+        // Add own query if it exists
+        if has_query {
+            parts.push(format!(r#"include_str!("../queries/{}")"#, query_file));
+        }
+
+        if parts.is_empty() {
+            return format!(
+                r#"/// The {} query for {} (empty - no {} available).
+pub const {}: &str = "";
+
+"#,
+                query_type, config.name, query_type, const_name
+            );
+        }
+
+        if parts.len() == 1 {
+            format!(
+                r#"/// The {} query for {}.
+pub const {}: &str = {};
+
+"#,
+                query_type, config.name, const_name, parts[0]
+            )
+        } else {
+            // Use concat! for multiple parts
+            let concat_parts = parts.join(",\n    \"\\n\",\n    ");
+            format!(
+                r#"/// The {} query for {}.
+pub const {}: &str = concat!(
+    {},
+);
+
+"#,
+                query_type, config.name, const_name, concat_parts
+            )
+        }
     };
 
-    if config.has_highlights {
-        output.push_str(&format!(
-            r#"/// The highlight query for {}.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("{}highlights.scm");
-
-"#,
-            config.name, query_prefix,
-        ));
-    } else {
-        output.push_str(&format!(
-            r#"/// The highlight query for {} (empty - no highlights available).
-pub const HIGHLIGHTS_QUERY: &str = "";
-
-"#,
-            config.name,
-        ));
-    }
-
-    if config.has_injections {
-        output.push_str(&format!(
-            r#"/// The injections query for {}.
-pub const INJECTIONS_QUERY: &str = include_str!("{}injections.scm");
-
-"#,
-            config.name, query_prefix,
-        ));
-    } else {
-        output.push_str(&format!(
-            r#"/// The injections query for {} (empty - no injections available).
-pub const INJECTIONS_QUERY: &str = "";
-
-"#,
-            config.name,
-        ));
-    }
-
-    if config.has_locals {
-        output.push_str(&format!(
-            r#"/// The locals query for {}.
-pub const LOCALS_QUERY: &str = include_str!("{}locals.scm");
-
-"#,
-            config.name, query_prefix,
-        ));
-    } else {
-        output.push_str(&format!(
-            r#"/// The locals query for {} (empty - no locals available).
-pub const LOCALS_QUERY: &str = "";
-
-"#,
-            config.name,
-        ));
-    }
+    output.push_str(&generate_query_const("highlights", config.has_highlights));
+    output.push_str(&generate_query_const("injections", config.has_injections));
+    output.push_str(&generate_query_const("locals", config.has_locals));
 
     // Tests
     output.push_str(&format!(
@@ -2577,59 +2644,6 @@ fn format_size(bytes: usize) -> String {
 // Demo generation
 // =============================================================================
 
-/// Mapping from file extension to language ID
-fn extension_to_lang_id(ext: &str) -> Option<&'static str> {
-    match ext {
-        "rs" => Some("rust"),
-        "js" => Some("javascript"),
-        "ts" => Some("typescript"),
-        "py" => Some("python"),
-        "rb" => Some("ruby"),
-        "go" => Some("go"),
-        "java" => Some("java"),
-        "c" => Some("c"),
-        "cpp" => Some("cpp"),
-        "h" => Some("c"),
-        "hpp" => Some("cpp"),
-        "cs" => Some("c-sharp"),
-        "fs" => Some("fsharp"),
-        "hs" => Some("haskell"),
-        "lua" => Some("lua"),
-        "php" => Some("php"),
-        "sh" => Some("bash"),
-        "bash" => Some("bash"),
-        "zsh" => Some("bash"),
-        "html" => Some("html"),
-        "css" => Some("css"),
-        "scss" => Some("scss"),
-        "json" => Some("json"),
-        "yaml" => Some("yaml"),
-        "yml" => Some("yaml"),
-        "toml" => Some("toml"),
-        "xml" => Some("xml"),
-        "sql" => Some("sql"),
-        "md" => Some("markdown"),
-        "scala" => Some("scala"),
-        "swift" => Some("swift"),
-        "kt" => Some("kotlin"),
-        "dart" => Some("dart"),
-        "ex" => Some("elixir"),
-        "exs" => Some("elixir"),
-        "clj" => Some("clojure"),
-        "elm" => Some("elm"),
-        "zig" => Some("zig"),
-        "nix" => Some("nix"),
-        "diff" => Some("diff"),
-        "dockerfile" => Some("dockerfile"),
-        "ini" => Some("ini"),
-        "meson" => Some("meson"),
-        "vb" => Some("vb"),
-        "asm" => Some("asm"),
-        "gleam" => Some("gleam"),
-        _ => None,
-    }
-}
-
 /// Escape a string for use in a JavaScript string literal
 fn escape_for_js(s: &str) -> String {
     let mut result = String::with_capacity(s.len() + 32);
@@ -2857,73 +2871,72 @@ fn generate_demo() {
     let template_path = demo_dir.join("template.html");
     let app_js_path = demo_dir.join("app.js");
     let styles_css_path = demo_dir.join("styles.css");
-    let lang_info_path = demo_dir.join("language-info.json");
-    let examples_dir = demo_dir.join("examples");
     let output_html = demo_dir.join("index.html");
     let output_js = demo_dir.join("pkg").join("app.generated.js");
 
     println!("Generating demo files...\n");
 
-    // Step 1: Read language-info.json
-    println!("  Reading language-info.json...");
-    let lang_info_str = match fs::read_to_string(&lang_info_path) {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("Error reading language-info.json: {}", e);
-            std::process::exit(1);
-        }
-    };
-    let mut lang_info: Value = match serde_json::from_str(&lang_info_str) {
-        Ok(v) => v,
-        Err(e) => {
-            eprintln!("Error parsing language-info.json: {}", e);
-            std::process::exit(1);
-        }
-    };
-
-    // Step 1b: Merge sample metadata from info.toml files and collect sample paths
-    println!("  Merging sample metadata from info.toml files...");
+    // Step 1: Build language info from info.toml files
+    println!("  Reading language info from info.toml files...");
     let crates_dir = repo_root.join("crates");
+    let mut lang_info: serde_json::Map<String, Value> = serde_json::Map::new();
     let mut crate_samples: BTreeMap<String, PathBuf> = BTreeMap::new(); // lang_id -> sample file path
 
-    if let Some(lang_obj) = lang_info.as_object_mut() {
-        for (lang_id, info) in lang_obj.iter_mut() {
-            let crate_dir = crates_dir.join(format!("arborium-{}", lang_id));
-            let info_toml = crate_dir.join("info.toml");
-            if info_toml.exists() {
-                if let Ok(content) = fs::read_to_string(&info_toml) {
-                    if let Some(sample_info) = parse_sample_info(&content) {
-                        // Store sample path for later
-                        if let Some(ref path) = sample_info.path {
-                            let sample_path = crate_dir.join(path);
+    // Find all arborium-* crates
+    if let Ok(entries) = fs::read_dir(&crates_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.is_dir() {
+                continue;
+            }
+            let dir_name = path.file_name().unwrap().to_string_lossy();
+            if !dir_name.starts_with("arborium-") {
+                continue;
+            }
+            let lang_id = dir_name.strip_prefix("arborium-").unwrap().to_string();
+
+            let info_toml = path.join("info.toml");
+            if !info_toml.exists() {
+                continue;
+            }
+
+            if let Ok(content) = fs::read_to_string(&info_toml) {
+                // Parse language info
+                if let Some(language_info) = config::parse_language_info(&content) {
+                    // Parse sample info
+                    let sample_info = config::parse_sample_info(&content);
+
+                    // Store sample path for later
+                    if let Some(ref sample) = sample_info {
+                        if let Some(ref sample_path_str) = sample.path {
+                            let sample_path = path.join(sample_path_str);
                             if sample_path.exists() {
                                 crate_samples.insert(lang_id.clone(), sample_path);
                             }
                         }
-                        // Add metadata to lang_info (without the path)
-                        if let Some(json) = sample_info_to_json(&sample_info) {
-                            if let Some(info_obj) = info.as_object_mut() {
-                                info_obj.insert("sample".to_string(), json);
-                            }
-                        }
                     }
+
+                    // Convert to JSON
+                    let json = config::language_info_to_json(&language_info, sample_info.as_ref());
+                    lang_info.insert(lang_id.clone(), json);
                 }
             }
         }
     }
-    // Re-serialize with merged sample data
-    let lang_info_str = serde_json::to_string(&lang_info).expect("Failed to serialize lang_info");
+    println!("    Found {} languages", lang_info.len());
+
+    // Serialize language info
+    let lang_info_value = Value::Object(lang_info.clone());
+    let lang_info_str = serde_json::to_string(&lang_info_value).expect("Failed to serialize lang_info");
 
     // Step 2: Collect all unique icon names
     println!("  Collecting icons...");
     let mut icon_names: HashSet<String> = HashSet::new();
 
-    // Add icons from language-info.json
-    if let Some(obj) = lang_info.as_object() {
-        for (_lang_id, info) in obj {
-            if let Some(icon) = info.get("icon").and_then(|i| i.as_str()) {
-                icon_names.insert(icon.to_string());
-            }
+    // Add icons from language info
+    for (_lang_id, info) in &lang_info {
+        if let Some(icon) = info.get("icon").and_then(|i| i.as_str()) {
+            icon_names.insert(icon.to_string());
         }
     }
 
@@ -3011,60 +3024,18 @@ fn generate_demo() {
         let _ = fs::write(&cache_path, cache_json);
     }
 
-    // Step 4: Read example files (prefer crate samples, fall back to demo/examples)
-    println!("  Reading example files...");
+    // Step 4: Read sample files from crates
+    println!("  Reading sample files from crates...");
     let mut examples: BTreeMap<String, String> = BTreeMap::new();
 
-    // First, read samples from crates (these take priority)
-    println!("    Reading {} crate samples...", crate_samples.len());
     for (lang_id, sample_path) in &crate_samples {
         if let Ok(content) = fs::read_to_string(sample_path) {
             let file_name = sample_path.file_name().unwrap().to_string_lossy();
-            println!("      {} {} (from crate)", lang_id, file_name.to_string().dimmed());
+            println!("    {} {}", lang_id, file_name.to_string().dimmed());
             examples.insert(lang_id.clone(), content);
         }
     }
-
-    // Then read demo/examples as fallback for languages without crate samples
-    println!("    Reading fallback examples from demo/examples...");
-    if let Ok(entries) = fs::read_dir(&examples_dir) {
-        for entry in entries.flatten() {
-            let path = entry.path();
-            if !path.is_file() {
-                continue;
-            }
-
-            let file_name = path.file_name().unwrap().to_string_lossy();
-            let stem = path.file_stem().unwrap().to_string_lossy();
-            let ext = path.extension().map(|e| e.to_string_lossy().to_string());
-
-            let lang_id = if stem == "x86asm" {
-                "x86asm".to_string()
-            } else if let Some(ext) = &ext {
-                if let Some(id) = extension_to_lang_id(ext) {
-                    id.to_string()
-                } else {
-                    stem.to_string()
-                }
-            } else {
-                stem.to_string()
-            };
-
-            // Skip if we already have a crate sample for this language
-            if examples.contains_key(&lang_id) {
-                continue;
-            }
-
-            if let Ok(content) = fs::read_to_string(&path) {
-                println!("      {} {} (fallback)", lang_id, file_name.to_string().dimmed());
-                examples.insert(lang_id, content);
-            }
-        }
-    }
-    println!("    Total: {} example files ({} from crates, {} fallbacks)",
-        examples.len(),
-        crate_samples.len(),
-        examples.len().saturating_sub(crate_samples.len()));
+    println!("    Total: {} sample files", examples.len());
 
     // Step 5: Build the icons JavaScript object
     let mut icons_js = String::from("{\n");

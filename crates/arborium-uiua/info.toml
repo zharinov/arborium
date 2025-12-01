@@ -1,4 +1,7 @@
 name = "uiua"
+tag = "code"
+icon = "mdi:alpha-u-box-outline"
+aliases = ["ua"]
 repo = ""
 commit = ""
 license = ""

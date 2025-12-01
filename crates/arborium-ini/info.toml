@@ -1,4 +1,7 @@
 name = "ini"
+tag = "config"
+icon = "mdi:cog-outline"
+aliases = ["conf", "cfg"]
 repo = "https://github.com/justinmk/tree-sitter-ini"
 commit = "bea223734aa9cea2c8793bf9098bd7fdef912f57"
 license = "Apache-2.0"

@@ -1,4 +1,7 @@
 name = "cpp"
+tag = "code"
+icon = "devicon-plain:cplusplus"
+aliases = ["c++", "cxx", "hpp"]
 repo = "https://github.com/tree-sitter/tree-sitter-cpp"
 commit = "12bd6f7e96080d2e70ec51d4068f2f66120dde35"
 license = "MIT"

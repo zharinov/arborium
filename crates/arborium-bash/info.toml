@@ -1,4 +1,7 @@
 name = "bash"
+tag = "shell"
+icon = "devicon-plain:bash"
+aliases = ["sh", "shell"]
 repo = "https://github.com/tree-sitter/tree-sitter-bash"
 commit = "20f55fb9663568f16ebceaac7673d2aa530add46"
 license = "MIT"

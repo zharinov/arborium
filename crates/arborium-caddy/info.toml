@@ -1,4 +1,6 @@
 name = "caddy"
+tag = "config"
+icon = "simple-icons:caddy"
 repo = "https://github.com/Samonitari/tree-sitter-caddy"
 commit = "65b60437983933d00809c8927e7d8a29ca26dfa3"
 license = "MIT"

@@ -1,4 +1,7 @@
 name = "elisp"
+tag = "code"
+icon = "simple-icons:gnuemacs"
+aliases = ["emacs-lisp", "el"]
 repo = ""
 commit = ""
 license = ""

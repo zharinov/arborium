@@ -1,4 +1,7 @@
 name = "asm"
+tag = "code"
+icon = "mdi:memory"
+aliases = ["assembly"]
 repo = "https://github.com/RubixDev/tree-sitter-asm"
 commit = "839741fef4dab5128952334624905c82b40c7133"
 license = "MIT"

@@ -1,4 +1,6 @@
 name = "nix"
+tag = "config"
+icon = "devicon-plain:nixos"
 repo = "https://github.com/nix-community/tree-sitter-nix"
 commit = "bfcb03e6ddccc5a1eb84cea0176096f85a7af333"
 license = "MIT"

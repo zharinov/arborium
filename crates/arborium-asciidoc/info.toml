@@ -1,4 +1,7 @@
 name = "asciidoc"
+tag = "markup"
+icon = "mdi:text-box"
+aliases = ["adoc"]
 repo = ""
 commit = ""
 license = ""

@@ -1,4 +1,6 @@
 name = "swift"
+tag = "code"
+icon = "devicon-plain:swift"
 repo = "https://github.com/alex-pinkus/tree-sitter-swift"
 commit = "78d84ef82c387fceeb6094038da28717ea052e39"
 license = "MIT"

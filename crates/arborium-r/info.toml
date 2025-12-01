@@ -1,4 +1,7 @@
 name = "r"
+tag = "code"
+icon = "devicon-plain:r"
+aliases = ["rlang"]
 repo = "https://github.com/r-lib/tree-sitter-r"
 commit = "0e6ef7741712c09dc3ee6e81c42e919820cc65ef"
 license = "MIT"

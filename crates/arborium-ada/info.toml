@@ -1,4 +1,6 @@
 name = "ada"
+tag = "code"
+icon = "mdi:alpha-a-box-outline"
 repo = ""
 commit = ""
 license = ""

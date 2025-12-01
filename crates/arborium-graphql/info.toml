@@ -1,4 +1,7 @@
 name = "graphql"
+tag = "query"
+icon = "devicon-plain:graphql"
+aliases = ["gql"]
 repo = ""
 commit = ""
 license = ""

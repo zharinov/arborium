@@ -1,4 +1,7 @@
 name = "d"
+tag = "code"
+icon = "mdi:alpha-d-box-outline"
+aliases = ["dlang"]
 repo = ""
 commit = ""
 license = ""

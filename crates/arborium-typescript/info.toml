@@ -1,4 +1,7 @@
 name = "typescript"
+tag = "code"
+icon = "devicon-plain:typescript"
+aliases = ["ts", "tsx", "mts", "cts"]
 repo = "https://github.com/tree-sitter/tree-sitter-typescript"
 commit = "75b3874edb2dc714fb1fd77a32013d0f8699989f"
 license = "MIT"

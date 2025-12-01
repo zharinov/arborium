@@ -1,4 +1,6 @@
 name = "hlsl"
+tag = "code"
+icon = "mdi:cube-outline"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-hlsl"
 commit = "bab9111922d53d43668fabb61869bec51bbcb915"
 license = "MIT"

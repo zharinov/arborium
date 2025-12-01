@@ -1,4 +1,7 @@
 name = "clojure"
+tag = "code"
+icon = "simple-icons:clojure"
+aliases = ["clj"]
 repo = "https://github.com/sogaiu/tree-sitter-clojure"
 commit = "e43eff80d17cf34852dcd92ca5e6986d23a7040f"
 license = "Unlicense"

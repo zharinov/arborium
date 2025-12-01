@@ -1,4 +1,6 @@
 name = "cmake"
+tag = "build"
+icon = "devicon-plain:cmake"
 repo = ""
 commit = ""
 license = ""

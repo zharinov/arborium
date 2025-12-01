@@ -1,4 +1,7 @@
 name = "ocaml"
+tag = "code"
+icon = "devicon-plain:ocaml"
+aliases = ["ml"]
 repo = "https://github.com/tree-sitter/tree-sitter-ocaml"
 commit = "3ef7c00b29e41e3a0c1d18e82ea37c64d72b93fc"
 license = "MIT"

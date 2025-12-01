@@ -1,4 +1,6 @@
 name = "ninja"
+tag = "build"
+icon = "mdi:ninja"
 repo = ""
 commit = ""
 license = ""

@@ -1,4 +1,7 @@
 name = "vim"
+tag = "code"
+icon = "devicon-plain:vim"
+aliases = ["viml", "vimscript"]
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-vim"
 commit = "3dd4747082d1b717b8978211c06ef7b6cd16125b"
 license = "MIT"

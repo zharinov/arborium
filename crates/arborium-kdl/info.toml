@@ -1,4 +1,6 @@
 name = "kdl"
+tag = "config"
+icon = "mdi:file-document-outline"
 repo = ""
 commit = ""
 license = ""

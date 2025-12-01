@@ -1,4 +1,6 @@
 name = "yuri"
+tag = "code"
+icon = "mdi:palette"
 repo = "https://git.gay/yuri/tree-sitter-yuri"
 commit = "local"
 license = "Apache-2.0"

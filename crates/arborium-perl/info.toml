@@ -1,4 +1,7 @@
 name = "perl"
+tag = "code"
+icon = "devicon-plain:perl"
+aliases = ["pl", "pm"]
 repo = "https://github.com/tree-sitter-perl/tree-sitter-perl"
 commit = "ad74e6db234c35d537de9358799a8e0cc4f5dee0"
 license = "MIT"

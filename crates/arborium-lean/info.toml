@@ -1,4 +1,6 @@
 name = "lean"
+tag = "code"
+icon = "mdi:alpha-l-box-outline"
 repo = "https://github.com/Julian/tree-sitter-lean"
 commit = "efe6b87145608d12f5996bd7f0cf6095a0e82261"
 license = "MIT"

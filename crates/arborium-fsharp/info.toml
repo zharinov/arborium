@@ -1,4 +1,7 @@
 name = "fsharp"
+tag = "code"
+icon = "devicon-plain:fsharp"
+aliases = ["fs", "f#"]
 repo = "https://github.com/ionide/tree-sitter-fsharp"
 commit = "5141851c278a99958469eb1736c7afc4ec738e47"
 license = "MIT"

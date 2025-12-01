@@ -1,4 +1,7 @@
 name = "dockerfile"
+tag = "config"
+icon = "devicon-plain:docker"
+aliases = ["docker"]
 repo = "https://github.com/camdencheek/tree-sitter-dockerfile"
 commit = "971acdd908568b4531b0ba28a445bf0bb720aba5"
 license = "MIT"

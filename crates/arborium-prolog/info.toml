@@ -1,4 +1,7 @@
 name = "prolog"
+tag = "code"
+icon = "mdi:head-question"
+aliases = ["pl"]
 repo = "https://codeberg.org/foxy/tree-sitter-prolog"
 commit = "d8d415f6a1cf80ca138524bcc395810b176d40fa"
 license = "MIT"

@@ -1,4 +1,7 @@
 name = "julia"
+tag = "code"
+icon = "devicon-plain:julia"
+aliases = ["jl"]
 repo = ""
 commit = ""
 license = ""

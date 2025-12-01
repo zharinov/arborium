@@ -1,4 +1,7 @@
 name = "c"
+tag = "code"
+icon = "devicon-plain:c"
+aliases = ["h"]
 repo = "https://github.com/tree-sitter/tree-sitter-c"
 commit = "ae19b676b13bdcc13b7665397e6d9b14975473dd"
 license = "MIT"

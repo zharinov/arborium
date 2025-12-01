@@ -1,4 +1,6 @@
 name = "elm"
+tag = "code"
+icon = "devicon-plain:elm"
 repo = "https://github.com/elm-tooling/tree-sitter-elm"
 commit = "d0bec479c0422ed5eb01467790bd3912142fe987"
 license = "MIT"

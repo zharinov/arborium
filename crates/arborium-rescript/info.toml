@@ -1,4 +1,7 @@
 name = "rescript"
+tag = "code"
+icon = "simple-icons:rescript"
+aliases = ["res"]
 repo = "https://github.com/rescript-lang/tree-sitter-rescript"
 commit = "d2df8a285fff95de56a91d2f8152aeceb66f40ef"
 license = "MIT"

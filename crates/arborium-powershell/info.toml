@@ -1,4 +1,7 @@
 name = "powershell"
+tag = "shell"
+icon = "devicon-plain:powershell"
+aliases = ["ps1", "pwsh"]
 repo = "https://github.com/airbus-cert/tree-sitter-powershell"
 commit = "9379c77984af1f3d3d7e3cc5e897de3496725280"
 license = "MIT"

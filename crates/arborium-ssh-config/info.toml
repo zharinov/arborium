@@ -1,4 +1,6 @@
 name = "ssh-config"
+tag = "config"
+icon = "mdi:key-chain"
 repo = ""
 commit = ""
 license = ""

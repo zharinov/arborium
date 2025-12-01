@@ -1,4 +1,7 @@
 name = "ruby"
+tag = "code"
+icon = "devicon-plain:ruby"
+aliases = ["rb"]
 repo = ""
 commit = ""
 license = ""

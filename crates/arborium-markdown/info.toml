@@ -1,4 +1,7 @@
 name = "markdown"
+tag = "markup"
+icon = "simple-icons:markdown"
+aliases = ["md", "mdx"]
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
 commit = "2dfd57f547f06ca5631a80f601e129d73fc8e9f0"
 license = "MIT"

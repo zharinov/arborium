@@ -56,6 +56,20 @@ pub struct SampleInfo {
     pub license: Option<String>,
 }
 
+/// Language metadata parsed from info.toml for the demo
+#[derive(Debug, Default)]
+pub struct LanguageInfo {
+    pub name: String,
+    pub tag: String,
+    pub icon: Option<String>,
+    pub aliases: Vec<String>,
+    pub inventor: Option<String>,
+    pub year: Option<u32>,
+    pub description: Option<String>,
+    pub link: Option<String>,
+    pub trivia: Option<String>,
+}
+
 /// Parse GRAMMARS.toml
 pub fn parse_grammars_toml(repo_root: &Path) -> Result<BTreeMap<String, GrammarConfig>, Box<dyn std::error::Error>> {
     let path = repo_root.join("GRAMMARS.toml");
@@ -344,4 +358,108 @@ pub fn extract_toml_string(line: &str, key: &str) -> Option<String> {
         }
     }
     None
+}
+
+/// Parse LanguageInfo from info.toml content
+pub fn parse_language_info(content: &str) -> Option<LanguageInfo> {
+    let mut info = LanguageInfo::default();
+
+    for line in content.lines() {
+        let line = line.trim();
+
+        // Stop when we hit samples section
+        if line.starts_with("[[") {
+            break;
+        }
+
+        if let Some(value) = extract_toml_string(line, "name") {
+            info.name = value;
+        } else if let Some(value) = extract_toml_string(line, "tag") {
+            info.tag = value;
+        } else if let Some(value) = extract_toml_string(line, "icon") {
+            info.icon = Some(value);
+        } else if let Some(value) = extract_toml_string(line, "inventor") {
+            info.inventor = Some(value);
+        } else if let Some(value) = extract_toml_string(line, "description") {
+            info.description = Some(value);
+        } else if let Some(value) = extract_toml_string(line, "link") {
+            info.link = Some(value);
+        } else if let Some(value) = extract_toml_string(line, "trivia") {
+            info.trivia = Some(value);
+        } else if line.starts_with("year") {
+            if let Some(value) = line.split('=').nth(1) {
+                let value = value.split('#').next().unwrap_or(value).trim();
+                if let Ok(year) = value.parse::<u32>() {
+                    info.year = Some(year);
+                }
+            }
+        } else if line.starts_with("aliases") {
+            // Parse aliases = ["a", "b", "c"]
+            if let Some(value) = line.split('=').nth(1) {
+                let value = value.trim();
+                if value.starts_with('[') && value.ends_with(']') {
+                    let inner = &value[1..value.len()-1];
+                    info.aliases = inner
+                        .split(',')
+                        .map(|s| s.trim().trim_matches('"').trim_matches('\'').to_string())
+                        .filter(|s| !s.is_empty())
+                        .collect();
+                }
+            }
+        }
+    }
+
+    if info.name.is_empty() {
+        None
+    } else {
+        Some(info)
+    }
+}
+
+/// Convert LanguageInfo to JSON for the demo
+pub fn language_info_to_json(info: &LanguageInfo, sample: Option<&SampleInfo>) -> serde_json::Value {
+    let mut obj = serde_json::Map::new();
+
+    obj.insert("name".to_string(), serde_json::Value::String(info.name.clone()));
+    obj.insert("tag".to_string(), serde_json::Value::String(info.tag.clone()));
+
+    if let Some(icon) = &info.icon {
+        obj.insert("icon".to_string(), serde_json::Value::String(icon.clone()));
+    }
+
+    if !info.aliases.is_empty() {
+        let aliases: Vec<serde_json::Value> = info.aliases.iter()
+            .map(|a| serde_json::Value::String(a.clone()))
+            .collect();
+        obj.insert("aliases".to_string(), serde_json::Value::Array(aliases));
+    }
+
+    if let Some(inventor) = &info.inventor {
+        obj.insert("inventor".to_string(), serde_json::Value::String(inventor.clone()));
+    }
+
+    if let Some(year) = info.year {
+        obj.insert("year".to_string(), serde_json::Value::Number(year.into()));
+    }
+
+    if let Some(description) = &info.description {
+        obj.insert("description".to_string(), serde_json::Value::String(description.clone()));
+    }
+
+    if let Some(link) = &info.link {
+        obj.insert("url".to_string(), serde_json::Value::String(link.clone()));
+    }
+
+    if let Some(trivia) = &info.trivia {
+        obj.insert("trivia".to_string(), serde_json::Value::String(trivia.clone()));
+    }
+
+    // Add sample metadata if available
+    if let Some(sample) = sample {
+        if let Some(json) = sample_info_to_json(sample) {
+            obj.insert("sample".to_string(), json);
+        }
+    }
+
+    serde_json::Value::Object(obj)
 }

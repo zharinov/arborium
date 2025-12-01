@@ -1,4 +1,6 @@
 name = "dart"
+tag = "code"
+icon = "devicon-plain:dart"
 repo = "https://github.com/UserNobody14/tree-sitter-dart"
 commit = "d4d8f3e337d8be23be27ffc35a0aef972343cd54"
 license = "MIT"

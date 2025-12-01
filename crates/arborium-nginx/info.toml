@@ -1,4 +1,6 @@
 name = "nginx"
+tag = "config"
+icon = "simple-icons:nginx"
 repo = "https://gitlab.com/joncoole/tree-sitter-nginx"
 commit = "f6d13cf6281b25f2ce342a49a41a10a0381e00f0"
 license = "GPL-3.0"

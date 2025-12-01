@@ -1,4 +1,7 @@
 name = "sql"
+tag = "query"
+icon = "mdi:database-outline"
+aliases = ["mysql", "postgresql", "postgres", "sqlite"]
 repo = "https://github.com/DerekStride/tree-sitter-sql"
 commit = "fe77f6868d6cdea593052a6af390116495093dc1"
 license = "MIT"

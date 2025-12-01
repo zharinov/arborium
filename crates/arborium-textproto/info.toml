@@ -1,4 +1,7 @@
 name = "textproto"
+tag = "data"
+icon = "mdi:message-outline"
+aliases = ["pbtxt", "textpb"]
 repo = ""
 commit = ""
 license = ""

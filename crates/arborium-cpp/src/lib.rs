@@ -14,10 +14,14 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for cpp.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-cpp/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = concat!(
+    include_str!("../queries/inherited-c-highlights.scm"),
+    "\n",
+    include_str!("../queries/highlights.scm"),
+);
 
 /// The injections query for cpp.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-cpp/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for cpp (empty - no locals available).
 pub const LOCALS_QUERY: &str = "";

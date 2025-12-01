@@ -1,4 +1,7 @@
 name = "json"
+tag = "data"
+icon = "mdi:code-json"
+aliases = ["jsonc"]
 repo = "https://github.com/tree-sitter/tree-sitter-json"
 commit = "001c28d7a29832b06b0e831ec77845553c89b56d"
 license = "MIT"

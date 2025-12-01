@@ -1,4 +1,7 @@
 name = "yaml"
+tag = "config"
+icon = "devicon-plain:yaml"
+aliases = ["yml"]
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-yaml"
 commit = "7708026449bed86239b1cd5bce6e3c34dbca6415"
 license = "MIT"

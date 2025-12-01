@@ -1,4 +1,7 @@
 name = "javascript"
+tag = "code"
+icon = "devicon-plain:javascript"
+aliases = ["js", "jsx", "mjs", "cjs"]
 repo = "https://github.com/tree-sitter/tree-sitter-javascript"
 commit = "58404d8cf191d69f2674a8fd507bd5776f46cb11"
 license = "MIT"

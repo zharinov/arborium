@@ -1,4 +1,7 @@
 name = "commonlisp"
+tag = "code"
+icon = "mdi:lambda"
+aliases = ["lisp", "cl"]
 repo = ""
 commit = ""
 license = ""

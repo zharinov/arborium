@@ -1,4 +1,7 @@
 name = "erlang"
+tag = "code"
+icon = "devicon-plain:erlang"
+aliases = ["erl"]
 repo = ""
 commit = ""
 license = ""

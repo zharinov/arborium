@@ -1,4 +1,6 @@
 name = "awk"
+tag = "code"
+icon = "mdi:text-box-outline"
 repo = "https://github.com/Beaglefoot/tree-sitter-awk"
 commit = "34bbdc7cce8e803096f47b625979e34c1be38127"
 license = "MIT"

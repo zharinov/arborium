@@ -1,4 +1,7 @@
 name = "hcl"
+tag = "config"
+icon = "devicon-plain:terraform"
+aliases = ["terraform", "tf"]
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-hcl"
 commit = "fad991865fee927dd1de5e172fb3f08ac674d914"
 license = "Apache-2.0"

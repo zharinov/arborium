@@ -1,4 +1,7 @@
 name = "rust"
+tag = "code"
+icon = "devicon-plain:rust"
+aliases = ["rs"]
 repo = "https://codeberg.org/grammar-orchard/tree-sitter-rust-orchard"
 commit = "261b20226c04ef601adbdf185a800512a5f66291"
 license = "MIT"

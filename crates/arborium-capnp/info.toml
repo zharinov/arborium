@@ -1,4 +1,6 @@
 name = "capnp"
+tag = "data"
+icon = "mdi:message-fast-outline"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-capnp"
 commit = "7b0883c03e5edd34ef7bcf703194204299d7099f"
 license = "MIT"

@@ -1,4 +1,6 @@
 name = "dot"
+tag = "data"
+icon = "mdi:graph"
 repo = ""
 commit = ""
 license = ""

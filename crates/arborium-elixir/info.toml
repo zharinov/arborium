@@ -1,4 +1,7 @@
 name = "elixir"
+tag = "code"
+icon = "devicon-plain:elixir"
+aliases = ["ex", "exs"]
 repo = "https://github.com/elixir-lang/tree-sitter-elixir"
 commit = "d24cecee673c4c770f797bac6f87ae4b6d7ddec5"
 license = "Apache-2.0"

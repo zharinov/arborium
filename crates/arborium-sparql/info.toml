@@ -1,4 +1,7 @@
 name = "sparql"
+tag = "query"
+icon = "mdi:graph-outline"
+aliases = ["rq"]
 repo = ""
 commit = ""
 license = ""

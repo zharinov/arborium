@@ -1,4 +1,6 @@
 name = "fish"
+tag = "shell"
+icon = "mdi:fish"
 repo = ""
 commit = ""
 license = ""

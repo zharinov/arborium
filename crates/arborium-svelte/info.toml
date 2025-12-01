@@ -1,4 +1,6 @@
 name = "svelte"
+tag = "markup"
+icon = "devicon-plain:svelte"
 repo = "https://github.com/tree-sitter-grammars/tree-sitter-svelte"
 commit = "ae5199db47757f785e43a14b332118a5474de1a2"
 license = "MIT"

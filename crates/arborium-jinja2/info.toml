@@ -1,4 +1,7 @@
 name = "jinja2"
+tag = "markup"
+icon = "mdi:code-braces"
+aliases = ["jinja", "j2"]
 repo = "https://github.com/dbt-labs/tree-sitter-jinja2"
 commit = "922b28e1352c4966418b2e7e3772e0583d4532a2"
 license = "GPL-3.0"

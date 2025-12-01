@@ -1,4 +1,7 @@
 name = "vhdl"
+tag = "code"
+icon = "mdi:chip"
+aliases = ["vhd"]
 repo = "https://github.com/alemuller/tree-sitter-vhdl"
 commit = "a3b2d84990527c7f8f4ae219c332c00c33d2d8e5"
 license = "MIT"

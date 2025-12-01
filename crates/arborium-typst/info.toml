@@ -1,4 +1,7 @@
 name = "typst"
+tag = "markup"
+icon = "simple-icons:typst"
+aliases = ["typ"]
 repo = ""
 commit = ""
 license = ""

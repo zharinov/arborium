@@ -1,4 +1,7 @@
 name = "idris"
+tag = "code"
+icon = "mdi:alpha-i-box-outline"
+aliases = ["idr"]
 repo = "https://github.com/kayhide/tree-sitter-idris"
 commit = "c56a25cf57c68ff929356db25505c1cc4c7820f6"
 license = "MIT"
