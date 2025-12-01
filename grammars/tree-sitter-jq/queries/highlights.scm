@@ -11,10 +11,10 @@
 ; Numbers
 (number) @number
 
-; Keywords
+; Keywords (grammar has a 'keyword' node type)
 (keyword) @keyword
 
-; Built-in keywords
+; Built-in keywords (anonymous tokens)
 [
   "if"
   "then"
@@ -29,15 +29,16 @@
   "catch"
   "and"
   "or"
-  "not"
   "import"
   "include"
   "module"
+  "label"
+  "break"
 ] @keyword
 
 ; Function definitions
 (funcdef
-  (funcname) @function.definition)
+  (identifier) @function.definition)
 
 ; Function names in calls
 (funcname) @function.call
@@ -60,14 +61,6 @@
 ; Module/import
 (import_) @keyword.import
 (moduleheader) @keyword.import
-
-; Binding (as pattern)
-(binding) @variable
-
-; Patterns
-(objectpattern) @variable
-(objectpatterns) @variable
-(arraypatterns) @variable
 
 ; Operators
 [
@@ -94,7 +87,6 @@
   "//="
   "?"
   "."
-  ".."
 ] @operator
 
 ; Punctuation
@@ -113,7 +105,7 @@
   ","
 ] @punctuation.delimiter
 
-; Special values
+; Special values (anonymous tokens)
 [
   "null"
   "true"

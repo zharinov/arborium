@@ -1,0 +1,760 @@
+import init, { highlight, supported_languages, highlight_names } from './arborium_demo.js';
+
+// Language metadata will be injected by generate-demo
+// {{LANGUAGE_INFO}}
+
+// Examples will be injected by generate-demo
+const examples = {{EXAMPLES}};
+
+// Icons will be injected by generate-demo (SVG strings keyed by iconify name)
+const icons = {{ICONS}};
+
+let wasmLoaded = false;
+let allLanguages = [];
+let selectedLang = null;
+let highlightedIndex = 0;
+
+// Language picker elements
+const langPicker = document.getElementById('lang-picker');
+const langLabel = document.getElementById('lang-label');
+const langInput = document.getElementById('lang-input');
+const langDropdown = document.getElementById('lang-dropdown');
+
+// Get icon SVG for a language
+function getIconSvg(id) {
+    const info = languageInfo[id];
+    const iconName = info?.icon;
+    if (iconName && icons[iconName]) {
+        return icons[iconName];
+    }
+    // Fallback icon
+    return icons['mdi:code-tags'] || '';
+}
+
+// Fuzzy match function
+function fuzzyMatch(pattern, text) {
+    pattern = pattern.toLowerCase();
+    text = text.toLowerCase();
+
+    let patternIdx = 0;
+    let textIdx = 0;
+    let matchPositions = [];
+
+    while (patternIdx < pattern.length && textIdx < text.length) {
+        if (pattern[patternIdx] === text[textIdx]) {
+            matchPositions.push(textIdx);
+            patternIdx++;
+        }
+        textIdx++;
+    }
+
+    return patternIdx === pattern.length ? matchPositions : null;
+}
+
+// Highlight matched characters
+function highlightMatches(text, positions) {
+    if (!positions || positions.length === 0) return text;
+
+    let result = '';
+    let lastPos = 0;
+
+    for (const pos of positions) {
+        result += text.slice(lastPos, pos);
+        result += `<span class="match-highlight">${text[pos]}</span>`;
+        lastPos = pos + 1;
+    }
+    result += text.slice(lastPos);
+
+    return result;
+}
+
+// Filter and render languages
+function filterLanguages(query) {
+    const filtered = [];
+
+    for (const id of allLanguages) {
+        const info = languageInfo[id] || { name: id, tag: 'code' };
+        const name = info.name;
+        const tag = info.tag;
+        const aliases = info.aliases || [];
+
+        // Match against id, name, tag, or aliases
+        const idMatch = fuzzyMatch(query, id);
+        const nameMatch = fuzzyMatch(query, name);
+        const tagMatch = query && tag.toLowerCase().includes(query.toLowerCase());
+        // Check aliases - find best alias match
+        let aliasMatch = null;
+        for (const alias of aliases) {
+            const match = fuzzyMatch(query, alias);
+            if (match && (!aliasMatch || match.length < aliasMatch.length)) {
+                aliasMatch = match;
+            }
+        }
+
+        if (!query || idMatch || nameMatch || tagMatch || aliasMatch) {
+            // Calculate score - prefer exact alias matches
+            let score = 200;
+            if (nameMatch) score = nameMatch.length;
+            else if (aliasMatch) score = aliasMatch.length + 50; // Slightly deprioritize aliases
+            else if (idMatch) score = idMatch.length + 100;
+
+            filtered.push({
+                id,
+                name,
+                tag,
+                aliases,
+                idMatch,
+                nameMatch,
+                aliasMatch,
+                score
+            });
+        }
+    }
+
+    // Sort by match quality
+    filtered.sort((a, b) => a.score - b.score);
+
+    return filtered;
+}
+
+// Render dropdown
+function renderDropdown(languages) {
+    if (languages.length === 0) {
+        langDropdown.innerHTML = '<div class="lang-dropdown-empty">No languages found</div>';
+        return;
+    }
+
+    langDropdown.innerHTML = languages.map((lang, idx) => {
+        const info = languageInfo[lang.id] || { name: lang.id, tag: 'code' };
+        const nameHtml = lang.nameMatch
+            ? highlightMatches(info.name, lang.nameMatch)
+            : info.name;
+        const idHtml = lang.idMatch
+            ? highlightMatches(lang.id, lang.idMatch)
+            : lang.id;
+
+        // Show first alias if any
+        const aliases = info.aliases || [];
+        const aliasesHtml = aliases.length > 0
+            ? `<span class="lang-aliases">${aliases[0]}</span>`
+            : '';
+
+        const isSelected = selectedLang === lang.id;
+        const isHighlighted = idx === highlightedIndex;
+        const iconSvg = getIconSvg(lang.id);
+
+        return `
+            <div class="lang-option ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}"
+                 data-id="${lang.id}" data-index="${idx}">
+                <span class="lang-icon">${iconSvg}</span>
+                <span class="lang-name">${nameHtml}</span>
+                <span class="lang-id">${idHtml}</span>
+                ${aliasesHtml}
+                <span class="tag tag-${info.tag}">${info.tag}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// Update the rich label display
+function updateLabel(id) {
+    const info = languageInfo[id] || { name: id, tag: 'code' };
+    const iconSvg = getIconSvg(id);
+    langLabel.innerHTML = `
+        <span class="lang-icon">${iconSvg}</span>
+        <span class="lang-name">${info.name}</span>
+        <span class="lang-id">${id}</span>
+        <span class="tag tag-${info.tag}">${info.tag}</span>
+    `;
+
+    // Update language info panel
+    updateLangInfoPanel(id);
+
+    // Update watermark
+    updateWatermark(id);
+}
+
+// Update watermark icon in editor
+function updateWatermark(id) {
+    let watermark = document.querySelector('.lang-watermark');
+    if (!watermark) {
+        watermark = document.createElement('div');
+        watermark.className = 'lang-watermark';
+        document.querySelector('.editor-wrapper').appendChild(watermark);
+    }
+    watermark.innerHTML = getIconSvg(id);
+}
+
+// Update language info panel with metadata
+function updateLangInfoPanel(id) {
+    const info = languageInfo[id];
+    const panel = document.getElementById('lang-info-panel');
+    if (!panel || !info) return;
+
+    // Only show panel if we have interesting metadata
+    if (!info.description && !info.trivia && !info.inventor) {
+        panel.classList.remove('visible');
+        return;
+    }
+
+    const iconSvg = getIconSvg(id);
+
+    let metaHtml = '';
+    if (info.inventor) {
+        metaHtml += `<span>Created by ${info.inventor}</span>`;
+    }
+    if (info.year) {
+        metaHtml += `<span>${info.year}</span>`;
+    }
+    if (info.wikipedia) {
+        metaHtml += `<a href="${info.wikipedia}" target="_blank" rel="noopener">Wikipedia</a>`;
+    }
+
+    panel.innerHTML = `
+        <div class="lang-info-header">
+            <span class="lang-icon">${iconSvg}</span>
+            <span class="lang-name">${info.name}</span>
+        </div>
+        ${metaHtml ? `<div class="lang-info-meta">${metaHtml}</div>` : ''}
+        ${info.description ? `<div class="lang-info-description">${info.description}</div>` : ''}
+        ${info.trivia ? `<div class="lang-info-trivia">${info.trivia}</div>` : ''}
+    `;
+    panel.classList.add('visible');
+}
+
+// Enter search mode
+function enterSearchMode() {
+    langPicker.classList.add('searching');
+    langInput.value = '';
+    highlightedIndex = 0;
+    const filtered = filterLanguages('');
+    renderDropdown(filtered);
+    langDropdown.classList.add('open');
+    langInput.focus();
+}
+
+// Exit search mode
+function exitSearchMode() {
+    langPicker.classList.remove('searching');
+    langDropdown.classList.remove('open');
+    langInput.blur();
+}
+
+// Preview a language (without committing selection)
+function previewLanguage(id) {
+    // Load example if available and re-highlight
+    const sourceEl = document.getElementById('source');
+    if (examples[id]) {
+        sourceEl.value = examples[id];
+    }
+    // Temporarily highlight with this language
+    if (wasmLoaded) {
+        const source = sourceEl.value;
+        const output = document.getElementById('output');
+        if (source) {
+            try {
+                const html = highlight(id, source);
+                output.innerHTML = html;
+            } catch (e) {
+                // Ignore errors during preview
+            }
+        }
+    }
+}
+
+// Select a language
+function selectLanguage(id) {
+    selectedLang = id;
+    updateLabel(id);
+    exitSearchMode();
+
+    // Load example if available
+    if (examples[id]) {
+        document.getElementById('source').value = examples[id];
+    }
+
+    doHighlight();
+}
+
+// Event handlers
+langLabel.addEventListener('click', () => {
+    enterSearchMode();
+});
+
+langInput.addEventListener('input', () => {
+    highlightedIndex = 0;
+    const filtered = filterLanguages(langInput.value);
+    renderDropdown(filtered);
+});
+
+langInput.addEventListener('keydown', (e) => {
+    const filtered = filterLanguages(langInput.value);
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        highlightedIndex = Math.min(highlightedIndex + 1, filtered.length - 1);
+        renderDropdown(filtered);
+        scrollToHighlighted();
+        // Preview the highlighted language
+        if (filtered[highlightedIndex]) {
+            previewLanguage(filtered[highlightedIndex].id);
+        }
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        highlightedIndex = Math.max(highlightedIndex - 1, 0);
+        renderDropdown(filtered);
+        scrollToHighlighted();
+        // Preview the highlighted language
+        if (filtered[highlightedIndex]) {
+            previewLanguage(filtered[highlightedIndex].id);
+        }
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (highlightedIndex >= 0 && highlightedIndex < filtered.length) {
+            selectLanguage(filtered[highlightedIndex].id);
+        } else if (filtered.length > 0) {
+            selectLanguage(filtered[0].id);
+        }
+    } else if (e.key === 'Escape') {
+        // Restore the previously selected language
+        if (selectedLang) {
+            previewLanguage(selectedLang);
+        }
+        exitSearchMode();
+    }
+});
+
+langInput.addEventListener('blur', () => {
+    // Small delay to allow click events on dropdown to fire
+    setTimeout(() => {
+        if (!langDropdown.matches(':hover')) {
+            // Restore the previously selected language
+            if (selectedLang) {
+                previewLanguage(selectedLang);
+            }
+            exitSearchMode();
+        }
+    }, 150);
+});
+
+function scrollToHighlighted() {
+    const highlighted = langDropdown.querySelector('.highlighted');
+    if (highlighted) {
+        highlighted.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+langDropdown.addEventListener('click', (e) => {
+    const option = e.target.closest('.lang-option');
+    if (option) {
+        selectLanguage(option.dataset.id);
+    }
+});
+
+langDropdown.addEventListener('mouseover', (e) => {
+    const option = e.target.closest('.lang-option');
+    if (option) {
+        // Update highlighting without re-rendering (to preserve icons)
+        const newIndex = parseInt(option.dataset.index, 10);
+        if (newIndex !== highlightedIndex) {
+            // Remove old highlight
+            const oldHighlighted = langDropdown.querySelector('.highlighted');
+            if (oldHighlighted) oldHighlighted.classList.remove('highlighted');
+            // Add new highlight
+            option.classList.add('highlighted');
+            highlightedIndex = newIndex;
+        }
+        // Preview the hovered language
+        previewLanguage(option.dataset.id);
+    }
+});
+
+// Theme metadata: id -> { name, variant }
+const themeInfo = {
+    'mocha': { name: 'Catppuccin Mocha', variant: 'dark' },
+    'macchiato': { name: 'Catppuccin Macchiato', variant: 'dark' },
+    'frappe': { name: 'Catppuccin Frappe', variant: 'dark' },
+    'latte': { name: 'Catppuccin Latte', variant: 'light' },
+    'tokyo-night': { name: 'Tokyo Night', variant: 'dark' },
+    'dracula': { name: 'Dracula', variant: 'dark' },
+    'monokai': { name: 'Monokai Pro', variant: 'dark' },
+    'github-dark': { name: 'GitHub Dark', variant: 'dark' },
+    'github-light': { name: 'GitHub Light', variant: 'light' },
+    'one-dark': { name: 'One Dark', variant: 'dark' },
+    'melange-dark': { name: 'Melange Dark', variant: 'dark' },
+    'melange-light': { name: 'Melange Light', variant: 'light' },
+};
+
+const allThemes = Object.keys(themeInfo);
+let selectedTheme = null;
+let themeHighlightedIndex = 0;
+
+// Mode toggle (dark/light filter)
+let currentMode = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+const modeDarkBtn = document.getElementById('mode-dark');
+const modeLightBtn = document.getElementById('mode-light');
+
+// Theme pairs: dark <-> light counterparts
+const themePairs = {
+    // Catppuccin family - all dark variants map to latte
+    'mocha': 'latte',
+    'macchiato': 'latte',
+    'frappe': 'latte',
+    'latte': 'mocha', // latte goes to mocha (the default dark)
+    // GitHub
+    'github-dark': 'github-light',
+    'github-light': 'github-dark',
+    // Melange
+    'melange-dark': 'melange-light',
+    'melange-light': 'melange-dark',
+};
+
+function setMode(mode) {
+    currentMode = mode;
+    modeDarkBtn.classList.toggle('active', mode === 'dark');
+    modeLightBtn.classList.toggle('active', mode === 'light');
+    localStorage.setItem('arborium-mode', mode);
+
+    // If current theme doesn't match mode, switch to paired theme or fallback
+    if (selectedTheme && themeInfo[selectedTheme].variant !== mode) {
+        const pairedTheme = themePairs[selectedTheme];
+        if (pairedTheme && themeInfo[pairedTheme].variant === mode) {
+            selectTheme(pairedTheme);
+        } else {
+            // Fallback to first theme of that mode
+            const firstThemeOfMode = allThemes.find(id => themeInfo[id].variant === mode);
+            if (firstThemeOfMode) {
+                selectTheme(firstThemeOfMode);
+            }
+        }
+    }
+}
+
+modeDarkBtn.addEventListener('click', () => setMode('dark'));
+modeLightBtn.addEventListener('click', () => setMode('light'));
+
+// Theme picker elements
+const themePicker = document.getElementById('theme-picker');
+const themeLabel = document.getElementById('theme-label');
+const themeInput = document.getElementById('theme-input');
+const themeDropdown = document.getElementById('theme-dropdown');
+
+// Filter and render themes
+function filterThemes(query) {
+    const filtered = [];
+
+    for (const id of allThemes) {
+        const info = themeInfo[id];
+        const name = info.name;
+        const variant = info.variant;
+
+        // Filter by current mode (dark/light)
+        if (variant !== currentMode) continue;
+
+        // Match against id, name, or variant
+        const idMatch = fuzzyMatch(query, id);
+        const nameMatch = fuzzyMatch(query, name);
+        const variantMatch = query && variant.toLowerCase().includes(query.toLowerCase());
+
+        if (!query || idMatch || nameMatch || variantMatch) {
+            filtered.push({
+                id,
+                name,
+                variant,
+                idMatch,
+                nameMatch,
+                score: nameMatch ? nameMatch.length : (idMatch ? idMatch.length + 100 : 200)
+            });
+        }
+    }
+
+    // Sort by match quality
+    filtered.sort((a, b) => a.score - b.score);
+
+    return filtered;
+}
+
+// Render theme dropdown
+function renderThemeDropdown(themes) {
+    if (themes.length === 0) {
+        themeDropdown.innerHTML = '<div class="theme-dropdown-empty">No themes found</div>';
+        return;
+    }
+
+    themeDropdown.innerHTML = themes.map((theme, idx) => {
+        const nameHtml = theme.nameMatch
+            ? highlightMatches(theme.name, theme.nameMatch)
+            : theme.name;
+
+        const isSelected = selectedTheme === theme.id;
+        const isHighlighted = idx === themeHighlightedIndex;
+
+        return `
+            <div class="theme-option ${isSelected ? 'selected' : ''} ${isHighlighted ? 'highlighted' : ''}"
+                 data-id="${theme.id}" data-index="${idx}">
+                <span class="theme-name-text">${nameHtml}</span>
+                <span class="tag tag-${theme.variant}">${theme.variant}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// Update theme label display
+function updateThemeLabel(id) {
+    const info = themeInfo[id];
+    themeLabel.innerHTML = `
+        <span class="theme-name">${info.name}</span>
+        <span class="tag tag-${info.variant}">${info.variant}</span>
+    `;
+}
+
+// Enter theme search mode
+function enterThemeSearchMode() {
+    themePicker.classList.add('searching');
+    themeInput.value = '';
+    themeHighlightedIndex = 0;
+    const filtered = filterThemes('');
+    renderThemeDropdown(filtered);
+    themeDropdown.classList.add('open');
+    themeInput.focus();
+}
+
+// Exit theme search mode
+function exitThemeSearchMode() {
+    themePicker.classList.remove('searching');
+    themeDropdown.classList.remove('open');
+    themeInput.blur();
+}
+
+// Preview a theme (without committing selection)
+function previewTheme(id) {
+    document.documentElement.dataset.theme = id;
+}
+
+// Select a theme
+function selectTheme(id) {
+    selectedTheme = id;
+    updateThemeLabel(id);
+    exitThemeSearchMode();
+    document.documentElement.dataset.theme = id;
+    localStorage.setItem('arborium-theme', id);
+}
+
+// Theme event handlers
+themeLabel.addEventListener('click', () => {
+    enterThemeSearchMode();
+});
+
+themeInput.addEventListener('input', () => {
+    themeHighlightedIndex = 0;
+    const filtered = filterThemes(themeInput.value);
+    renderThemeDropdown(filtered);
+});
+
+themeInput.addEventListener('keydown', (e) => {
+    const filtered = filterThemes(themeInput.value);
+
+    if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        themeHighlightedIndex = Math.min(themeHighlightedIndex + 1, filtered.length - 1);
+        renderThemeDropdown(filtered);
+        scrollToThemeHighlighted();
+        // Preview the highlighted theme
+        if (filtered[themeHighlightedIndex]) {
+            previewTheme(filtered[themeHighlightedIndex].id);
+        }
+    } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        themeHighlightedIndex = Math.max(themeHighlightedIndex - 1, 0);
+        renderThemeDropdown(filtered);
+        scrollToThemeHighlighted();
+        // Preview the highlighted theme
+        if (filtered[themeHighlightedIndex]) {
+            previewTheme(filtered[themeHighlightedIndex].id);
+        }
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (themeHighlightedIndex >= 0 && themeHighlightedIndex < filtered.length) {
+            selectTheme(filtered[themeHighlightedIndex].id);
+        } else if (filtered.length > 0) {
+            selectTheme(filtered[0].id);
+        }
+    } else if (e.key === 'Escape') {
+        // Restore the previously selected theme
+        if (selectedTheme) {
+            previewTheme(selectedTheme);
+        }
+        exitThemeSearchMode();
+    }
+});
+
+themeInput.addEventListener('blur', () => {
+    setTimeout(() => {
+        if (!themeDropdown.matches(':hover')) {
+            // Restore the previously selected theme
+            if (selectedTheme) {
+                previewTheme(selectedTheme);
+            }
+            exitThemeSearchMode();
+        }
+    }, 150);
+});
+
+function scrollToThemeHighlighted() {
+    const highlighted = themeDropdown.querySelector('.highlighted');
+    if (highlighted) {
+        highlighted.scrollIntoView({ block: 'nearest' });
+    }
+}
+
+themeDropdown.addEventListener('click', (e) => {
+    const option = e.target.closest('.theme-option');
+    if (option) {
+        selectTheme(option.dataset.id);
+    }
+});
+
+themeDropdown.addEventListener('mouseover', (e) => {
+    const option = e.target.closest('.theme-option');
+    if (option) {
+        // Update highlighting without re-rendering
+        const newIndex = parseInt(option.dataset.index, 10);
+        if (newIndex !== themeHighlightedIndex) {
+            // Remove old highlight
+            const oldHighlighted = themeDropdown.querySelector('.highlighted');
+            if (oldHighlighted) oldHighlighted.classList.remove('highlighted');
+            // Add new highlight
+            option.classList.add('highlighted');
+            themeHighlightedIndex = newIndex;
+        }
+        // Preview the hovered theme
+        previewTheme(option.dataset.id);
+    }
+});
+
+// Initialize mode and theme
+const savedMode = localStorage.getItem('arborium-mode');
+const savedTheme = localStorage.getItem('arborium-theme');
+
+// Set mode first (from saved, or from system preference)
+if (savedMode) {
+    setMode(savedMode);
+} else {
+    setMode(currentMode); // Uses system preference detected earlier
+}
+
+// Then set theme (if saved theme matches current mode, use it; otherwise use default for mode)
+if (savedTheme && themeInfo[savedTheme] && themeInfo[savedTheme].variant === currentMode) {
+    selectTheme(savedTheme);
+} else {
+    // Pick first theme matching current mode
+    const defaultTheme = currentMode === 'dark' ? 'mocha' : 'latte';
+    selectTheme(defaultTheme);
+}
+
+async function initialize() {
+    try {
+        await init();
+        wasmLoaded = true;
+
+        allLanguages = supported_languages();
+        document.getElementById('lang-count').textContent = `${allLanguages.length} languages`;
+
+        // Select Rust by default
+        if (allLanguages.includes('rust')) {
+            selectLanguage('rust');
+        } else if (allLanguages.length > 0) {
+            selectLanguage(allLanguages[0]);
+        }
+
+        updateStatus('WASM module loaded successfully', true);
+
+    } catch (error) {
+        document.getElementById('output').innerHTML = `<span class="error">Failed to load WASM: ${error}</span>`;
+        updateStatus('Failed to load WASM module', false);
+    }
+}
+
+function doHighlight() {
+    if (!wasmLoaded || !selectedLang) return;
+
+    const source = document.getElementById('source').value;
+    const output = document.getElementById('output');
+
+    if (!source) {
+        output.innerHTML = '<span class="loading">Enter some code to highlight</span>';
+        return;
+    }
+
+    try {
+        const start = performance.now();
+        const html = highlight(selectedLang, source);
+        const elapsed = (performance.now() - start).toFixed(2);
+
+        output.innerHTML = html;
+        updateStatus(`Highlighted ${source.length} chars in ${elapsed}ms`, true);
+    } catch (error) {
+        output.innerHTML = `<span class="error">${error}</span>`;
+        updateStatus('Highlighting failed', false);
+    }
+}
+
+function updateStatus(message, success) {
+    const status = document.getElementById('status');
+    status.textContent = message;
+    status.className = success ? 'status success' : 'status';
+}
+
+function formatBytes(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+async function loadBundleInfo() {
+    try {
+        const response = await fetch('/bundle-info.json');
+        const info = await response.json();
+        if (info.wasm) {
+            const el = document.getElementById('bundle-size');
+            el.textContent = `${formatBytes(info.wasm.compressed)} gzipped (${formatBytes(info.wasm.raw)} uncompressed)`;
+        }
+    } catch (e) {
+        // Ignore - bundle info not available
+    }
+}
+
+document.getElementById('source').addEventListener('input', doHighlight);
+
+// Global keyboard navigation with arrow keys
+document.addEventListener('keydown', (e) => {
+    // Don't handle if we're in a text input (except the picker inputs)
+    const activeEl = document.activeElement;
+    const isInTextarea = activeEl.tagName === 'TEXTAREA';
+    const isInLangInput = activeEl === langInput;
+    const isInThemeInput = activeEl === themeInput;
+
+    // If in textarea, don't intercept arrows
+    if (isInTextarea) return;
+
+    // If in picker input, the picker's own handler will handle it
+    if (isInLangInput || isInThemeInput) return;
+
+    // Global arrow key navigation cycles through languages
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (!allLanguages || allLanguages.length === 0) return;
+
+        const currentIndex = allLanguages.indexOf(selectedLang);
+        let newIndex;
+        if (e.key === 'ArrowDown') {
+            newIndex = (currentIndex + 1) % allLanguages.length;
+        } else {
+            newIndex = (currentIndex - 1 + allLanguages.length) % allLanguages.length;
+        }
+        selectLanguage(allLanguages[newIndex]);
+    }
+});
+
+initialize();
+loadBundleInfo();

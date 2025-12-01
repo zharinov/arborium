@@ -1644,54 +1644,9 @@ fn serve_demo(addr: &str, specified_port: Option<u16>, dev_mode: bool) {
         println!("Building and serving arborium demo...\n");
     }
 
-    // Step 0: Generate index.html from template
-    step("Generating demo HTML", || {
-        // Call generate_demo logic inline to avoid needing a Result return
-        let template_path = demo_dir.join("template.html");
-        let examples_dir = demo_dir.join("examples");
-        let output_path = demo_dir.join("index.html");
-
-        let template = fs::read_to_string(&template_path)?;
-        let mut examples: BTreeMap<String, String> = BTreeMap::new();
-
-        for entry in fs::read_dir(&examples_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            if !path.is_file() {
-                continue;
-            }
-
-            let stem = path.file_stem().unwrap().to_string_lossy();
-            let ext = path.extension().map(|e| e.to_string_lossy().to_string());
-
-            let lang_id = if stem == "x86asm" {
-                "x86asm".to_string()
-            } else if let Some(ext) = &ext {
-                extension_to_lang_id(ext).map(|s| s.to_string()).unwrap_or_else(|| stem.to_string())
-            } else {
-                stem.to_string()
-            };
-
-            let content = fs::read_to_string(&path)?;
-            examples.insert(lang_id, content);
-        }
-
-        let mut js_obj = String::from("{\n");
-        for (i, (lang_id, content)) in examples.iter().enumerate() {
-            let escaped = escape_for_js(content);
-            js_obj.push_str(&format!("            \"{}\": \"{}\"", lang_id, escaped));
-            if i < examples.len() - 1 {
-                js_obj.push(',');
-            }
-            js_obj.push('\n');
-        }
-        js_obj.push_str("        }");
-
-        let output = template.replace("{{EXAMPLES}}", &js_obj);
-        fs::write(&output_path, &output)?;
-        println!("  Generated index.html ({} examples)", examples.len());
-        Ok(())
-    });
+    // Step 0: Generate index.html from template (use full generate_demo)
+    println!("\n==> Generating demo HTML");
+    generate_demo();
 
     // Step 1: Check for wasm-pack
     step("Checking for wasm-pack", || ensure_wasm_pack());
@@ -2546,17 +2501,54 @@ fn grammar_display_name(name: &str) -> String {
     }
 }
 
-/// Generate demo/index.html from template and example files
+/// Generate demo files from templates
 fn generate_demo() {
+    use serde_json::Value;
+    use std::collections::HashSet;
+
     let repo_root = find_repo_root().expect("Could not find repo root");
     let demo_dir = repo_root.join("demo");
     let template_path = demo_dir.join("template.html");
+    let app_js_path = demo_dir.join("app.js");
+    let styles_css_path = demo_dir.join("styles.css");
+    let lang_info_path = demo_dir.join("language-info.json");
     let examples_dir = demo_dir.join("examples");
-    let output_path = demo_dir.join("index.html");
+    let output_html = demo_dir.join("index.html");
+    let output_js = demo_dir.join("pkg").join("app.generated.js");
 
-    println!("Generating demo/index.html...\n");
+    println!("Generating demo files...\n");
 
-    // Read template
+    // Step 1: Read language-info.json
+    println!("  Reading language-info.json...");
+    let lang_info_str = match fs::read_to_string(&lang_info_path) {
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("Error reading language-info.json: {}", e);
+            std::process::exit(1);
+        }
+    };
+    let lang_info: Value = match serde_json::from_str(&lang_info_str) {
+        Ok(v) => v,
+        Err(e) => {
+            eprintln!("Error parsing language-info.json: {}", e);
+            std::process::exit(1);
+        }
+    };
+
+    // Step 2: Collect all unique icon names
+    println!("  Collecting icons...");
+    let mut icon_names: HashSet<String> = HashSet::new();
+
+    // Add icons from language-info.json
+    if let Some(obj) = lang_info.as_object() {
+        for (_lang_id, info) in obj {
+            if let Some(icon) = info.get("icon").and_then(|i| i.as_str()) {
+                icon_names.insert(icon.to_string());
+            }
+        }
+    }
+
+    // Add icons used in template.html (e.g., {{ICON:mdi:tree}})
     let template = match fs::read_to_string(&template_path) {
         Ok(t) => t,
         Err(e) => {
@@ -2565,89 +2557,204 @@ fn generate_demo() {
         }
     };
 
-    // Read all example files
+    // Find all {{ICON:xxx}} patterns
+    let icon_pattern = regex::Regex::new(r"\{\{ICON:([^}]+)\}\}").unwrap();
+    for cap in icon_pattern.captures_iter(&template) {
+        if let Some(icon) = cap.get(1) {
+            icon_names.insert(icon.as_str().to_string());
+        }
+    }
+
+    // Also add a fallback icon
+    icon_names.insert("mdi:code-tags".to_string());
+
+    println!("    Found {} unique icons", icon_names.len());
+
+    // Step 3: Fetch SVGs from Iconify API
+    println!("  Fetching icons from Iconify API...");
+    let mut icons: BTreeMap<String, String> = BTreeMap::new();
+
+    // Check for cached icons
+    let cache_path = demo_dir.join(".icon-cache.json");
+    let mut cached_icons: BTreeMap<String, String> = if cache_path.exists() {
+        match fs::read_to_string(&cache_path) {
+            Ok(s) => serde_json::from_str(&s).unwrap_or_default(),
+            Err(_) => BTreeMap::new(),
+        }
+    } else {
+        BTreeMap::new()
+    };
+
+    let mut fetch_count = 0;
+    for icon_name in &icon_names {
+        // Check cache first
+        if let Some(svg) = cached_icons.get(icon_name) {
+            icons.insert(icon_name.clone(), svg.clone());
+            continue;
+        }
+
+        // Parse icon name (prefix:name)
+        let parts: Vec<&str> = icon_name.split(':').collect();
+        if parts.len() != 2 {
+            eprintln!("    Warning: Invalid icon format: {}", icon_name);
+            continue;
+        }
+        let (prefix, name) = (parts[0], parts[1]);
+
+        // Fetch from Iconify API
+        let url = format!("https://api.iconify.design/{}/{}.svg", prefix, name);
+        match ureq::get(&url).call() {
+            Ok(resp) => {
+                if let Ok(svg) = resp.into_string() {
+                    // Clean up the SVG (remove unnecessary attributes)
+                    let cleaned = svg
+                        .replace("xmlns=\"http://www.w3.org/2000/svg\"", "")
+                        .replace("xmlns:xlink=\"http://www.w3.org/1999/xlink\"", "");
+                    icons.insert(icon_name.clone(), cleaned.clone());
+                    cached_icons.insert(icon_name.clone(), cleaned);
+                    fetch_count += 1;
+                    print!(".");
+                    std::io::stdout().flush().ok();
+                }
+            }
+            Err(e) => {
+                eprintln!("\n    Warning: Failed to fetch {}: {}", icon_name, e);
+            }
+        }
+    }
+    if fetch_count > 0 {
+        println!();
+    }
+    println!("    Fetched {} new icons, {} from cache", fetch_count, icons.len() - fetch_count);
+
+    // Save cache
+    if let Ok(cache_json) = serde_json::to_string_pretty(&cached_icons) {
+        let _ = fs::write(&cache_path, cache_json);
+    }
+
+    // Step 4: Read example files
+    println!("  Reading example files...");
     let mut examples: BTreeMap<String, String> = BTreeMap::new();
 
-    let entries = match fs::read_dir(&examples_dir) {
-        Ok(e) => e,
+    if let Ok(entries) = fs::read_dir(&examples_dir) {
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.is_file() {
+                continue;
+            }
+
+            let file_name = path.file_name().unwrap().to_string_lossy();
+            let stem = path.file_stem().unwrap().to_string_lossy();
+            let ext = path.extension().map(|e| e.to_string_lossy().to_string());
+
+            let lang_id = if stem == "x86asm" {
+                "x86asm".to_string()
+            } else if let Some(ext) = &ext {
+                if let Some(id) = extension_to_lang_id(ext) {
+                    id.to_string()
+                } else {
+                    stem.to_string()
+                }
+            } else {
+                stem.to_string()
+            };
+
+            if let Ok(content) = fs::read_to_string(&path) {
+                println!("    {} -> {}", file_name, lang_id);
+                examples.insert(lang_id, content);
+            }
+        }
+    }
+    println!("    Read {} example files", examples.len());
+
+    // Step 5: Build the icons JavaScript object
+    let mut icons_js = String::from("{\n");
+    for (i, (name, svg)) in icons.iter().enumerate() {
+        let escaped_svg = escape_for_js(svg);
+        icons_js.push_str(&format!("    \"{}\": \"{}\"", name, escaped_svg));
+        if i < icons.len() - 1 {
+            icons_js.push(',');
+        }
+        icons_js.push('\n');
+    }
+    icons_js.push('}');
+
+    // Step 6: Build examples JavaScript object
+    let mut examples_js = String::from("{\n");
+    for (i, (lang_id, content)) in examples.iter().enumerate() {
+        let escaped = escape_for_js(content);
+        examples_js.push_str(&format!("    \"{}\": \"{}\"", lang_id, escaped));
+        if i < examples.len() - 1 {
+            examples_js.push(',');
+        }
+        examples_js.push('\n');
+    }
+    examples_js.push('}');
+
+    // Step 7: Read app.js template and do replacements
+    println!("  Processing app.js...");
+    let app_js_template = match fs::read_to_string(&app_js_path) {
+        Ok(t) => t,
         Err(e) => {
-            eprintln!("Error reading examples directory: {}", e);
+            eprintln!("Error reading app.js: {}", e);
             std::process::exit(1);
         }
     };
 
-    for entry in entries {
-        let entry = match entry {
-            Ok(e) => e,
-            Err(_) => continue,
-        };
+    let app_js_output = app_js_template
+        .replace("// {{LANGUAGE_INFO}}", &format!("const languageInfo = {};", lang_info_str))
+        .replace("{{EXAMPLES}}", &examples_js)
+        .replace("{{ICONS}}", &icons_js);
 
-        let path = entry.path();
-        if !path.is_file() {
-            continue;
-        }
-
-        let file_name = path.file_name().unwrap().to_string_lossy();
-        let stem = path.file_stem().unwrap().to_string_lossy();
-        let ext = path.extension().map(|e| e.to_string_lossy().to_string());
-
-        // Determine language ID
-        // First, check if the stem itself is a known language (e.g., "x86asm.asm" -> "x86asm")
-        let lang_id = if stem == "x86asm" {
-            "x86asm".to_string()
-        } else if let Some(ext) = &ext {
-            // Try to map extension to language
-            if let Some(id) = extension_to_lang_id(ext) {
-                id.to_string()
-            } else {
-                // Use stem as fallback
-                stem.to_string()
-            }
+    // Step 8: Process template.html - replace {{ICON:xxx}} with inline SVGs
+    println!("  Processing template.html...");
+    let mut html_output = template.clone();
+    for cap in icon_pattern.captures_iter(&template) {
+        let full_match = cap.get(0).unwrap().as_str();
+        let icon_name = cap.get(1).unwrap().as_str();
+        if let Some(svg) = icons.get(icon_name) {
+            html_output = html_output.replace(full_match, svg);
         } else {
-            stem.to_string()
-        };
-
-        // Read file content
-        let content = match fs::read_to_string(&path) {
-            Ok(c) => c,
-            Err(e) => {
-                eprintln!("  Warning: Could not read {}: {}", file_name, e);
-                continue;
-            }
-        };
-
-        println!("  {} -> {}", file_name, lang_id);
-        examples.insert(lang_id, content);
+            // Fallback to empty span
+            html_output = html_output.replace(full_match, "");
+        }
     }
 
-    println!("\n  Read {} example files", examples.len());
-
-    // Build JavaScript object
-    let mut js_obj = String::from("{\n");
-    for (i, (lang_id, content)) in examples.iter().enumerate() {
-        let escaped = escape_for_js(content);
-        js_obj.push_str(&format!("            \"{}\": \"{}\"", lang_id, escaped));
-        if i < examples.len() - 1 {
-            js_obj.push(',');
-        }
-        js_obj.push('\n');
+    // Step 9: Write outputs
+    // Create pkg directory if it doesn't exist
+    let pkg_dir = demo_dir.join("pkg");
+    if !pkg_dir.exists() {
+        fs::create_dir_all(&pkg_dir).expect("Failed to create pkg directory");
     }
-    js_obj.push_str("        }");
 
-    // Replace placeholder in template
-    let output = template.replace("{{EXAMPLES}}", &js_obj);
-
-    // Write output
-    match fs::write(&output_path, &output) {
-        Ok(_) => {
-            println!("\n  Written to {}", output_path.display());
-            println!("  Output size: {}", format_size(output.len()));
+    // Write generated app.js
+    match fs::write(&output_js, &app_js_output) {
+        Ok(_) => println!("  Written {}", output_js.display()),
+        Err(e) => {
+            eprintln!("Error writing app.generated.js: {}", e);
+            std::process::exit(1);
         }
+    }
+
+    // Write index.html
+    match fs::write(&output_html, &html_output) {
+        Ok(_) => println!("  Written {}", output_html.display()),
         Err(e) => {
             eprintln!("Error writing index.html: {}", e);
             std::process::exit(1);
         }
     }
 
+    // Copy styles.css to pkg/ for serving
+    let pkg_styles = pkg_dir.join("styles.css");
+    match fs::copy(&styles_css_path, &pkg_styles) {
+        Ok(_) => println!("  Copied styles.css to pkg/"),
+        Err(e) => {
+            eprintln!("Warning: Could not copy styles.css: {}", e);
+        }
+    }
+
     println!("\nDone!");
+    println!("  HTML: {}", format_size(html_output.len()));
+    println!("  JS: {}", format_size(app_js_output.len()));
 }
