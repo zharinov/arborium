@@ -8,3 +8,8 @@ description = "Low-level programming language that maps mnemonic instructions di
 wikipedia = "https://en.wikipedia.org/wiki/Assembly_language"
 trivia = "Booth detailed one of the first assemblers in her 1947 ARC report, and backward compatibility means [Intel's 8086 programs still run on modern x86 chips](https://archive.org/details/Intel8086ProgrammersReferenceManual)."
 
+[[samples]]
+path = "sample.asm"
+description = ""
+link = ""
+license = ""

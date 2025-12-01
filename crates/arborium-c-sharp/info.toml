@@ -8,3 +8,8 @@ description = "Modern object-oriented language for .NET; official spec is publis
 wikipedia = "https://en.wikipedia.org/wiki/C_Sharp_(programming_language)"
 trivia = "Originally code-named 'Cool' (C-like Object Oriented Language) inside Microsoft before being renamed C#; see the [ECMA foreword](https://www.ecma-international.org/publications-and-standards/standards/ecma-334/) and early .NET announcements."
 
+[[samples]]
+path = "sample.cs"
+description = ""
+link = ""
+license = ""

@@ -8,3 +8,8 @@ description = "Declarative format for Docker image builds; official reference: [
 wikipedia = "https://docs.docker.com/engine/reference/builder/"
 trivia = "Introduced with Docker's first public release in 2013; the reference documents each instruction and the layer-caching model that made Docker adoption explode ([Dockerfile reference](https://docs.docker.com/engine/reference/builder/))."
 
+[[samples]]
+path = "sample.dockerfile"
+description = ""
+link = ""
+license = ""

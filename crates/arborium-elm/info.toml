@@ -8,3 +8,8 @@ description = "Purely functional language for reliable web apps; see the officia
 wikipedia = "https://en.wikipedia.org/wiki/Elm_(programming_language)"
 trivia = "Introduced by Czaplicki in 2012 with 'The Elm Architecture' that later inspired Redux; documented in the [Elm Architecture](https://guide.elm-lang.org/architecture/) section of the guide."
 
+[[samples]]
+path = "sample.elm"
+description = ""
+link = ""
+license = ""

@@ -8,3 +8,8 @@ description = "Style sheet language for web documents; the living standard is ma
 wikipedia = "https://en.wikipedia.org/wiki/CSS"
 trivia = "Wium Lie proposed CSS on 10 Oct 1994 while at CERN and it became a W3C Recommendation in 1996; see his original [proposal memo](https://www.w3.org/People/howcome/p/Spec/) and the [CSS1 recommendation](https://www.w3.org/TR/REC-CSS1-961217)."
 
+[[samples]]
+path = "sample.css"
+description = ""
+link = ""
+license = ""

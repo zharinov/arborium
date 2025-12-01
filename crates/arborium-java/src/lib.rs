@@ -31,4 +31,30 @@ mod tests {
         let lang = language();
         assert!(lang.version() > 0);
     }
+
+    #[test]
+    fn test_parse_sample() {
+        use tree_sitter_patched_arborium::Parser;
+
+        let source = include_str!("../sample.java");
+
+        let mut parser = Parser::new();
+        parser.set_language(&language()).expect("Failed to set language");
+
+        let tree = parser.parse(source, None).expect("Failed to parse");
+        let root = tree.root_node();
+
+        // Basic checks
+        assert!(!root.has_error(), "Parse tree has errors");
+        assert!(root.child_count() > 0, "Parse tree is empty");
+    }
+
+    #[test]
+    fn test_highlight_query_valid() {
+        use tree_sitter_patched_arborium::Query;
+
+        // This will fail if the query has syntax errors or references invalid node types
+        let _query = Query::new(&language(), HIGHLIGHTS_QUERY)
+            .expect("Highlights query is invalid");
+    }
 }

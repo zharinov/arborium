@@ -17,3 +17,6 @@ arborium-sysroot = { version = "0.1.0", path = "../arborium-sysroot" }
 
 [build-dependencies]
 cc = { version = "1", features = ["parallel"] }
+
+[dev-dependencies]
+tree-sitter-highlight-patched-arborium = { version = "0.25.10", path = "../../tree-sitter-highlight" }

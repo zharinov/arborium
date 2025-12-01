@@ -8,3 +8,8 @@ description = "Functional Lisp dialect for the JVM with strong concurrency suppo
 wikipedia = "https://en.wikipedia.org/wiki/Clojure"
 trivia = "Hickey designed Clojure to simplify concurrent programming; the language was announced publicly in 2007 and documented in the [original release notes](https://clojure.org/releases/downloads)."
 
+[[samples]]
+path = "sample.clj"
+description = ""
+link = ""
+license = ""

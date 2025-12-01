@@ -8,3 +8,8 @@ description = "Unix shell and command language for GNU; see the official [GNU Ba
 wikipedia = "https://en.wikipedia.org/wiki/Bash_(Unix_shell)"
 trivia = "Bash means 'Bourne Again SHell', a nod to the Bourne shell; Fox began coding it in January 1988 and released the first beta in June 1989 for the GNU Project ([Bash history](https://www.gnu.org/software/bash/manual/bash.html#Bash-History))."
 
+[[samples]]
+path = "sample.sh"
+description = ""
+link = ""
+license = ""

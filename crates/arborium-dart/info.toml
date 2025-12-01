@@ -8,3 +8,8 @@ description = "Object-oriented language optimized for UI development; official s
 wikipedia = "https://en.wikipedia.org/wiki/Dart_(programming_language)"
 trivia = "Unveiled at GOTO Aarhus 2011 by Bak and Lund; the [Dart language tour](https://dart.dev/guides/language/language-tour) documents its core goals, and Dart became the language behind Flutter when Google announced Flutter in 2017."
 
+[[samples]]
+path = "sample.dart"
+description = ""
+link = ""
+license = ""
