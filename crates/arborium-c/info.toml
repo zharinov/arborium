@@ -13,3 +13,10 @@ path = "samples/queue_linked_list.c"
 description = "Linked-list-backed queue implementation with structs, dynamic allocation, and pointer manipulation."
 link = "https://github.com/portfoliocourses/c-example-code/blob/master/queue_linked_list.c"
 license = "MIT"
+
+# amos-picked sample
+[[samples]]
+path = "samples/paren_main.c"
+description = "Paren interpreter main with parser, eval loop, and hash table usage."
+link = "https://github.com/gfaster/paren/blob/main/main.c"
+license = "MIT"
