@@ -13,3 +13,10 @@ path = "samples/bash3boilerplate_main.sh"
 description = "BASH3 Boilerplate script with functions, logging, strict mode, getopts parsing, traps."
 link = "https://github.com/kvz/bash3boilerplate/blob/master/main.sh"
 license = "MIT"
+
+# amos-picked sample
+[[samples]]
+path = "samples/doorbell.sh"
+description = "doorbell.sh notifier with POSIX shell features, signals, file descriptors, and scheduling."
+link = "https://github.com/caius/doorbell.sh/blob/main/doorbell.sh"
+license = "MIT"
