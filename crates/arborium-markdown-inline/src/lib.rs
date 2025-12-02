@@ -14,10 +14,10 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for markdown-inline.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-markdown-inline/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for markdown-inline.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-markdown-inline/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for markdown-inline (empty - no locals available).
 pub const LOCALS_QUERY: &str = "";

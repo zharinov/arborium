@@ -14,10 +14,10 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for cmake.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-cmake/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for cmake.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-cmake/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for cmake (empty - no locals available).
 pub const LOCALS_QUERY: &str = "";

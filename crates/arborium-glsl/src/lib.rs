@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for glsl.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-glsl/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for glsl (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

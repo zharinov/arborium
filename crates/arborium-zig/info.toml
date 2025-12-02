@@ -12,13 +12,6 @@ link = "https://en.wikipedia.org/wiki/Zig_(programming_language)"
 trivia = "Kelley introduced Zig in 2016 as a C replacement without hidden control flow; the self-hosted compiler milestone is chronicled on the [Zig blog](https://ziglang.org/news/)."
 
 [[samples]]
-path = "samples/async5.zig"
-description = "Ziglings async exercise covering async/await, cancellation, and cooperative scheduling."
-link = "https://codeberg.org/ziglings/exercises/src/branch/main/exercises/088_async5.zig"
-license = "MIT"
-
-# amos-picked sample
-[[samples]]
 path = "samples/generic.zig"
 description = "Args-lex generic tokenizer with slices, enums, error sets, and comptime parsing."
 link = "https://github.com/knutwalker/args-lex/blob/main/src/generic.zig"

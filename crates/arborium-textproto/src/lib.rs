@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for textproto.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-textproto/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for textproto (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

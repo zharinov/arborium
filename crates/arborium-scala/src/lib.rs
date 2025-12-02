@@ -14,13 +14,13 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for scala.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-scala/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for scala (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";
 
 /// The locals query for scala.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-scala/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

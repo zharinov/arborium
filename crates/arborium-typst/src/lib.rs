@@ -14,10 +14,10 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for typst.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-typst/queries/typst/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for typst.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-typst/queries/typst/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for typst (empty - no locals available).
 pub const LOCALS_QUERY: &str = "";

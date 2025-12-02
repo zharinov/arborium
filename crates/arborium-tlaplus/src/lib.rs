@@ -14,13 +14,13 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for tlaplus.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-tlaplus/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for tlaplus (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";
 
 /// The locals query for tlaplus.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-tlaplus/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

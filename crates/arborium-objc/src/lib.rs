@@ -14,23 +14,23 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for C (base language).
-pub const C_HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-c/queries/highlights.scm");
+pub const C_HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The highlight query for objc (Objective-C specific additions).
-pub const OBJC_HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-objc/queries/highlights.scm");
+pub const OBJC_HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The combined highlight query for objc (includes C highlights).
 pub const HIGHLIGHTS_QUERY: &str = concat!(
-    include_str!("../../../grammars/tree-sitter-c/queries/highlights.scm"),
+    include_str!("../queries/highlights.scm"),
     "\n",
-    include_str!("../../../grammars/tree-sitter-objc/queries/highlights.scm"),
+    include_str!("../queries/highlights.scm"),
 );
 
 /// The injections query for objc.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-objc/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for objc.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-objc/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

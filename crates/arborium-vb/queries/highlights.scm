@@ -3,6 +3,10 @@
 ; Comments
 (comment) @comment
 
+; Keyword statements - target the statement nodes themselves
+(imports_statement) @keyword.import
+(namespace_block) @keyword
+
 ; Strings
 (string_literal) @string
 (interpolated_string_literal) @string

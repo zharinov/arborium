@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for yaml.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-yaml/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for yaml (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

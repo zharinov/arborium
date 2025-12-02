@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for vhdl.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-vhdl/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for vhdl (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

@@ -13,3 +13,8 @@ description = "A human-readable text format for Protocol Buffer messages, common
 link = "https://github.com/protocolbuffers/protobuf"
 trivia = "Protocol Buffers were developed at Google in 2001 and are used for nearly all inter-machine communication at the company."
 
+
+[[samples]]
+path = "samples/config.textproto"
+description = "Protocol Buffer text format with nested messages and repeated fields."
+license = "CC0-1.0"

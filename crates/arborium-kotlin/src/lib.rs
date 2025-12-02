@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for kotlin.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-kotlin/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for kotlin (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

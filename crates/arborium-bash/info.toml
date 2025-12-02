@@ -14,13 +14,6 @@ link = "https://en.wikipedia.org/wiki/Bash_(Unix_shell)"
 trivia = "Bash means 'Bourne Again SHell', a nod to the Bourne shell; Fox began coding it in January 1988 and released the first beta in June 1989 for the GNU Project ([Bash history](https://www.gnu.org/software/bash/manual/bash.html#Bash-History))."
 
 [[samples]]
-path = "samples/fzf_completion.bash"
-description = "fzf shell completion with functions, conditionals, and command detection."
-link = "https://github.com/junegunn/fzf/blob/master/shell/completion.bash"
-license = "MIT"
-
-# amos-picked sample
-[[samples]]
 path = "samples/doorbell.sh"
 description = "doorbell.sh notifier with POSIX shell features, signals, file descriptors, and scheduling."
 link = "https://github.com/caius/doorbell.sh/blob/main/doorbell.sh"

@@ -1,3 +1,5 @@
+<?php
+
 class SessionGuard implements StatefulGuard, SupportsBasicAuth
 {
     use GuardHelpers, Macroable;

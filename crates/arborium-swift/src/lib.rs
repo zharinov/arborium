@@ -14,13 +14,13 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for swift.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-swift/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for swift.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-swift/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for swift.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-swift/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

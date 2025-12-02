@@ -12,3 +12,8 @@ description = "Configuration file format for OpenSSH client settings like hosts,
 link = "https://man.openbsd.org/ssh_config"
 trivia = "SSH was created in 1995 after a password-sniffing attack at Helsinki University of Technology prompted Tatu Ylönen to develop a secure replacement for rlogin."
 
+
+[[samples]]
+path = "samples/config"
+description = "SSH client configuration with hosts, identity files, and forwarding."
+license = "CC0-1.0"

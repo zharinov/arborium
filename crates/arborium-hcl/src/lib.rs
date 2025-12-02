@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for hcl.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-hcl/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for hcl (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

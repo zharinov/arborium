@@ -22,52 +22,13 @@
 
 use std::io::{self, Write};
 use crate::tree_sitter_highlight::{Highlight, HighlightConfiguration, HighlightEvent, Highlighter};
-
-/// Tag suffixes for each highlight category.
-///
-/// These correspond 1:1 with HIGHLIGHT_NAMES indices.
-/// All tags are prefixed with "a-" (for Arborium).
-const HIGHLIGHT_TAGS: &[&str] = &[
-    "at",  // 0:  attribute
-    "co",  // 1:  constant
-    "fb",  // 2:  function.builtin
-    "f",   // 3:  function
-    "k",   // 4:  keyword
-    "o",   // 5:  operator
-    "pr",  // 6:  property
-    "p",   // 7:  punctuation
-    "pb",  // 8:  punctuation.bracket
-    "pd",  // 9:  punctuation.delimiter
-    "s",   // 10: string
-    "ss",  // 11: string.special
-    "tg",  // 12: tag
-    "t",   // 13: type
-    "tb",  // 14: type.builtin
-    "v",   // 15: variable
-    "vb",  // 16: variable.builtin
-    "vp",  // 17: variable.parameter
-    "c",   // 18: comment
-    "m",   // 19: macro
-    "l",   // 20: label
-    "da",  // 21: diff.addition
-    "dd",  // 22: diff.deletion
-    "n",   // 23: number
-    "tl",  // 24: text.literal
-    "te",  // 25: text.emphasis
-    "ts",  // 26: text.strong
-    "tu",  // 27: text.uri
-    "tr",  // 28: text.reference
-    "se",  // 29: string.escape
-    "tt",  // 30: text.title
-    "ps",  // 31: punctuation.special
-    "tx",  // 32: text.strikethrough
-    "sp",  // 33: spell
-];
+use crate::highlights;
 
 /// Get the custom element tag suffix for a highlight index.
+/// Returns None for indices without tags (like "none" or "nospell") or out-of-range indices.
 #[inline]
 pub fn highlight_tag(highlight_index: usize) -> Option<&'static str> {
-    HIGHLIGHT_TAGS.get(highlight_index).copied()
+    highlights::tag(highlight_index)
 }
 
 /// Render highlighted code to HTML using custom web elements.

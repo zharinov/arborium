@@ -46,6 +46,7 @@
 pub use tree_sitter_patched_arborium as tree_sitter;
 pub use tree_sitter_highlight_patched_arborium as tree_sitter_highlight;
 
+pub mod highlights;
 pub mod html;
 pub mod ansi;
 pub mod theme;
@@ -341,41 +342,8 @@ pub use arborium_zsh as lang_zsh;
 
 /// Standard highlight names used for syntax highlighting.
 ///
-/// These names correspond to CSS classes like `.hh0`, `.hh1`, etc.
-/// Configure your `HighlightConfiguration` with these names to enable highlighting.
-pub const HIGHLIGHT_NAMES: &[&str] = &[
-    "attribute",
-    "constant",
-    "function.builtin",
-    "function",
-    "keyword",
-    "operator",
-    "property",
-    "punctuation",
-    "punctuation.bracket",
-    "punctuation.delimiter",
-    "string",
-    "string.special",
-    "tag",
-    "type",
-    "type.builtin",
-    "variable",
-    "variable.builtin",
-    "variable.parameter",
-    "comment",
-    "macro",
-    "label",
-    "diff.addition",
-    "diff.deletion",
-    "number",
-    "text.literal",
-    "text.emphasis",
-    "text.strong",
-    "text.uri",
-    "text.reference",
-    "string.escape",
-    "text.title",
-    "punctuation.special",
-    "text.strikethrough",
-    "spell",
-];
+/// These names are used to configure tree-sitter's `HighlightConfiguration`.
+/// The indices correspond to HTML element tags (e.g., index 7 = `<a-k>` for keyword).
+///
+/// See [`highlights::HIGHLIGHTS`] for the complete definitions including HTML tags.
+pub const HIGHLIGHT_NAMES: [&str; highlights::COUNT] = highlights::names();

@@ -14,13 +14,13 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for svelte.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-svelte/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for svelte.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-svelte/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for svelte.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-svelte/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

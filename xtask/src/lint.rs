@@ -1,9 +1,11 @@
-//! Linting for info.toml files
+//! Linting for info.toml files and grammar highlighting
 
 use std::collections::HashSet;
 use std::fs;
 use std::path::Path;
 
+use arborium::tree_sitter_highlight::{HighlightConfiguration, HighlightEvent, Highlighter};
+use arborium::HIGHLIGHT_NAMES;
 use owo_colors::OwoColorize;
 
 use crate::util::find_repo_root;
@@ -45,6 +47,8 @@ const SKIP_CRATES: &[&str] = &[
     // Sub-grammars that are part of a parent grammar
     "asciidoc_inline",
     "markdown-inline",
+    "interface",  // OCaml interface sub-grammar
+    "type",       // OCaml type sub-grammar
 ];
 
 /// Result of linting a single info.toml file
@@ -391,4 +395,304 @@ fn lint_single_info_toml(path: &Path, lang_name: &str) -> LintResult {
     }
 
     result
+}
+
+/// Lint highlighting for all grammars - check that samples produce highlights
+pub fn lint_highlights() {
+    let repo_root = find_repo_root().expect("Could not find repo root");
+    let crates_dir = repo_root.join("crates");
+
+    println!("{}", "Checking highlighting for all grammars...".cyan().bold());
+    println!();
+
+    let mut total_errors = 0;
+    let mut total_warnings = 0;
+    let mut crates_checked = 0;
+
+    // Find all arborium-* crates
+    let mut entries: Vec<_> = fs::read_dir(&crates_dir)
+        .expect("Could not read crates directory")
+        .filter_map(|e| e.ok())
+        .filter(|e| {
+            let name = e.file_name().to_string_lossy().to_string();
+            name.starts_with("arborium-") && e.path().is_dir()
+        })
+        .collect();
+
+    entries.sort_by_key(|e| e.file_name());
+
+    let names: Vec<String> = HIGHLIGHT_NAMES.iter().map(|s| s.to_string()).collect();
+
+    for entry in entries {
+        let crate_name = entry.file_name().to_string_lossy().to_string();
+        let lang_name = crate_name.strip_prefix("arborium-").unwrap_or(&crate_name);
+
+        // Skip internal/utility crates
+        if SKIP_CRATES.contains(&lang_name) {
+            continue;
+        }
+
+        let crate_path = entry.path();
+
+        // Check if we have queries
+        let queries_dir = crate_path.join("queries");
+        let highlights_scm = queries_dir.join("highlights.scm");
+
+        if !highlights_scm.exists() {
+            println!("{} {} - {}", "✗".red(), lang_name.bold(), "no highlights.scm".red());
+            total_errors += 1;
+            continue;
+        }
+
+        // Try to find a sample file
+        let samples_dir = crate_path.join("samples");
+        let sample_file = if samples_dir.exists() {
+            fs::read_dir(&samples_dir)
+                .ok()
+                .and_then(|mut entries| entries.next())
+                .and_then(|e| e.ok())
+                .map(|e| e.path())
+        } else {
+            None
+        };
+
+        let sample_content = sample_file
+            .as_ref()
+            .and_then(|p| fs::read_to_string(p).ok());
+
+        if sample_content.is_none() {
+            println!("{} {} - {}", "⚠".yellow(), lang_name.bold(), "no sample file".yellow());
+            total_warnings += 1;
+            continue;
+        }
+
+        let sample_content = sample_content.unwrap();
+
+        // Try to create a highlight configuration and highlight the sample
+        let result = check_highlighting(lang_name, &crate_path, &sample_content, &names);
+
+        crates_checked += 1;
+
+        match result {
+            HighlightCheckResult::Ok { highlight_count } => {
+                if highlight_count == 0 {
+                    println!("{} {} - {}", "✗".red(), lang_name.bold(), "0 highlights produced".red());
+                    total_errors += 1;
+                } else {
+                    println!("{} {} - {} highlights", "✓".green(), lang_name, highlight_count);
+                }
+            }
+            HighlightCheckResult::QueryError(e) => {
+                println!("{} {} - query error: {}", "✗".red(), lang_name.bold(), e.red());
+                total_errors += 1;
+            }
+            HighlightCheckResult::HighlightError(e) => {
+                println!("{} {} - highlight error: {}", "✗".red(), lang_name.bold(), e.red());
+                total_errors += 1;
+            }
+            HighlightCheckResult::NoLanguageFn => {
+                println!("{} {} - {}", "⚠".yellow(), lang_name.bold(), "could not load language".yellow());
+                total_warnings += 1;
+            }
+        }
+    }
+
+    // Summary
+    println!();
+    println!("{}", "─".repeat(60));
+    println!();
+    println!("Checked {} grammar(s)", crates_checked);
+
+    if total_errors > 0 {
+        println!("{} {} error(s)", "✗".red(), total_errors);
+    }
+    if total_warnings > 0 {
+        println!("{} {} warning(s)", "⚠".yellow(), total_warnings);
+    }
+    if total_errors == 0 && total_warnings == 0 {
+        println!("{} All grammars produce highlights!", "✓".green());
+    }
+
+    if total_errors > 0 {
+        std::process::exit(1);
+    }
+}
+
+enum HighlightCheckResult {
+    Ok { highlight_count: usize },
+    QueryError(String),
+    HighlightError(String),
+    NoLanguageFn,
+}
+
+/// Check highlighting for a single grammar
+fn check_highlighting(
+    lang_name: &str,
+    crate_path: &Path,
+    sample: &str,
+    names: &[String],
+) -> HighlightCheckResult {
+    // Load queries
+    let queries_dir = crate_path.join("queries");
+    let highlights = fs::read_to_string(queries_dir.join("highlights.scm")).unwrap_or_default();
+    let injections = fs::read_to_string(queries_dir.join("injections.scm")).unwrap_or_default();
+    let locals = fs::read_to_string(queries_dir.join("locals.scm")).unwrap_or_default();
+
+    // Get language - we need to dynamically load it based on lang_name
+    let language = match get_language_for_name(lang_name) {
+        Some(l) => l,
+        None => return HighlightCheckResult::NoLanguageFn,
+    };
+
+    // Create highlight configuration
+    let config = HighlightConfiguration::new(
+        language.into(),
+        lang_name,
+        &highlights,
+        &injections,
+        &locals,
+    );
+
+    let mut config = match config {
+        Ok(c) => c,
+        Err(e) => return HighlightCheckResult::QueryError(format!("{:?}", e)),
+    };
+
+    config.configure(names);
+
+    // Run highlighter
+    let mut highlighter = Highlighter::new();
+    let highlights_iter = highlighter.highlight(&config, sample.as_bytes(), None, |_| None);
+
+    let highlights_iter = match highlights_iter {
+        Ok(h) => h,
+        Err(e) => return HighlightCheckResult::HighlightError(format!("{:?}", e)),
+    };
+
+    // Count highlights
+    let mut highlight_count = 0;
+    for event in highlights_iter {
+        match event {
+            Ok(HighlightEvent::HighlightStart(_)) => {
+                highlight_count += 1;
+            }
+            Ok(_) => {}
+            Err(e) => return HighlightCheckResult::HighlightError(format!("{:?}", e)),
+        }
+    }
+
+    HighlightCheckResult::Ok { highlight_count }
+}
+
+/// Get the tree-sitter Language for a given language name
+fn get_language_for_name(name: &str) -> Option<arborium::tree_sitter::Language> {
+    // This macro generates the match arms for all enabled languages
+    macro_rules! lang_match {
+        ($($lang:ident => $mod:ident),* $(,)?) => {
+            match name {
+                $(
+                    stringify!($lang) => Some(arborium::$mod::language()),
+                )*
+                _ => None,
+            }
+        };
+    }
+
+    // Handle hyphenated names specially
+    match name {
+        "c-sharp" => return Some(arborium::lang_c_sharp::language()),
+        "ssh-config" => return Some(arborium::lang_ssh_config::language()),
+        _ => {}
+    }
+
+    lang_match! {
+        ada => lang_ada,
+        agda => lang_agda,
+        asm => lang_asm,
+        awk => lang_awk,
+        bash => lang_bash,
+        batch => lang_batch,
+        c => lang_c,
+        caddy => lang_caddy,
+        capnp => lang_capnp,
+        clojure => lang_clojure,
+        cmake => lang_cmake,
+        commonlisp => lang_commonlisp,
+        cpp => lang_cpp,
+        css => lang_css,
+        d => lang_d,
+        dart => lang_dart,
+        devicetree => lang_devicetree,
+        diff => lang_diff,
+        dockerfile => lang_dockerfile,
+        dot => lang_dot,
+        elisp => lang_elisp,
+        elixir => lang_elixir,
+        elm => lang_elm,
+        erlang => lang_erlang,
+        fish => lang_fish,
+        fsharp => lang_fsharp,
+        gleam => lang_gleam,
+        glsl => lang_glsl,
+        go => lang_go,
+        graphql => lang_graphql,
+        haskell => lang_haskell,
+        hcl => lang_hcl,
+        hlsl => lang_hlsl,
+        html => lang_html,
+        ini => lang_ini,
+        java => lang_java,
+        javascript => lang_javascript,
+        jinja2 => lang_jinja2,
+        jq => lang_jq,
+        json => lang_json,
+        julia => lang_julia,
+        kdl => lang_kdl,
+        kotlin => lang_kotlin,
+        lean => lang_lean,
+        lua => lang_lua,
+        matlab => lang_matlab,
+        meson => lang_meson,
+        nginx => lang_nginx,
+        ninja => lang_ninja,
+        nix => lang_nix,
+        objc => lang_objc,
+        ocaml => lang_ocaml,
+        perl => lang_perl,
+        php => lang_php,
+        powershell => lang_powershell,
+        prolog => lang_prolog,
+        python => lang_python,
+        query => lang_query,
+        r => lang_r,
+        rescript => lang_rescript,
+        ron => lang_ron,
+        ruby => lang_ruby,
+        rust => lang_rust,
+        scala => lang_scala,
+        scheme => lang_scheme,
+        scss => lang_scss,
+        sparql => lang_sparql,
+        sql => lang_sql,
+        starlark => lang_starlark,
+        svelte => lang_svelte,
+        swift => lang_swift,
+        textproto => lang_textproto,
+        thrift => lang_thrift,
+        tlaplus => lang_tlaplus,
+        toml => lang_toml,
+        tsx => lang_tsx,
+        typescript => lang_typescript,
+        typst => lang_typst,
+        uiua => lang_uiua,
+        vb => lang_vb,
+        verilog => lang_verilog,
+        vhdl => lang_vhdl,
+        vue => lang_vue,
+        x86asm => lang_x86asm,
+        xml => lang_xml,
+        yaml => lang_yaml,
+        yuri => lang_yuri,
+        zig => lang_zig,
+    }
 }

@@ -13,3 +13,8 @@ description = "A query language for retrieving and manipulating data stored in R
 link = "https://en.wikipedia.org/wiki/SPARQL"
 trivia = "SPARQL is a recursive acronym: 'SPARQL Protocol and RDF Query Language'—it powers knowledge graphs like Wikidata and DBpedia."
 
+
+[[samples]]
+path = "samples/query.sparql"
+description = "SPARQL queries with SELECT, CONSTRUCT, FILTER, and aggregations."
+license = "CC0-1.0"

@@ -14,13 +14,13 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for fsharp.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-fsharp/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for fsharp.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-fsharp/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for fsharp.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-fsharp/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

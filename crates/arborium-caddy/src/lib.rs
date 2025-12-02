@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for caddy.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-caddy/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for caddy (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

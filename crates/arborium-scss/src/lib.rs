@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for scss.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-scss/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for scss (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

@@ -23,7 +23,7 @@ pub fn dtd_language() -> Language {
 }
 
 /// The highlight query for xml.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-xml/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for xml (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

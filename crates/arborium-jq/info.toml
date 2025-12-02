@@ -13,14 +13,7 @@ link = "https://en.wikipedia.org/wiki/Jq_(programming_language)"
 trivia = "jq debuted in 2012 inspired by AWK/sed but for JSON; language features and functions are specified in the [jq manual](https://stedolan.github.io/jq/manual/)."
 
 [[samples]]
-path = "samples/jq.test"
-description = "jq upstream test suite covering filters, arithmetic, strings, arrays, and objects."
-link = "https://github.com/stedolan/jq/blob/master/tests/jq.test"
-license = "MIT"
-
-# amos-picked sample
-[[samples]]
-path = "samples/jqjq.jq"
-description = "jqjq tool for running jq with bundled jq programs; shows modules, functions, CLI handling."
-link = "https://github.com/wader/jqjq/blob/master/jqjq.jq"
+path = "samples/geo.jq"
+description = "Geographic calculations in jq - haversine distance, bearing, coordinate conversions."
+link = "local"
 license = "MIT"

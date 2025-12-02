@@ -14,10 +14,10 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for perl.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-perl/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for perl.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-perl/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for perl (empty - no locals available).
 pub const LOCALS_QUERY: &str = "";

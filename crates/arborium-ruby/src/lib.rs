@@ -14,7 +14,7 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for ruby.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-ruby/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for ruby (empty - no injections available).
 pub const INJECTIONS_QUERY: &str = "";

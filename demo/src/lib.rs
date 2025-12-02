@@ -131,10 +131,27 @@ pub fn highlight(language: &str, source: &str) -> Result<String, JsValue> {
     let names: Vec<String> = HIGHLIGHT_NAMES.iter().map(|s| s.to_string()).collect();
     config.configure(&names);
 
+    // Pre-create configs for common injection targets (JS, CSS, etc.)
+    let mut injection_configs: std::collections::HashMap<&str, HighlightConfiguration> = std::collections::HashMap::new();
+    
+    // JavaScript (for HTML <script> tags)
+    if let Some(Ok(mut js_config)) = get_config("javascript") {
+        js_config.configure(&names);
+        injection_configs.insert("javascript", js_config);
+    }
+    
+    // CSS (for HTML <style> tags)
+    if let Some(Ok(mut css_config)) = get_config("css") {
+        css_config.configure(&names);
+        injection_configs.insert("css", css_config);
+    }
+
     let mut highlighter = Highlighter::new();
     let mut output = Vec::new();
 
-    html::render(&mut output, &mut highlighter, &config, source, |_| None)
+    html::render(&mut output, &mut highlighter, &config, source, |lang| {
+        injection_configs.get(lang)
+    })
         .map_err(|e| JsValue::from_str(&format!("Render error: {}", e)))?;
 
     String::from_utf8(output).map_err(|e| JsValue::from_str(&format!("UTF-8 error: {}", e)))

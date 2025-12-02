@@ -1,5 +1,8 @@
 ; Starlark highlights query (simplified from Python)
 
+; Comments
+(comment) @comment
+
 ; Strings
 (string) @string
 

@@ -14,13 +14,13 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for starlark.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-starlark/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for starlark.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-starlark/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for starlark.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-starlark/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

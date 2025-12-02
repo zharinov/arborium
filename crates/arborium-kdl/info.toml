@@ -12,3 +12,9 @@ description = "A document language with XML-like semantics and a more human-frie
 link = "https://kdl.dev"
 trivia = "KDL stands for 'KDL Document Language'—the recursive acronym is intentional, inspired by GNU."
 
+
+[[samples]]
+path = "samples/schema.kdl"
+description = "KDL schema definition with nested nodes and type annotations."
+link = "https://github.com/kdl-org/kdl/blob/main/examples/kdl-schema.kdl"
+license = "CC0-1.0"

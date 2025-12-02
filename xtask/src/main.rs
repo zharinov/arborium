@@ -117,7 +117,13 @@ fn main() {
             }
             serve_demo(&addr, port, dev_mode);
         }
-        "lint-info-toml" | "lint" => lint::lint_info_toml(),
+        "lint-info-toml" => lint::lint_info_toml(),
+        "lint-highlights" => lint::lint_highlights(),
+        "lint" => {
+            lint::lint_info_toml();
+            println!();
+            lint::lint_highlights();
+        }
         "help" | "--help" | "-h" => print_usage(),
         cmd => {
             eprintln!("Unknown command: {}", cmd);
@@ -143,6 +149,8 @@ fn print_usage() {
     eprintln!("                            -p <port> (default: auto-select 8000-8010)");
     eprintln!("                            --dev (fast dev build: -O1, no wasm-opt, fast compression)");
     eprintln!("  lint-info-toml   Lint all info.toml files for missing/invalid fields");
+    eprintln!("  lint-highlights  Check that all grammars produce highlights");
+    eprintln!("  lint             Run all lints (info-toml + highlights)");
     eprintln!("  help             Show this help message");
 }
 
@@ -2986,7 +2994,7 @@ fn generate_demo_lib_rs(lang_info: &serde_json::Map<String, serde_json::Value>) 
     code.push_str("    }\n");
     code.push_str("}\n\n");
 
-    // highlight function
+    // highlight function with injection support
     code.push_str("/// Highlight source code and return HTML\n");
     code.push_str("#[wasm_bindgen]\n");
     code.push_str("pub fn highlight(language: &str, source: &str) -> Result<String, JsValue> {\n");
@@ -2997,9 +3005,25 @@ fn generate_demo_lib_rs(lang_info: &serde_json::Map<String, serde_json::Value>) 
     code.push_str("    // Configure highlight names\n");
     code.push_str("    let names: Vec<String> = HIGHLIGHT_NAMES.iter().map(|s| s.to_string()).collect();\n");
     code.push_str("    config.configure(&names);\n\n");
+    code.push_str("    // Pre-create configs for common injection targets (JS, CSS, etc.)\n");
+    code.push_str("    let mut injection_configs: std::collections::HashMap<&str, HighlightConfiguration> = std::collections::HashMap::new();\n");
+    code.push_str("    \n");
+    code.push_str("    // JavaScript (for HTML <script> tags)\n");
+    code.push_str("    if let Some(Ok(mut js_config)) = get_config(\"javascript\") {\n");
+    code.push_str("        js_config.configure(&names);\n");
+    code.push_str("        injection_configs.insert(\"javascript\", js_config);\n");
+    code.push_str("    }\n");
+    code.push_str("    \n");
+    code.push_str("    // CSS (for HTML <style> tags)\n");
+    code.push_str("    if let Some(Ok(mut css_config)) = get_config(\"css\") {\n");
+    code.push_str("        css_config.configure(&names);\n");
+    code.push_str("        injection_configs.insert(\"css\", css_config);\n");
+    code.push_str("    }\n\n");
     code.push_str("    let mut highlighter = Highlighter::new();\n");
     code.push_str("    let mut output = Vec::new();\n\n");
-    code.push_str("    html::render(&mut output, &mut highlighter, &config, source, |_| None)\n");
+    code.push_str("    html::render(&mut output, &mut highlighter, &config, source, |lang| {\n");
+    code.push_str("        injection_configs.get(lang)\n");
+    code.push_str("    })\n");
     code.push_str("        .map_err(|e| JsValue::from_str(&format!(\"Render error: {}\", e)))?;\n\n");
     code.push_str("    String::from_utf8(output).map_err(|e| JsValue::from_str(&format!(\"UTF-8 error: {}\", e)))\n");
     code.push_str("}\n\n");

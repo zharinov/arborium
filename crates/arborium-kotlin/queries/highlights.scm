@@ -84,10 +84,11 @@
 ))
 
 (package_header
-	. (identifier)) @namespace
+	"package" @keyword.import
+	. (identifier) @namespace)
 
 (import_header
-	"import" @include)
+	"import" @keyword.import)
 
 
 ; TODO: Seperate labeled returns/breaks/continue/super/this

@@ -14,13 +14,13 @@ pub fn language() -> Language {
 }
 
 /// The highlight query for haskell.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-haskell/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for haskell.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-haskell/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for haskell.
-pub const LOCALS_QUERY: &str = include_str!("../../../grammars/tree-sitter-haskell/queries/locals.scm");
+pub const LOCALS_QUERY: &str = include_str!("../queries/locals.scm");
 
 #[cfg(test)]
 mod tests {

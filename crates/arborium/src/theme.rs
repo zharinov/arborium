@@ -136,7 +136,7 @@ pub struct Theme {
     /// Foreground (default text) color.
     pub foreground: Option<Color>,
     /// Styles for each highlight category, indexed by HIGHLIGHT_NAMES.
-    styles: [Style; 34],
+    styles: [Style; crate::highlights::COUNT],
 }
 
 impl Default for Theme {
@@ -232,71 +232,47 @@ impl Theme {
             theme.foreground = resolve_color(fg_str);
         }
 
-        // Map Helix highlight names to our indices
-        let highlight_map: &[(&str, usize)] = &[
-            ("attribute", 0),
-            ("constant", 1),
-            ("constant.builtin", 1),
-            ("function.builtin", 2),
-            ("function", 3),
-            ("function.method", 3),
-            ("keyword", 4),
-            ("keyword.control", 4),
-            ("keyword.function", 4),
-            ("keyword.operator", 4),
-            ("keyword.return", 4),
-            ("keyword.storage", 4),
-            ("operator", 5),
-            ("property", 6),
-            ("punctuation", 7),
-            ("punctuation.bracket", 8),
-            ("punctuation.delimiter", 9),
-            ("string", 10),
-            ("string.special", 11),
-            ("string.special.symbol", 11),
-            ("string.regexp", 11),
-            ("tag", 12),
-            ("type", 13),
-            ("type.builtin", 14),
-            ("variable", 15),
-            ("variable.builtin", 16),
-            ("variable.parameter", 17),
-            ("comment", 18),
-            ("comment.line", 18),
-            ("comment.block", 18),
-            ("macro", 19),
-            ("function.macro", 19),
-            ("label", 20),
-            ("diff.plus", 21),
-            ("diff.minus", 22),
-            ("diff.delta", 21),
-            ("number", 23),
-            ("constant.numeric", 23),
-            ("text.literal", 24),
-            ("markup.raw", 24),
-            ("text.emphasis", 25),
-            ("markup.italic", 25),
-            ("text.strong", 26),
-            ("markup.bold", 26),
-            ("text.uri", 27),
-            ("markup.link.url", 27),
-            ("text.reference", 28),
-            ("markup.link.text", 28),
-            ("string.escape", 29),
-            ("escape", 29),
-            ("text.title", 30),
-            ("markup.heading", 30),
-            ("punctuation.special", 31),
-            ("text.strikethrough", 32),
-            ("markup.strikethrough", 32),
-            ("spell", 33),
+        // Build mapping from Helix names to our indices using highlights module
+        use crate::highlights::HIGHLIGHTS;
+
+        // Parse each highlight rule - try main name and aliases
+        for (i, def) in HIGHLIGHTS.iter().enumerate() {
+            // Try main name
+            if let Some(rule) = table.get(def.name) {
+                let style = parse_style_value(rule, &resolve_color)?;
+                theme.styles[i] = style;
+                continue;
+            }
+
+            // Try aliases
+            for alias in def.aliases {
+                if let Some(rule) = table.get(*alias) {
+                    let style = parse_style_value(rule, &resolve_color)?;
+                    theme.styles[i] = style;
+                    break;
+                }
+            }
+        }
+
+        // Also handle some common Helix-specific mappings that aren't direct matches
+        let extra_mappings: &[(&str, &str)] = &[
+            ("keyword.control", "keyword"),
+            ("keyword.storage", "keyword"),
+            ("comment.line", "comment"),
+            ("comment.block", "comment"),
+            ("function.macro", "macro"),
         ];
 
-        // Parse each highlight rule
-        for (helix_name, our_index) in highlight_map {
+        for (helix_name, our_name) in extra_mappings {
             if let Some(rule) = table.get(*helix_name) {
-                let style = parse_style_value(rule, &resolve_color)?;
-                theme.styles[*our_index] = style;
+                // Find our index
+                if let Some(i) = HIGHLIGHTS.iter().position(|h| h.name == *our_name) {
+                    // Only apply if we don't already have a style
+                    if theme.styles[i].is_empty() {
+                        let style = parse_style_value(rule, &resolve_color)?;
+                        theme.styles[i] = style;
+                    }
+                }
             }
         }
 
@@ -308,6 +284,9 @@ impl Theme {
     /// Uses CSS nesting for compact output. The selector_prefix is prepended
     /// to scope the rules (e.g., `[data-theme="mocha"]`).
     pub fn to_css(&self, selector_prefix: &str) -> String {
+        use crate::highlights::HIGHLIGHTS;
+        use std::collections::HashMap;
+
         let mut css = String::new();
 
         writeln!(css, "{selector_prefix} {{").unwrap();
@@ -320,21 +299,35 @@ impl Theme {
             writeln!(css, "  color: {};", fg.to_hex()).unwrap();
         }
 
-        // Generate rules for each highlight tag
-        let tags = [
-            "a-at", "a-co", "a-fb", "a-f", "a-k", "a-o", "a-pr", "a-p", "a-pb", "a-pd",
-            "a-s", "a-ss", "a-tg", "a-t", "a-tb", "a-v", "a-vb", "a-vp", "a-c", "a-m",
-            "a-l", "a-da", "a-dd", "a-n", "a-tl", "a-te", "a-ts", "a-tu", "a-tr", "a-se",
-            "a-tt", "a-ps", "a-tx", "a-sp",
-        ];
+        // Build a map from tag -> style for parent lookups
+        let mut tag_to_style: HashMap<&str, &Style> = HashMap::new();
+        for (i, def) in HIGHLIGHTS.iter().enumerate() {
+            if !def.tag.is_empty() && !self.styles[i].is_empty() {
+                tag_to_style.insert(def.tag, &self.styles[i]);
+            }
+        }
 
-        for (i, tag) in tags.iter().enumerate() {
-            let style = &self.styles[i];
+        // Generate rules for each highlight category
+        for (i, def) in HIGHLIGHTS.iter().enumerate() {
+            if def.tag.is_empty() {
+                continue; // Skip categories like "none" that have no tag
+            }
+
+            // Use own style, or fall back to parent style
+            let style = if !self.styles[i].is_empty() {
+                &self.styles[i]
+            } else if !def.parent_tag.is_empty() {
+                // Look up parent style
+                tag_to_style.get(def.parent_tag).copied().unwrap_or(&self.styles[i])
+            } else {
+                continue; // No style and no parent
+            };
+
             if style.is_empty() {
                 continue;
             }
 
-            write!(css, "  {tag} {{").unwrap();
+            write!(css, "  a-{} {{", def.tag).unwrap();
 
             if let Some(fg) = &style.fg {
                 write!(css, " color: {};", fg.to_hex()).unwrap();

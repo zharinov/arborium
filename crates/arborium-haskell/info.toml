@@ -14,7 +14,7 @@ link = "https://en.wikipedia.org/wiki/Haskell"
 trivia = "Named after logician Haskell Curry; standardized in 1990 by a committee that published successive language reports—the 2010 Report remains the latest official spec."
 
 [[samples]]
-path = "samples/Shared.hs"
-description = "Pandoc shared utilities with imports, type signatures, and pattern matching."
-link = "https://github.com/jgm/pandoc/blob/main/src/Text/Pandoc/Shared.hs"
-license = "GPL-2.0-or-later"
+path = "samples/Version.hs"
+description = "Cabal's Version type with pragmas, data types, typeclass instances, and bit manipulation."
+link = "https://github.com/haskell/cabal/blob/master/Cabal-syntax/src/Distribution/Types/Version.hs"
+license = "BSD-3-Clause"

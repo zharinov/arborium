@@ -13,7 +13,7 @@ link = "https://en.wikipedia.org/wiki/Gleam_(programming_language)"
 trivia = "Pilfold announced Gleam in 2016 to bring ML-style typing to Erlang; version 1.0 shipped in March 2024 per the [Gleam 1.0 release notes](https://gleam.run/news/gleam-v1.0/)."
 
 [[samples]]
-path = "samples/wisp.gleam"
-description = "Wisp web framework core showing imports, response types, and request handlers."
-link = "https://github.com/lpil/wisp/blob/main/src/wisp.gleam"
+path = "samples/router.gleam"
+description = "Wisp router with request handling, middleware, and pattern matching."
+link = "local"
 license = "Apache-2.0"

@@ -14,7 +14,7 @@ link = "https://en.wikipedia.org/wiki/Ruby_(programming_language)"
 trivia = "Matz (Yukihiro Matsumoto) chose the name Ruby as a playful reference to Perl—ruby is a precious stone, like pearl."
 
 [[samples]]
-path = "samples/inflector.rb"
+path = "samples/inflector_methods.rb"
 description = "Rails ActiveSupport inflector with pluralize, singularize, and camelize methods."
 link = "https://github.com/rails/rails/blob/main/activesupport/lib/active_support/inflector/methods.rb"
 license = "MIT"

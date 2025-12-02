@@ -23,10 +23,10 @@ pub fn php_only_language() -> Language {
 }
 
 /// The highlight query for php.
-pub const HIGHLIGHTS_QUERY: &str = include_str!("../../../grammars/tree-sitter-php/queries/highlights.scm");
+pub const HIGHLIGHTS_QUERY: &str = include_str!("../queries/highlights.scm");
 
 /// The injections query for php.
-pub const INJECTIONS_QUERY: &str = include_str!("../../../grammars/tree-sitter-php/queries/injections.scm");
+pub const INJECTIONS_QUERY: &str = include_str!("../queries/injections.scm");
 
 /// The locals query for php (empty - no locals available).
 pub const LOCALS_QUERY: &str = "";
