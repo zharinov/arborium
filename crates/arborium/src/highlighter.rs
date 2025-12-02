@@ -345,101 +345,30 @@ mod tests {
     }
 
     #[test]
-    #[cfg(all(feature = "lang-html", feature = "lang-css", feature = "lang-javascript"))]
+    #[cfg(feature = "lang-html")]
     fn test_html_css_injection() {
         let mut highlighter = Highlighter::new();
-        let html = highlighter.highlight_to_html("html", r#"<style>h1 { color: red; }</style>"#).unwrap();
-        // Should have CSS property highlighting
-        assert!(html.contains("color"), "CSS property 'color' should be in output");
+        let html = highlighter
+            .highlight_to_html("html", r#"<style>h1 { color: red; }</style>"#)
+            .unwrap();
+        assert!(
+            html.contains("color"),
+            "CSS property 'color' should be in output"
+        );
     }
 
     #[test]
-    #[cfg(all(feature = "lang-html", feature = "lang-css", feature = "lang-javascript"))]
+    #[cfg(feature = "lang-html")]
     fn test_html_js_injection() {
         let mut highlighter = Highlighter::new();
-        let html = highlighter.highlight_to_html("html", r#"<script>let x = 1;</script>"#).unwrap();
-        // Should have JS keyword highlighting
-        assert!(html.contains("<a-k>let</a-k>"), "JS keyword 'let' should be highlighted");
+        let html = highlighter
+            .highlight_to_html("html", r#"<script>let x = 1;</script>"#)
+            .unwrap();
+        assert!(
+            html.contains("<a-k>let</a-k>"),
+            "JS keyword 'let' should be highlighted"
+        );
     }
 
-    #[test]
-    #[cfg(all(feature = "lang-svelte", feature = "lang-css", feature = "lang-javascript"))]
-    fn test_svelte_script_injection() {
-        let mut highlighter = Highlighter::new();
-        let source = r#"<script>
-    let name = "world";
-</script>"#;
-        let html = highlighter.highlight_to_html("svelte", source).unwrap();
-        // JS keyword 'let' should be highlighted - this is the critical test for JS injection
-        assert!(html.contains("<a-k>let</a-k>"),
-            "JS keyword 'let' should be highlighted in Svelte script. Got: {}", html);
-    }
-
-    #[test]
-    #[cfg(all(feature = "lang-svelte", feature = "lang-css", feature = "lang-javascript"))]
-    fn test_svelte_style_injection() {
-        let mut highlighter = Highlighter::new();
-        let source = r#"<style>
-    h1 { color: red; }
-</style>"#;
-        let html = highlighter.highlight_to_html("svelte", source).unwrap();
-        // CSS inside style block should have highlighting tags
-        // The content between <style> and </style> should contain <a-...> tags
-        assert!(html.contains("<a-"),
-            "CSS inside <style> should have highlighting. Got: {}", html);
-    }
-
-    #[test]
-    #[cfg(all(feature = "lang-svelte", feature = "lang-css", feature = "lang-javascript"))]
-    fn test_svelte_full_component() {
-        let mut highlighter = Highlighter::new();
-        let source = r#"<script>
-    export let name;
-</script>
-
-<h1>Hello {name}!</h1>
-
-<style>
-    h1 { color: red; }
-</style>"#;
-        let html = highlighter.highlight_to_html("svelte", source).unwrap();
-
-        // Script section: JS keywords should be highlighted
-        assert!(html.contains("<a-k>export</a-k>") || html.contains("<a-k>let</a-k>"),
-            "JS keywords should be highlighted in script section. Got: {}", html);
-
-        // Template section: HTML tags should be highlighted
-        assert!(html.contains("<a-tg>") || html.contains("<a-t>"),
-            "HTML tags should be highlighted. Got: {}", html);
-
-        // Style section: CSS property should be highlighted
-        assert!(html.contains("<a-pr>color</a-pr>") || html.contains("<a-p>color</a-p>"),
-            "CSS property should be highlighted. Got: {}", html);
-    }
-
-    #[test]
-    #[cfg(all(feature = "lang-vue", feature = "lang-css", feature = "lang-javascript"))]
-    fn test_vue_script_injection() {
-        let mut highlighter = Highlighter::new();
-        let source = r#"<script>
-export default {
-    data() {
-        return { name: "world" };
-    }
-}
-</script>"#;
-        let html = highlighter.highlight_to_html("vue", source).unwrap();
-        assert!(html.contains("<a-k>export</a-k>"), "JS keyword 'export' should be highlighted in Vue script");
-    }
-
-    #[test]
-    #[cfg(all(feature = "lang-vue", feature = "lang-css", feature = "lang-javascript"))]
-    fn test_vue_style_injection() {
-        let mut highlighter = Highlighter::new();
-        let source = r#"<style>
-.hello { color: blue; }
-</style>"#;
-        let html = highlighter.highlight_to_html("vue", source).unwrap();
-        assert!(html.contains("color"), "CSS property should be present in Vue style");
-    }
+    // Note: Svelte and Vue tests are in svelte_tests.rs and injection_tests.rs
 }

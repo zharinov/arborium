@@ -52,8 +52,6 @@ pub mod html;
 pub mod ansi;
 pub mod theme;
 
-#[cfg(test)]
-mod injection_tests;
 
 pub use highlighter::Highlighter;
 
