@@ -5,7 +5,7 @@
 #![cfg(feature = "lang-html")]
 
 use arborium::tree_sitter_highlight::{Highlight, HighlightEvent, Highlighter as TsHighlighter};
-use arborium::{Highlighter, HIGHLIGHT_NAMES};
+use arborium::{HIGHLIGHT_NAMES, Highlighter};
 use indoc::indoc;
 
 /// A recorded highlight event for testing
@@ -18,6 +18,12 @@ enum Event {
 
 /// Record all highlight events for HTML source
 fn record_events(highlighter: &mut Highlighter, source: &str) -> Vec<Event> {
+    // Pre-load all needed languages before extracting config references
+    highlighter.get_config_mut("html");
+    highlighter.get_config_mut("css");
+    highlighter.get_config_mut("javascript");
+
+    // Now we can safely get immutable references
     let config = highlighter
         .get_config("html")
         .expect("HTML language not found");
@@ -153,7 +159,11 @@ fn test_mixed_content() {
     "#};
     let events = record_events(&mut highlighter, source);
 
-    assert_has_highlights(&events, &["tag", "property", "string"], "HTML mixed content");
+    assert_has_highlights(
+        &events,
+        &["tag", "property", "string"],
+        "HTML mixed content",
+    );
 }
 
 #[test]

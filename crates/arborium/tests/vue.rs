@@ -5,7 +5,7 @@
 #![cfg(feature = "lang-vue")]
 
 use arborium::tree_sitter_highlight::{Highlight, HighlightEvent, Highlighter as TsHighlighter};
-use arborium::{Highlighter, HIGHLIGHT_NAMES};
+use arborium::{HIGHLIGHT_NAMES, Highlighter};
 use indoc::indoc;
 
 /// A recorded highlight event for testing
@@ -18,6 +18,13 @@ enum Event {
 
 /// Record all highlight events for Vue source
 fn record_events(highlighter: &mut Highlighter, source: &str) -> Vec<Event> {
+    // Pre-load all needed languages before extracting config references
+    highlighter.get_config_mut("vue");
+    highlighter.get_config_mut("css");
+    highlighter.get_config_mut("javascript");
+    highlighter.get_config_mut("typescript");
+
+    // Now we can safely get immutable references
     let config = highlighter
         .get_config("vue")
         .expect("Vue language not found");
