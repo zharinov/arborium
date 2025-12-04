@@ -50,7 +50,7 @@ jobs:
         run: arborium-xtask gen --version ${{ steps.version.outputs.version }}
       - 
         name: Create grammar sources tarball
-        run: "for d in crates/arborium-*/; do\n  if [ -d \"$d/grammar\" ]; then\n    echo \"${d}Cargo.toml\"\n    echo \"${d}src\"\n    echo \"${d}grammar/src\"\n  fi\ndone > generated_files.txt\ntar -cvf grammar-sources.tar -T generated_files.txt"
+        run: "{\n  # Root workspace Cargo.toml (has workspace dependency versions)\n  echo \"Cargo.toml\"\n  # Main arborium crate Cargo.toml (has dependency versions)\n  echo \"crates/arborium/Cargo.toml\"\n  # Grammar crates (only those with a grammar/ directory)\n  for d in crates/arborium-*/; do\n    if [ -d \"$d/grammar\" ]; then\n      echo \"${d}Cargo.toml\"\n      echo \"${d}src\"\n      echo \"${d}grammar/src\"\n    fi\n  done\n} > generated_files.txt\ntar -cvf grammar-sources.tar -T generated_files.txt"
       - 
         name: Upload grammar sources
         uses: actions/upload-artifact@v4
@@ -80,9 +80,6 @@ jobs:
       - 
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
-      - 
-        name: Regenerate Cargo.toml files
-        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
       - 
         name: Build
         run: cargo build --locked --verbose
@@ -119,12 +116,6 @@ jobs:
         name: Rust cache
         uses: Swatinem/rust-cache@v2
       - 
-        name: Build xtask
-        run: cargo build --release -p xtask
-      - 
-        name: Regenerate Cargo.toml files
-        run: ./target/release/xtask gen --version ${{ needs.generate.outputs.version }}
-      - 
         name: Install nextest
         uses: taiki-e/install-action@v2
         with: 
@@ -158,9 +149,6 @@ jobs:
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
       - 
-        name: Regenerate Cargo.toml files
-        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
-      - 
         name: Build arborium for WASM
         run: cargo build --locked -p arborium --target wasm32-unknown-unknown
       - 
@@ -187,9 +175,6 @@ jobs:
       - 
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
-      - 
-        name: Regenerate Cargo.toml files
-        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
       - 
         name: Run Clippy
         run: cargo clippy --locked --all-targets -- -D warnings
@@ -230,9 +215,6 @@ jobs:
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
       - 
-        name: Regenerate Cargo.toml files
-        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
-      - 
         name: Build docs
         run: cargo doc --locked --no-deps
         env: 
@@ -259,9 +241,6 @@ jobs:
       - 
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
-      - 
-        name: Regenerate Cargo.toml files
-        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
       - 
         name: Build rust
         run: arborium-xtask plugins build rust
@@ -297,9 +276,6 @@ jobs:
       - 
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
-      - 
-        name: Regenerate Cargo.toml files
-        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
       - 
         name: Build javascript, html
         run: arborium-xtask plugins build javascript html
@@ -339,9 +315,6 @@ jobs:
       - 
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
-      - 
-        name: Regenerate Cargo.toml files
-        run: arborium-xtask gen --version ${{ needs.generate.outputs.version }}
       - 
         name: Publish to crates.io
         run: arborium-xtask publish crates

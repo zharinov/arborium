@@ -318,16 +318,6 @@ pub mod common {
         Step::run("Extract grammar sources", "tar -xvf grammar-sources.tar")
     }
 
-    /// Regenerate Cargo.toml files with the correct version.
-    /// This is needed because the tarball only contains grammar crate files,
-    /// but the root Cargo.toml and main arborium crate also need version updates.
-    pub fn regenerate_with_version() -> Step {
-        Step::run(
-            "Regenerate Cargo.toml files",
-            "arborium-xtask gen --version ${{ needs.generate.outputs.version }}",
-        )
-    }
-
     /// Setup Node.js for npm publishing.
     pub fn setup_node() -> Step {
         Step::uses("Setup Node.js", "actions/setup-node@v4").with_inputs([
@@ -412,16 +402,23 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                 ),
                 // Create tarball for CI jobs (fast tar)
                 // Include everything generated: Cargo.toml, src/, and grammar/src/*
-                // Only include crates that have a grammar/ directory (generated grammar crates)
+                // Also include root Cargo.toml and crates/arborium/Cargo.toml for version consistency
                 Step::run(
                     "Create grammar sources tarball",
-                    r#"for d in crates/arborium-*/; do
-  if [ -d "$d/grammar" ]; then
-    echo "${d}Cargo.toml"
-    echo "${d}src"
-    echo "${d}grammar/src"
-  fi
-done > generated_files.txt
+                    r#"{
+  # Root workspace Cargo.toml (has workspace dependency versions)
+  echo "Cargo.toml"
+  # Main arborium crate Cargo.toml (has dependency versions)
+  echo "crates/arborium/Cargo.toml"
+  # Grammar crates (only those with a grammar/ directory)
+  for d in crates/arborium-*/; do
+    if [ -d "$d/grammar" ]; then
+      echo "${d}Cargo.toml"
+      echo "${d}src"
+      echo "${d}grammar/src"
+    fi
+  done
+} > generated_files.txt
 tar -cvf grammar-sources.tar -T generated_files.txt"#,
                 ),
                 Step::uses("Upload grammar sources", "actions/upload-artifact@v4")
@@ -448,7 +445,6 @@ tar -cvf grammar-sources.tar -T generated_files.txt"#,
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources_tar(),
-                regenerate_with_version(),
                 Step::run("Build", "cargo build --locked --verbose"),
                 Step::run("Run tests", "cargo nextest run --locked --verbose"),
                 Step::run(
@@ -459,8 +455,6 @@ tar -cvf grammar-sources.tar -T generated_files.txt"#,
     );
 
     // Test macOS (no container, needs to install tools)
-    // Note: regenerate_with_version() won't work here because arborium-xtask isn't available.
-    // macOS job uses a lighter approach - just run cargo with relaxed version matching.
     jobs.insert(
         "test-macos".into(),
         Job::new(runners::MACOS)
@@ -472,12 +466,6 @@ tar -cvf grammar-sources.tar -T generated_files.txt"#,
                 extract_grammar_sources_tar(),
                 install_rust(),
                 rust_cache(),
-                // Build xtask first to regenerate Cargo.toml files
-                Step::run("Build xtask", "cargo build --release -p xtask"),
-                Step::run(
-                    "Regenerate Cargo.toml files",
-                    "./target/release/xtask gen --version ${{ needs.generate.outputs.version }}",
-                ),
                 install_nextest(),
                 Step::run("Build", "cargo build --locked --verbose"),
                 Step::run("Run tests", "cargo nextest run --locked --verbose"),
@@ -495,7 +483,6 @@ tar -cvf grammar-sources.tar -T generated_files.txt"#,
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources_tar(),
-                regenerate_with_version(),
                 Step::run(
                     "Build arborium for WASM",
                     "cargo build --locked -p arborium --target wasm32-unknown-unknown",
@@ -530,7 +517,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources_tar(),
-                regenerate_with_version(),
                 Step::run(
                     "Run Clippy",
                     "cargo clippy --locked --all-targets -- -D warnings",
@@ -565,7 +551,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources_tar(),
-                regenerate_with_version(),
                 Step::run("Build docs", "cargo doc --locked --no-deps")
                     .with_env([("RUSTDOCFLAGS", "-D warnings")]),
             ]),
@@ -602,7 +587,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                         checkout(),
                         download_grammar_sources(),
                         extract_grammar_sources_tar(),
-                        regenerate_with_version(),
                         Step::run(
                             format!("Build {}", display_grammars),
                             format!("arborium-xtask plugins build {}", grammars_list),
@@ -637,7 +621,6 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources_tar(),
-                regenerate_with_version(),
                 Step::run("Publish to crates.io", "arborium-xtask publish crates").with_env([(
                     "CARGO_REGISTRY_TOKEN",
                     "${{ secrets.CARGO_REGISTRY_TOKEN }}",
