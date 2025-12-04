@@ -22,11 +22,36 @@ use std::process::Stdio;
 use std::sync::Mutex;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+/// Update root Cargo.toml with the specified version
+fn update_root_cargo_toml(repo_root: &Utf8Path, version: &str) -> Result<(), Report> {
+    use regex::Regex;
+
+    let cargo_toml_path = repo_root.join("Cargo.toml");
+    let content = fs::read_to_string(&cargo_toml_path)?;
+
+    // Update [workspace.package] version
+    let workspace_version_re =
+        Regex::new(r#"(?m)^(\[workspace\.package\][\s\S]*?version\s*=\s*)"[^"]*""#)
+            .map_err(|e| std::io::Error::other(format!("Failed to compile regex: {e}")))?;
+    let content = workspace_version_re.replace(&content, format!(r#"$1"{version}""#));
+
+    // Update all version = "X.Y.Z" in [workspace.dependencies] section
+    // Match lines like: arborium-ada = { path = "...", version = "X.Y.Z" }
+    let dep_version_re =
+        Regex::new(r#"(?m)^(arborium-[a-z0-9_-]+\s*=\s*\{[^}]*version\s*=\s*)"[^"]*""#)
+            .map_err(|e| std::io::Error::other(format!("Failed to compile regex: {e}")))?;
+    let content = dep_version_re.replace_all(&content, format!(r#"$1"{version}""#));
+
+    fs::write(&cargo_toml_path, content.as_ref())?;
+    Ok(())
+}
+
 /// Generate crate files for all or a specific grammar.
 pub fn plan_generate(
     crates_dir: &Utf8Path,
     name: Option<&str>,
     mode: PlanMode,
+    version: &str,
 ) -> Result<PlanSet, Report> {
     use std::time::Instant;
     let total_start = Instant::now();
@@ -42,6 +67,12 @@ pub fn plan_generate(
     let repo_root = Utf8PathBuf::from_path_buf(repo_root)
         .map_err(|_| std::io::Error::other("Non-UTF8 repo root"))?;
     let cache = GrammarCache::new(&repo_root);
+
+    // Update root Cargo.toml with the specified version
+    update_root_cargo_toml(&repo_root, version)?;
+
+    // Use the provided version for generated Cargo.toml files
+    let workspace_version = version.to_string();
 
     // Track cache stats
     let cache_hits = AtomicUsize::new(0);
@@ -117,6 +148,7 @@ pub fn plan_generate(
                 &cache_hits,
                 &cache_misses,
                 mode,
+                &workspace_version,
             ) {
                 Ok(plan) => {
                     if !plan.is_empty() {
@@ -185,6 +217,7 @@ pub fn plan_generate(
     Ok(plans.into_inner().unwrap())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn plan_crate_generation(
     crate_state: &CrateState,
     config: &crate::types::CrateConfig,
@@ -193,13 +226,14 @@ fn plan_crate_generation(
     cache_hits: &AtomicUsize,
     cache_misses: &AtomicUsize,
     mode: PlanMode,
+    workspace_version: &str,
 ) -> Result<Plan, Report> {
     let mut plan = Plan::for_crate(&crate_state.name);
     let crate_path = &crate_state.path;
 
     // Generate Cargo.toml
     let cargo_toml_path = crate_path.join("Cargo.toml");
-    let new_cargo_toml = generate_cargo_toml(&crate_state.name, config);
+    let new_cargo_toml = generate_cargo_toml(&crate_state.name, config, workspace_version);
 
     if cargo_toml_path.exists() {
         let old_content = fs::read_to_string(&cargo_toml_path)?;
@@ -577,7 +611,11 @@ fn copy_dir_contents(src: &Utf8Path, dest: &Utf8Path) -> Result<(), Report> {
 }
 
 /// Generate Cargo.toml content for a grammar crate.
-fn generate_cargo_toml(crate_name: &str, config: &crate::types::CrateConfig) -> String {
+fn generate_cargo_toml(
+    crate_name: &str,
+    config: &crate::types::CrateConfig,
+    workspace_version: &str,
+) -> String {
     let grammar_id = config
         .grammars
         .first()
@@ -591,13 +629,19 @@ fn generate_cargo_toml(crate_name: &str, config: &crate::types::CrateConfig) -> 
         .map(|d| d.as_ref())
         .unwrap_or_else(|| "tree-sitter grammar bindings");
 
+    // Use license from arborium.kdl, fallback to MIT if empty
+    let license: &str = {
+        let l: &str = config.license.value.as_ref();
+        if l.is_empty() { "MIT" } else { l }
+    };
+
     format!(
         r#"[package]
 name = "{crate_name}"
-version = "0.1.0"
+version = "{workspace_version}"
 edition = "2024"
 description = "{grammar_id} grammar for arborium (tree-sitter bindings)"
-license = "MIT"
+license = "{license}"
 repository = "https://github.com/bearcove/arborium"
 keywords = ["tree-sitter", "{grammar_id}", "syntax-highlighting"]
 categories = ["parsing", "text-processing"]
@@ -607,10 +651,10 @@ path = "src/lib.rs"
 
 [dependencies]
 tree-sitter-patched-arborium = {{ version = "0.25.10", path = "../../tree-sitter" }}
-arborium-sysroot = {{ version = "0.1.0", path = "../arborium-sysroot" }}
+arborium-sysroot = {{ version = "{workspace_version}", path = "../arborium-sysroot" }}
 
 [dev-dependencies]
-arborium-test-harness = {{ version = "0.1.0", path = "../arborium-test-harness" }}
+arborium-test-harness = {{ version = "{workspace_version}", path = "../arborium-test-harness" }}
 
 [build-dependencies]
 cc = {{ version = "1", features = ["parallel"] }}

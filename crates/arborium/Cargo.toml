@@ -143,475 +143,109 @@ tree-sitter-patched-arborium = { version = "0.25.10", path = "../../tree-sitter"
 tree-sitter-highlight-patched-arborium = { version = "0.25.10", path = "../../tree-sitter-highlight" }
 toml = "0.8"
 
-# WASM allocator (automatically enabled on wasm targets)
-[target.'cfg(target_family = "wasm")'.dependencies]
-dlmalloc = "0.2"
-
-# Optional grammar dependencies
-[dependencies.arborium-ada]
-path = "../arborium-ada"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-agda]
-path = "../arborium-agda"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-asm]
-path = "../arborium-asm"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-awk]
-path = "../arborium-awk"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-bash]
-path = "../arborium-bash"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-batch]
-path = "../arborium-batch"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-c]
-path = "../arborium-c"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-c-sharp]
-path = "../arborium-c-sharp"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-caddy]
-path = "../arborium-caddy"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-capnp]
-path = "../arborium-capnp"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-clojure]
-path = "../arborium-clojure"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-cmake]
-path = "../arborium-cmake"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-commonlisp]
-path = "../arborium-commonlisp"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-cpp]
-path = "../arborium-cpp"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-css]
-path = "../arborium-css"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-d]
-path = "../arborium-d"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-dart]
-path = "../arborium-dart"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-devicetree]
-path = "../arborium-devicetree"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-diff]
-path = "../arborium-diff"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-dockerfile]
-path = "../arborium-dockerfile"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-dot]
-path = "../arborium-dot"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-elisp]
-path = "../arborium-elisp"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-elixir]
-path = "../arborium-elixir"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-elm]
-path = "../arborium-elm"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-erlang]
-path = "../arborium-erlang"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-fish]
-path = "../arborium-fish"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-fsharp]
-path = "../arborium-fsharp"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-gleam]
-path = "../arborium-gleam"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-glsl]
-path = "../arborium-glsl"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-go]
-path = "../arborium-go"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-graphql]
-path = "../arborium-graphql"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-haskell]
-path = "../arborium-haskell"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-hcl]
-path = "../arborium-hcl"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-hlsl]
-path = "../arborium-hlsl"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-html]
-path = "../arborium-html"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-idris]
-path = "../arborium-idris"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-ini]
-path = "../arborium-ini"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-java]
-path = "../arborium-java"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-javascript]
-path = "../arborium-javascript"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-jinja2]
-path = "../arborium-jinja2"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-jq]
-path = "../arborium-jq"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-json]
-path = "../arborium-json"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-julia]
-path = "../arborium-julia"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-kdl]
-path = "../arborium-kdl"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-kotlin]
-path = "../arborium-kotlin"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-lean]
-path = "../arborium-lean"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-lua]
-path = "../arborium-lua"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-matlab]
-path = "../arborium-matlab"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-meson]
-path = "../arborium-meson"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-nginx]
-path = "../arborium-nginx"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-ninja]
-path = "../arborium-ninja"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-nix]
-path = "../arborium-nix"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-objc]
-path = "../arborium-objc"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-ocaml]
-path = "../arborium-ocaml"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-perl]
-path = "../arborium-perl"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-php]
-path = "../arborium-php"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-powershell]
-path = "../arborium-powershell"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-prolog]
-path = "../arborium-prolog"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-python]
-path = "../arborium-python"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-query]
-path = "../arborium-query"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-r]
-path = "../arborium-r"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-rescript]
-path = "../arborium-rescript"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-ron]
-path = "../arborium-ron"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-ruby]
-path = "../arborium-ruby"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-rust]
-path = "../arborium-rust"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-scala]
-path = "../arborium-scala"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-scheme]
-path = "../arborium-scheme"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-scss]
-path = "../arborium-scss"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-sparql]
-path = "../arborium-sparql"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-sql]
-path = "../arborium-sql"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-ssh-config]
-path = "../arborium-ssh-config"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-starlark]
-path = "../arborium-starlark"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-svelte]
-path = "../arborium-svelte"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-swift]
-path = "../arborium-swift"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-textproto]
-path = "../arborium-textproto"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-thrift]
-path = "../arborium-thrift"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-tlaplus]
-path = "../arborium-tlaplus"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-toml]
-path = "../arborium-toml"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-tsx]
-path = "../arborium-tsx"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-typescript]
-path = "../arborium-typescript"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-typst]
-path = "../arborium-typst"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-uiua]
-path = "../arborium-uiua"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-vb]
-path = "../arborium-vb"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-verilog]
-path = "../arborium-verilog"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-vhdl]
-path = "../arborium-vhdl"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-vim]
-path = "../arborium-vim"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-vue]
-path = "../arborium-vue"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-x86asm]
-path = "../arborium-x86asm"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-xml]
-path = "../arborium-xml"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-yaml]
-path = "../arborium-yaml"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-yuri]
-path = "../arborium-yuri"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-zig]
-path = "../arborium-zig"
-version = "0.1.0"
-optional = true
-
-[dependencies.arborium-zsh]
-path = "../arborium-zsh"
-version = "0.1.0"
-optional = true
+# Optional grammar dependencies - use workspace versions
+arborium-ada = { workspace = true, optional = true }
+arborium-agda = { workspace = true, optional = true }
+arborium-asciidoc = { workspace = true, optional = true }
+arborium-asciidoc_inline = { workspace = true, optional = true }
+arborium-asm = { workspace = true, optional = true }
+arborium-awk = { workspace = true, optional = true }
+arborium-bash = { workspace = true, optional = true }
+arborium-batch = { workspace = true, optional = true }
+arborium-c = { workspace = true, optional = true }
+arborium-c-sharp = { workspace = true, optional = true }
+arborium-caddy = { workspace = true, optional = true }
+arborium-capnp = { workspace = true, optional = true }
+arborium-clojure = { workspace = true, optional = true }
+arborium-cmake = { workspace = true, optional = true }
+arborium-commonlisp = { workspace = true, optional = true }
+arborium-cpp = { workspace = true, optional = true }
+arborium-css = { workspace = true, optional = true }
+arborium-d = { workspace = true, optional = true }
+arborium-dart = { workspace = true, optional = true }
+arborium-devicetree = { workspace = true, optional = true }
+arborium-diff = { workspace = true, optional = true }
+arborium-dockerfile = { workspace = true, optional = true }
+arborium-dot = { workspace = true, optional = true }
+arborium-elisp = { workspace = true, optional = true }
+arborium-elixir = { workspace = true, optional = true }
+arborium-elm = { workspace = true, optional = true }
+arborium-erlang = { workspace = true, optional = true }
+arborium-fish = { workspace = true, optional = true }
+arborium-fsharp = { workspace = true, optional = true }
+arborium-gleam = { workspace = true, optional = true }
+arborium-glsl = { workspace = true, optional = true }
+arborium-go = { workspace = true, optional = true }
+arborium-graphql = { workspace = true, optional = true }
+arborium-haskell = { workspace = true, optional = true }
+arborium-hcl = { workspace = true, optional = true }
+arborium-hlsl = { workspace = true, optional = true }
+arborium-html = { workspace = true, optional = true }
+arborium-idris = { workspace = true, optional = true }
+arborium-ini = { workspace = true, optional = true }
+arborium-java = { workspace = true, optional = true }
+arborium-javascript = { workspace = true, optional = true }
+arborium-jinja2 = { workspace = true, optional = true }
+arborium-jq = { workspace = true, optional = true }
+arborium-json = { workspace = true, optional = true }
+arborium-julia = { workspace = true, optional = true }
+arborium-kdl = { workspace = true, optional = true }
+arborium-kotlin = { workspace = true, optional = true }
+arborium-lean = { workspace = true, optional = true }
+arborium-lua = { workspace = true, optional = true }
+arborium-markdown = { workspace = true, optional = true }
+arborium-markdown-inline = { workspace = true, optional = true }
+arborium-matlab = { workspace = true, optional = true }
+arborium-meson = { workspace = true, optional = true }
+arborium-nginx = { workspace = true, optional = true }
+arborium-ninja = { workspace = true, optional = true }
+arborium-nix = { workspace = true, optional = true }
+arborium-objc = { workspace = true, optional = true }
+arborium-ocaml = { workspace = true, optional = true }
+arborium-perl = { workspace = true, optional = true }
+arborium-php = { workspace = true, optional = true }
+arborium-postscript = { workspace = true, optional = true }
+arborium-powershell = { workspace = true, optional = true }
+arborium-prolog = { workspace = true, optional = true }
+arborium-python = { workspace = true, optional = true }
+arborium-query = { workspace = true, optional = true }
+arborium-r = { workspace = true, optional = true }
+arborium-rescript = { workspace = true, optional = true }
+arborium-ron = { workspace = true, optional = true }
+arborium-ruby = { workspace = true, optional = true }
+arborium-rust = { workspace = true, optional = true }
+arborium-scala = { workspace = true, optional = true }
+arborium-scheme = { workspace = true, optional = true }
+arborium-scss = { workspace = true, optional = true }
+arborium-sparql = { workspace = true, optional = true }
+arborium-sql = { workspace = true, optional = true }
+arborium-ssh-config = { workspace = true, optional = true }
+arborium-starlark = { workspace = true, optional = true }
+arborium-svelte = { workspace = true, optional = true }
+arborium-swift = { workspace = true, optional = true }
+arborium-textproto = { workspace = true, optional = true }
+arborium-thrift = { workspace = true, optional = true }
+arborium-tlaplus = { workspace = true, optional = true }
+arborium-toml = { workspace = true, optional = true }
+arborium-tsx = { workspace = true, optional = true }
+arborium-typescript = { workspace = true, optional = true }
+arborium-typst = { workspace = true, optional = true }
+arborium-uiua = { workspace = true, optional = true }
+arborium-vb = { workspace = true, optional = true }
+arborium-verilog = { workspace = true, optional = true }
+arborium-vhdl = { workspace = true, optional = true }
+arborium-vim = { workspace = true, optional = true }
+arborium-vue = { workspace = true, optional = true }
+arborium-x86asm = { workspace = true, optional = true }
+arborium-xml = { workspace = true, optional = true }
+arborium-yaml = { workspace = true, optional = true }
+arborium-yuri = { workspace = true, optional = true }
+arborium-zig = { workspace = true, optional = true }
+arborium-zsh = { workspace = true, optional = true }
 
 [dev-dependencies]
 indoc = "2"
+
+# WASM allocator (automatically enabled on wasm targets)
+[target.'cfg(target_family = "wasm")'.dependencies]
+dlmalloc = "0.2"

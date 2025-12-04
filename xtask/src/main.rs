@@ -59,6 +59,11 @@ enum Command {
         /// Show what would be done without making changes
         #[facet(args::named, default)]
         dry_run: bool,
+
+        /// Version to use for generated Cargo.toml files (defaults to 0.0.0-dev)
+        /// When set, also updates root Cargo.toml workspace.package.version and workspace.dependencies
+        #[facet(args::named, default)]
+        version: Option<String>,
     },
 
     /// Build and serve the WASM demo locally
@@ -225,7 +230,11 @@ fn main() {
                 std::process::exit(1);
             }
         }
-        Command::Gen { name, dry_run } => {
+        Command::Gen {
+            name,
+            dry_run,
+            version,
+        } => {
             use std::time::Instant;
             let total_start = Instant::now();
 
@@ -240,8 +249,11 @@ fn main() {
                 plan::PlanMode::Execute
             };
 
+            // Use provided version or default to 0.0.0-dev for local dev
+            let version = version.as_deref().unwrap_or("0.0.0-dev");
+
             // Plan and execute generation
-            match generate::plan_generate(&crates_dir, name.as_deref(), mode) {
+            match generate::plan_generate(&crates_dir, name.as_deref(), mode, version) {
                 Ok(plans) => {
                     if let Err(e) = plans.run(dry_run) {
                         eprintln!("Error: {}", e);
