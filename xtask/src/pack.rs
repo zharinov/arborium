@@ -149,7 +149,7 @@ pub fn unpack_grammar_sources(archive: &Utf8Path, target_dir: &Utf8Path) -> Resu
     println!("{} Unpacked archive", "✓".green().bold());
 
     // Verify some key files exist
-    let crates_dir = repo_root.join("crates");
+    let crates_dir = target_dir.join("crates");
     let mut verified = 0;
     for entry in fs_err::read_dir(&crates_dir)
         .into_diagnostic()
