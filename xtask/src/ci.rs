@@ -391,9 +391,9 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                         ("path", ".cache/arborium"),
                         (
                             "key",
-                            "grammar-cache-v2-${{ hashFiles('crates/*/grammar/grammar.js', 'crates/*/grammar/package.json', 'crates/*/common/**') }}",
+                            "grammar-cache-v3-${{ hashFiles('crates/*/grammar/grammar.js', 'crates/*/grammar/package.json', 'crates/*/common/**') }}",
                         ),
-                        ("restore-keys", "grammar-cache-v2-"),
+                        ("restore-keys", "grammar-cache-v3-"),
                     ]),
                 // Generate with version
                 Step::run(
