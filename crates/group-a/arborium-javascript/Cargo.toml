@@ -1,0 +1,22 @@
+[package]
+name = "arborium-javascript"
+version = "0.1.3"
+edition = "2024"
+description = "javascript grammar for arborium (tree-sitter bindings)"
+license = "MIT"
+repository = "https://github.com/bearcove/arborium"
+keywords = ["tree-sitter", "javascript", "syntax-highlighting"]
+categories = ["parsing", "text-processing"]
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+tree-sitter-patched-arborium = { version = "0.25.10", path = "../../tree-sitter" }
+arborium-sysroot = { version = "0.1.3", path = "../arborium-sysroot" }
+
+[dev-dependencies]
+arborium-test-harness = { version = "0.1.3", path = "../arborium-test-harness" }
+
+[build-dependencies]
+cc = { version = "1", features = ["parallel"] }
