@@ -11,8 +11,8 @@ grammar {
     icon "simple-icons:typst"
     aliases "typ"
 
-    inventor "Typst Labs"
-    year 2022
+    inventor "Laurenz Mädje and Martin Haug"
+    year 2023
     description "A modern markup-based typesetting system designed as a faster, friendlier alternative to LaTeX."
     link "https://typst.app"
     trivia "Typst compiles documents incrementally—changes preview instantly, unlike LaTeX which must recompile the entire document."

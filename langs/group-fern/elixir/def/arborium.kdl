@@ -13,9 +13,9 @@ grammar {
 
     inventor "José Valim"
     year 2011
-    description "Functional, concurrent language on the BEAM VM; [official site](https://elixir-lang.org/)."
+    description "Functional, concurrent language on the BEAM VM; <a href=\"https://elixir-lang.org/\">official site</a>."
     link "https://en.wikipedia.org/wiki/Elixir_(programming_language)"
-    trivia "Valim announced Elixir in 2011 to blend Ruby-like ergonomics with Erlang's fault-tolerance; see the [getting started guide](https://elixir-lang.org/getting-started/introduction.html) and the original [announcement blog post](https://elixir-lang.org/blog/2011/01/09/introducing-elixir/)."
+    trivia "Valim announced Elixir in 2011 to blend Ruby-like ergonomics with Erlang's fault-tolerance; see the <a href=\"https://elixir-lang.org/getting-started/introduction.html\">getting started guide</a> and the original <a href=\"https://elixir-lang.org/blog/2011/01/09/introducing-elixir/\">announcement blog post</a>."
 
     sample {
         path "samples/controller.ex"

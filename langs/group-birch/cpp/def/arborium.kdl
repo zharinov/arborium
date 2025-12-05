@@ -15,9 +15,9 @@ grammar {
 
     inventor "Bjarne Stroustrup"
     year 1985
-    description "General-purpose language extending C with zero-overhead abstractions; see Stroustrup's official overview at [isocpp.org](https://isocpp.org/about)."
+    description "General-purpose language extending C with zero-overhead abstractions; see Stroustrup's official overview at <a href=\"https://isocpp.org/about\">isocpp.org</a>."
     link "https://en.wikipedia.org/wiki/C%2B%2B"
-    trivia "Began as 'C with Classes' in 1979 and was renamed C++ (using the C increment operator) in 1983; Stroustrup recounts the history in [The Design and Evolution of C++](https://www.stroustrup.com/dne.html)."
+    trivia "Began as 'C with Classes' in 1979 and was renamed C++ (using the C increment operator) in 1983; Stroustrup recounts the history in <a href=\"https://www.stroustrup.com/dne.html\">The Design and Evolution of C++</a>."
 
     sample {
         path "samples/chrono-test.cc"

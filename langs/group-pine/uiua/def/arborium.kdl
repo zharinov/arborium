@@ -10,7 +10,7 @@ grammar {
     icon "mdi:alpha-u-box-outline"
     aliases "ua"
 
-    inventor "Daniel Diaz"
+    inventor "Kai Schmidt"
     year 2023
     description "A stack-based array programming language with a focus on tacit (point-free) code using Unicode glyphs."
     link "https://www.uiua.org"

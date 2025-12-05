@@ -16,7 +16,7 @@ grammar {
     year 2011
     description "A modern programming language that runs on the JVM, official for Android development"
     link "https://en.wikipedia.org/wiki/Kotlin_(programming_language)"
-    trivia "Kotlin was named after Kotlin Island near St. Petersburg, Russia, where the JetBrains team is based. Google announced Kotlin as an official Android development language in 2017, and by 2019 made it the preferred language for Android app development."
+    trivia "Kotlin was named after Kotlin Island in the Gulf of Finland, near St. Petersburg, Russia, as an homage similar to Java being named after an Indonesian island. Google announced Kotlin as an official Android development language in 2017, and in 2019 made it the preferred language for Android app development."
 
     sample {
         path "samples/Sequences.kt"
