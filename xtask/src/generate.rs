@@ -1,16 +1,16 @@
-//! Generate command - regenerates crate files from arborium.kdl.
-//!
-//! This command reads arborium.kdl files and generates:
-//! - Cargo.toml
-//! - build.rs
-//! - src/lib.rs
-//! - grammar/src/ (by running tree-sitter generate)
-
+/// Generate command - regenerates crate files from arborium.kdl.
+///
+/// This command reads arborium.kdl files and generates:
+/// - Cargo.toml
+/// - build.rs
+/// - src/lib.rs
+/// - grammar/src/ (by running tree-sitter generate)
 use crate::cache::GrammarCache;
 use crate::plan::{Operation, Plan, PlanMode, PlanSet};
 use crate::tool::Tool;
 use crate::types::{CrateRegistry, CrateState};
 use crate::util::find_repo_root;
+use crate::version_store;
 use camino::{Utf8Path, Utf8PathBuf};
 use fs_err as fs;
 use owo_colors::OwoColorize;
@@ -74,6 +74,32 @@ struct ReadmeTemplate<'a> {
     language_link: &'a str,
 }
 
+// Plugin crate templates
+#[derive(TemplateSimple)]
+#[template(path = "plugin_cargo_toml.stpl")]
+struct PluginCargoTomlTemplate<'a> {
+    grammar_id: &'a str,
+    grammar_crate_name: &'a str,
+    crate_rel: &'a str,
+    shared_rel: &'a str,
+    wit_path: &'a str,
+}
+
+#[derive(TemplateSimple)]
+#[template(path = "plugin_lib_rs.stpl")]
+struct PluginLibRsTemplate<'a> {
+    grammar_id: &'a str,
+    grammar_crate_name_snake: &'a str,
+    wit_path: &'a str,
+}
+
+#[derive(TemplateSimple)]
+#[template(path = "plugin_package_json.stpl")]
+struct PluginPackageJsonTemplate<'a> {
+    grammar_id: &'a str,
+    version: &'a str,
+}
+
 /// Update root Cargo.toml with the specified version
 fn update_root_cargo_toml(repo_root: &Utf8Path, version: &str) -> Result<(), Report> {
     use regex::Regex;
@@ -81,11 +107,24 @@ fn update_root_cargo_toml(repo_root: &Utf8Path, version: &str) -> Result<(), Rep
     let cargo_toml_path = repo_root.join("Cargo.toml");
     let content = fs::read_to_string(&cargo_toml_path)?;
 
-    // Update [workspace.package] version
-    let workspace_version_re =
-        Regex::new(r#"(?m)^(\[workspace\.package\][\s\S]*?version\s*=\s*)"[^"]*""#)
-            .map_err(|e| std::io::Error::other(format!("Failed to compile regex: {e}")))?;
-    let content = workspace_version_re.replace(&content, format!(r#"$1"{version}""#));
+    // Ensure [workspace.package] exists; create if missing.
+    let mut content = content;
+    if !content.contains("[workspace.package]") {
+        // Insert at end to avoid disturbing existing sections.
+        content.push_str("\n[workspace.package]\n");
+        content.push_str(&format!("version = \"{}\"\n", version));
+        content.push_str("edition = \"2024\"\n");
+        content.push_str("license = \"MIT OR Apache-2.0\"\n");
+        content.push_str("repository = \"https://github.com/bearcove/arborium\"\n");
+    } else {
+        // Update version inside existing workspace.package.
+        let workspace_version_re =
+            Regex::new(r#"(?m)^(\[workspace\.package\][\s\S]*?version\s*=\s*)"[^"]*""#)
+                .map_err(|e| std::io::Error::other(format!("Failed to compile regex: {e}")))?;
+        content = workspace_version_re
+            .replace(&content, format!(r#"$1"{version}""#))
+            .to_string();
+    }
 
     // Update all version = "X.Y.Z" in [workspace.dependencies] section
     // Match lines like: arborium-ada = { path = "...", version = "X.Y.Z" }
@@ -624,7 +663,13 @@ fn prepare_temp_structures(
         .map_err(|_| std::io::Error::other("Non-UTF8 repo root"))?;
     let cache = GrammarCache::new(&repo_root);
 
-    // Update root files
+    // Record canonical version once, then update root files
+    version_store::write_version(&repo_root, version).map_err(|e| {
+        rootcause::Report::new(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            e.to_string(),
+        ))
+    })?;
     update_root_cargo_toml(&repo_root, version)?;
     generate_workspace_dependencies(&repo_root, &registry, version)?;
 
@@ -842,7 +887,7 @@ fn plan_grammar_generation_with_prepared_temp(
     let short_key = &cache_key[..8.min(cache_key.len())];
 
     if let Some(cached_files) = cache.get(crate_name, &cache_key) {
-        // Cache hit - extract to a temp location first, then plan updates
+        // Cache hit - skip tree-sitter generate, but still plan grammar/src updates
         let temp_src = temp_root.join("cached_src");
         cached_files.extract_to(&temp_src)?;
 
@@ -853,9 +898,9 @@ fn plan_grammar_generation_with_prepared_temp(
             .join(crate_name)
             .join(short_key);
         println!(
-            "● {} ({}: {}, re-using cache {})",
+            "● {} ({}: {}, skipping tree-sitter, cache: {})",
             crate_name.green(),
-            "up-to-date".green(),
+            "cache hit".green(),
             short_key,
             cache_path
         );

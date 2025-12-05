@@ -6,7 +6,7 @@
 use facet::Facet;
 use indexmap::IndexMap;
 
-use crate::plugins::{PluginGroups, PluginTimings};
+use crate::build::{PluginGroups, PluginTimings};
 
 // =============================================================================
 // GitHub Actions Workflow Schema

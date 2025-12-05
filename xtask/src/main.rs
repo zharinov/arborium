@@ -12,13 +12,14 @@ mod ci;
 mod generate;
 mod lint_new;
 
+mod build;
 mod plan;
-mod plugins;
 mod publish;
 mod serve;
 mod tool;
 mod types;
 mod util;
+mod version_store;
 
 use facet::Facet;
 use facet_args as args;
@@ -267,13 +268,13 @@ fn main() {
             }
             let repo_root = util::find_repo_root().expect("Could not find repo root");
             let repo_root = camino::Utf8PathBuf::from_path_buf(repo_root).expect("non-UTF8 path");
-            let options = plugins::BuildOptions {
+            let options = build::BuildOptions {
                 grammars,
                 output_dir: None,
                 transpile: !no_transpile,
                 profile,
             };
-            if let Err(e) = plugins::build_plugins(&repo_root, &options) {
+            if let Err(e) = build::build_plugins(&repo_root, &options) {
                 eprintln!("{:?}", e);
                 std::process::exit(1);
             }
@@ -281,7 +282,7 @@ fn main() {
         Command::Clean => {
             let repo_root = util::find_repo_root().expect("Could not find repo root");
             let repo_root = camino::Utf8PathBuf::from_path_buf(repo_root).expect("non-UTF8 path");
-            if let Err(e) = plugins::clean_plugins(&repo_root, "langs") {
+            if let Err(e) = build::clean_plugins(&repo_root, "langs") {
                 eprintln!("{:?}", e);
                 std::process::exit(1);
             }

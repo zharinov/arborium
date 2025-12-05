@@ -1,0 +1,43 @@
+{
+  "name": "@arborium/<%= grammar_id %>",
+  "version": "<%= version %>",
+  "description": "Arborium syntax highlighting grammar for <%= grammar_id %>",
+  "type": "module",
+  "main": "./grammar.js",
+  "module": "./grammar.js",
+  "types": "./grammar.d.ts",
+  "exports": {
+    ".": {
+      "import": "./grammar.js",
+      "types": "./grammar.d.ts"
+    },
+    "./grammar.js": "./grammar.js",
+    "./grammar.core.wasm": "./grammar.core.wasm"
+  },
+  "files": [
+    "grammar.js",
+    "grammar.d.ts",
+    "grammar.core.wasm",
+    "interfaces"
+  ],
+  "keywords": [
+    "arborium",
+    "syntax-highlighting",
+    "tree-sitter",
+    "<%= grammar_id %>",
+    "wasm"
+  ],
+  "author": "Amos Wenger <amos@bearcove.net>",
+  "license": "MIT OR Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bearcove/arborium.git"
+  },
+  "homepage": "https://github.com/bearcove/arborium",
+  "bugs": {
+    "url": "https://github.com/bearcove/arborium/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
