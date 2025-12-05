@@ -279,7 +279,7 @@ fn build_single_plugin(
     registry: &CrateRegistry,
     grammar: &str,
     output_override: Option<&Utf8Path>,
-    version: &str,
+    _version: &str,
     cargo_component: &crate::tool::ToolPath,
     jco: Option<&crate::tool::ToolPath>,
     profile: bool,
@@ -309,18 +309,17 @@ fn build_single_plugin(
             .expect("lang directory")
             .join("npm")
     };
-    std::fs::create_dir_all(plugin_output.join("src"))
-        .into_diagnostic()
-        .context("failed to create plugin output directory")?;
 
-    write_plugin_cargo_toml(
-        repo_root,
-        grammar,
-        &crate_state.name,
-        grammar_crate_path,
-        &plugin_output,
-    )?;
-    write_plugin_lib_rs(repo_root, grammar, &crate_state.name, &plugin_output)?;
+    // Plugin crate files (Cargo.toml, src/lib.rs, package.json) are now generated
+    // by `cargo xtask gen`. Verify they exist before building.
+    let cargo_toml = plugin_output.join("Cargo.toml");
+    let lib_rs = plugin_output.join("src/lib.rs");
+    if !cargo_toml.exists() || !lib_rs.exists() {
+        miette::bail!(
+            "Plugin crate files not found at {}. Run `cargo xtask gen --version <version>` first.",
+            plugin_output
+        );
+    }
 
     let cargo_start = Instant::now();
     let output = cargo_component
@@ -390,8 +389,6 @@ fn build_single_plugin(
         );
     }
 
-    write_package_json(grammar, version, &plugin_output)?;
-
     Ok(PluginTiming {
         grammar: grammar.to_string(),
         build_ms,
@@ -413,274 +410,6 @@ fn locate_grammar<'a>(
             .find(|g| <String as AsRef<str>>::as_ref(&g.id.value) == grammar)
             .map(|g| (state, g))
     })
-}
-
-fn write_plugin_cargo_toml(
-    repo_root: &Utf8Path,
-    grammar: &str,
-    grammar_crate_name: &str,
-    grammar_crate_path: &Utf8Path,
-    out_dir: &Utf8Path,
-) -> Result<()> {
-    let _runtime_path = repo_root.join("crates/arborium-plugin-runtime");
-    let _wire_path = repo_root.join("crates/arborium-wire");
-    let _sysroot_path = repo_root.join("crates/arborium-sysroot");
-    let _test_harness_path = repo_root.join("crates/arborium-test-harness");
-
-    // Paths relative to npm/:
-    // crate = ../crate
-    // shared crates = ../../../crates/<name>
-    let crate_rel = "../crate";
-    let shared_rel = "../../../crates";
-
-    let cargo_toml = format!(
-        r#"[package]
-name = "arborium-{grammar}-plugin"
-version = "0.1.0"
-edition = "2024"
-description = "{grammar} grammar plugin for arborium"
-license = "MIT"
-repository = "https://github.com/bearcove/arborium"
-
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies]
-arborium-plugin-runtime = {{ path = "{shared_rel}/arborium-plugin-runtime" }}
-arborium-wire = {{ path = "{shared_rel}/arborium-wire" }}
-"{grammar_crate_name}" = {{ path = "{crate_rel}" }}
-wit-bindgen = "0.36"
-
-[workspace]
-
-[patch.crates-io]
-arborium-sysroot = {{ path = "{shared_rel}/arborium-sysroot" }}
-arborium-test-harness = {{ path = "{shared_rel}/arborium-test-harness" }}
-
-[package.metadata.component]
-package = "arborium:grammar"
-
-[package.metadata.component.target]
-world = "grammar-plugin"
-path = "{wit_path}"
-"#,
-        grammar = grammar,
-        grammar_crate_name = grammar_crate_name,
-        shared_rel = shared_rel,
-        crate_rel = crate_rel,
-        wit_path = repo_root.join("wit/grammar.wit").as_str(),
-    );
-
-    std::fs::write(out_dir.join("Cargo.toml"), cargo_toml)
-        .into_diagnostic()
-        .context("failed to write plugin Cargo.toml")
-}
-
-fn write_plugin_lib_rs(
-    repo_root: &Utf8Path,
-    grammar: &str,
-    grammar_crate_name: &str,
-    out_dir: &Utf8Path,
-) -> Result<()> {
-    let lib_rs = format!(
-        r#"//! {grammar} grammar plugin for arborium.
-#![allow(unsafe_op_in_unsafe_fn)]
-
-wit_bindgen::generate!({{
-    world: "grammar-plugin",
-    path: "{wit_path}",
-}});
-
-use arborium_plugin_runtime::{{HighlightConfig, PluginRuntime}};
-use arborium_wire::Edit as WireEdit;
-use std::cell::RefCell;
-
-// Import the generated types
-use arborium::grammar::types::{{Edit, Injection, ParseError, ParseResult, Span}};
-
-thread_local! {{
-    static RUNTIME: RefCell<Option<PluginRuntime>> = const {{ RefCell::new(None) }};
-}}
-
-fn get_or_init_runtime() -> &'static RefCell<Option<PluginRuntime>> {{
-    RUNTIME.with(|r| {{
-        let mut runtime = r.borrow_mut();
-        if runtime.is_none() {{
-            let config = HighlightConfig::new(
-                {grammar_crate_name}::language(),
-                {grammar_crate_name}::HIGHLIGHTS_QUERY,
-                {grammar_crate_name}::INJECTIONS_QUERY,
-                {grammar_crate_name}::LOCALS_QUERY,
-            )
-            .expect(\"failed to create highlight config\");
-            *runtime = Some(PluginRuntime::new(config));
-        }}
-        unsafe {{ &*(r as *const _) }}
-    }})
-}}
-
-struct PluginImpl;
-
-impl exports::arborium::grammar::plugin::Guest for PluginImpl {{
-    fn language_id() -> String {{
-        \"{grammar}\".to_string()
-    }}
-
-    fn injection_languages() -> Vec<String> {{
-        Vec::new()
-    }}
-
-    fn create_session() -> u32 {{
-        get_or_init_runtime()
-            .borrow_mut()
-            .as_mut()
-            .expect(\"runtime not initialized\")
-            .create_session()
-    }}
-
-    fn free_session(session: u32) {{
-        get_or_init_runtime()
-            .borrow_mut()
-            .as_mut()
-            .expect(\"runtime not initialized\")
-            .free_session(session);
-    }}
-
-    fn set_text(session: u32, text: String) {{
-        get_or_init_runtime()
-            .borrow_mut()
-            .as_mut()
-            .expect(\"runtime not initialized\")
-            .set_text(session, &text);
-    }}
-
-    fn apply_edit(session: u32, text: String, edit: Edit) {{
-        let wire_edit = WireEdit {{
-            start_byte: edit.start_byte,
-            old_end_byte: edit.old_end_byte,
-            new_end_byte: edit.new_end_byte,
-            start_row: edit.start_row,
-            start_col: edit.start_col,
-            old_end_row: edit.old_end_row,
-            old_end_col: edit.old_end_col,
-            new_end_row: edit.new_end_row,
-            new_end_col: edit.new_end_col,
-        }};
-        get_or_init_runtime()
-            .borrow_mut()
-            .as_mut()
-            .expect(\"runtime not initialized\")
-            .apply_edit(session, &text, &wire_edit);
-    }}
-
-    fn parse(session: u32) -> Result<ParseResult, ParseError> {{
-        let result = get_or_init_runtime()
-            .borrow_mut()
-            .as_mut()
-            .expect(\"runtime not initialized\")
-            .parse(session);
-
-        match result {{
-            Ok(r) => Ok(ParseResult {{
-                spans: r
-                    .spans
-                    .into_iter()
-                    .map(|s| Span {{
-                        start: s.start,
-                        end: s.end,
-                        capture: s.capture,
-                    }})
-                    .collect(),
-                injections: r
-                    .injections
-                    .into_iter()
-                    .map(|i| Injection {{
-                        start: i.start,
-                        end: i.end,
-                        language: i.language,
-                        include_children: i.include_children,
-                    }})
-                    .collect(),
-            }}),
-            Err(e) => Err(ParseError {{
-                message: e.message,
-            }}),
-        }}
-    }}
-}}
-
-export!(PluginImpl);
-"#,
-        grammar = grammar,
-        grammar_crate_name = grammar_crate_name,
-        wit_path = repo_root.join("wit/grammar.wit").as_str(),
-    );
-
-    std::fs::write(out_dir.join("src/lib.rs"), lib_rs)
-        .into_diagnostic()
-        .context("failed to write plugin lib.rs")
-}
-
-fn write_package_json(language: &str, version: &str, plugin_dir: &Utf8Path) -> Result<()> {
-    let package_json = generate_package_json(language, version);
-    let package_json_path = plugin_dir.join("package.json");
-    std::fs::write(&package_json_path, package_json)
-        .into_diagnostic()
-        .context(format!("failed to write {}", package_json_path))?;
-    Ok(())
-}
-
-fn generate_package_json(language: &str, version: &str) -> String {
-    let safe_language = language.replace('\\', "\\\\").replace('\"', "\\\"");
-
-    format!(
-        r#"{{
-  "name": "@arborium/{language}",
-  "version": "{version}",
-  "description": "Arborium syntax highlighting grammar for {language}",
-  "type": "module",
-  "main": "./grammar.js",
-  "module": "./grammar.js",
-  "types": "./grammar.d.ts",
-  "exports": {{
-    ".": {{
-      "import": "./grammar.js",
-      "types": "./grammar.d.ts"
-    }},
-    "./grammar.js": "./grammar.js",
-    "./grammar.core.wasm": "./grammar.core.wasm"
-  }},
-  "files": [
-    "grammar.js",
-    "grammar.d.ts",
-    "grammar.core.wasm",
-    "interfaces"
-  ],
-  "keywords": [
-    "arborium",
-    "syntax-highlighting",
-    "tree-sitter",
-    "{language}",
-    "wasm"
-  ],
-  "author": "Amos Wenger <amos@bearcove.net>",
-  "license": "MIT OR Apache-2.0",
-  "repository": {{
-    "type": "git",
-    "url": "git+https://github.com/bearcove/arborium.git"
-  }},
-  "homepage": "https://github.com/bearcove/arborium",
-  "bugs": {{
-    "url": "https://github.com/bearcove/arborium/issues"
-  }},
-  "publishConfig": {{
-    "access": "public"
-  }}
-}}
-"#,
-        language = safe_language,
-        version = version
-    )
 }
 
 fn build_manifest(

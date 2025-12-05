@@ -1,0 +1,29 @@
+repo "https://github.com/tree-sitter-grammars/tree-sitter-hlsl"
+commit "bab9111922d53d43668fabb61869bec51bbcb915"
+license "MIT"
+
+grammar {
+    id "hlsl"
+    name "HLSL"
+    tag "code"
+    tier 3
+    generate-component #false
+    has-scanner #true
+    icon "mdi:cube-outline"
+
+    dependency "tree-sitter-cpp" crate="arborium-cpp"
+    dependency "tree-sitter-c" crate="arborium-c"
+
+    inventor "Microsoft"
+    year 2002
+    description "High-Level Shading Language for DirectX; [official reference](https://learn.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-pguide)."
+    link "https://en.wikipedia.org/wiki/High-Level_Shading_Language"
+    trivia "Introduced with DirectX 9; modern compiler `dxc` targets DXIL and SPIR-V—see [DirectX Shader Compiler](https://github.com/microsoft/DirectXShaderCompiler)."
+
+    sample {
+        path "samples/HelloTriangle.hlsl"
+        description "DirectX 12 HelloTriangle shader showing vertex/pixel stages and constant buffers."
+        link "https://github.com/microsoft/DirectX-Graphics-Samples/blob/master/Samples/Desktop/D3D12HelloWorld/src/HelloTriangle/shaders.hlsl"
+        license "MIT"
+    }
+}

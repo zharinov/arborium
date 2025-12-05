@@ -1,0 +1,14 @@
+repo "https://github.com/tree-sitter-grammars/tree-sitter-markdown"
+commit "2dfd57f547f06ca5631a80f601e129d73fc8e9f0"
+license "MIT"
+
+grammar {
+    id "markdown_inline"
+    name "Markdown Inline"
+    tag "markup"
+    internal #true
+    has-scanner #true
+    generate-component #false
+
+    description "Inline grammar for Markdown parsing; companion to the block-level markdown grammar."
+}

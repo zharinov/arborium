@@ -622,6 +622,52 @@ fn generate_readme(crate_name: &str, config: &crate::types::CrateConfig) -> Stri
         .expect("ReadmeTemplate render failed")
 }
 
+/// Generate plugin Cargo.toml content.
+fn generate_plugin_cargo_toml(
+    grammar_id: &str,
+    grammar_crate_name: &str,
+    wit_path: &str,
+) -> String {
+    // Paths relative to npm/:
+    // crate = ../crate
+    // shared crates = ../../../crates/<name>
+    let crate_rel = "../crate";
+    let shared_rel = "../../../crates";
+
+    let template = PluginCargoTomlTemplate {
+        grammar_id,
+        grammar_crate_name,
+        crate_rel,
+        shared_rel,
+        wit_path,
+    };
+    template
+        .render_once()
+        .expect("PluginCargoTomlTemplate render failed")
+}
+
+/// Generate plugin src/lib.rs content.
+fn generate_plugin_lib_rs(grammar_id: &str, grammar_crate_name: &str, wit_path: &str) -> String {
+    let grammar_crate_name_snake = grammar_crate_name.replace('-', "_");
+
+    let template = PluginLibRsTemplate {
+        grammar_id,
+        grammar_crate_name_snake: &grammar_crate_name_snake,
+        wit_path,
+    };
+    template
+        .render_once()
+        .expect("PluginLibRsTemplate render failed")
+}
+
+/// Generate plugin package.json content.
+fn generate_plugin_package_json(grammar_id: &str, version: &str) -> String {
+    let template = PluginPackageJsonTemplate { grammar_id, version };
+    template
+        .render_once()
+        .expect("PluginPackageJsonTemplate render failed")
+}
+
 // Data structures for temp directory preparation (shared by validation & generation)
 struct PreparedTemp {
     crate_state: CrateState,
@@ -974,6 +1020,15 @@ fn generate_all_crates(
 
         let crate_plan = plan_crate_files_only(crate_state, config, &prepared.workspace_version)?;
         final_plan.add(crate_plan);
+
+        // Generate plugin crate files for grammars that have generate-component enabled
+        let plugin_plan = plan_plugin_crate_files(
+            crate_state,
+            config,
+            &prepared.repo_root,
+            &prepared.workspace_version,
+        )?;
+        final_plan.add(plugin_plan);
     }
 
     Ok(final_plan)
@@ -1091,6 +1146,123 @@ fn plan_crate_files_only(
             path: lib_rs_path,
             content: new_lib_rs,
             description: "Create src/lib.rs".to_string(),
+        });
+    }
+
+    Ok(plan)
+}
+
+/// Generate plugin crate files (npm/Cargo.toml, npm/src/lib.rs, npm/package.json)
+/// Only generates for grammars that have generate-component enabled (default: true).
+fn plan_plugin_crate_files(
+    crate_state: &CrateState,
+    config: &crate::types::CrateConfig,
+    repo_root: &Utf8Path,
+    workspace_version: &str,
+) -> Result<Plan, Report> {
+    let mut plan = Plan::for_crate(&format!("{}-plugin", &crate_state.name));
+
+    // Check if any grammar has generate-component enabled
+    let grammar = config.grammars.first();
+    let should_generate = grammar.map(|g| g.generate_component()).unwrap_or(true);
+
+    if !should_generate {
+        return Ok(plan);
+    }
+
+    let grammar = match grammar {
+        Some(g) => g,
+        None => return Ok(plan),
+    };
+
+    let grammar_id = grammar.id();
+    let crate_name = &crate_state.name;
+
+    // Plugin crate lives in npm/ sibling to crate/
+    // Structure: langs/group-*/lang/npm/
+    let lang_dir = crate_state.crate_path.parent().expect("crate_path should have parent");
+    let npm_path = lang_dir.join("npm");
+    let wit_path = repo_root.join("wit/grammar.wit");
+
+    // Ensure npm directory exists
+    if !npm_path.exists() {
+        plan.add(Operation::CreateDir {
+            path: npm_path.clone(),
+            description: "Create npm directory".to_string(),
+        });
+    }
+
+    // Generate npm/Cargo.toml
+    let cargo_toml_path = npm_path.join("Cargo.toml");
+    let new_cargo_toml = generate_plugin_cargo_toml(grammar_id, crate_name, wit_path.as_str());
+
+    if cargo_toml_path.exists() {
+        let old_content = fs::read_to_string(&cargo_toml_path)?;
+        if old_content != new_cargo_toml {
+            plan.add(Operation::UpdateFile {
+                path: cargo_toml_path,
+                old_content: Some(old_content),
+                new_content: new_cargo_toml,
+                description: "Update plugin Cargo.toml".to_string(),
+            });
+        }
+    } else {
+        plan.add(Operation::CreateFile {
+            path: cargo_toml_path,
+            content: new_cargo_toml,
+            description: "Create plugin Cargo.toml".to_string(),
+        });
+    }
+
+    // Generate npm/src/lib.rs
+    let lib_rs_path = npm_path.join("src/lib.rs");
+    let new_lib_rs = generate_plugin_lib_rs(grammar_id, crate_name, wit_path.as_str());
+
+    if lib_rs_path.exists() {
+        let old_content = fs::read_to_string(&lib_rs_path)?;
+        if old_content != new_lib_rs {
+            plan.add(Operation::UpdateFile {
+                path: lib_rs_path,
+                old_content: Some(old_content),
+                new_content: new_lib_rs,
+                description: "Update plugin src/lib.rs".to_string(),
+            });
+        }
+    } else {
+        // Ensure src/ directory exists
+        let src_dir = npm_path.join("src");
+        if !src_dir.exists() {
+            plan.add(Operation::CreateDir {
+                path: src_dir,
+                description: "Create plugin src directory".to_string(),
+            });
+        }
+        plan.add(Operation::CreateFile {
+            path: lib_rs_path,
+            content: new_lib_rs,
+            description: "Create plugin src/lib.rs".to_string(),
+        });
+    }
+
+    // Generate npm/package.json
+    let package_json_path = npm_path.join("package.json");
+    let new_package_json = generate_plugin_package_json(grammar_id, workspace_version);
+
+    if package_json_path.exists() {
+        let old_content = fs::read_to_string(&package_json_path)?;
+        if old_content != new_package_json {
+            plan.add(Operation::UpdateFile {
+                path: package_json_path,
+                old_content: Some(old_content),
+                new_content: new_package_json,
+                description: "Update plugin package.json".to_string(),
+            });
+        }
+    } else {
+        plan.add(Operation::CreateFile {
+            path: package_json_path,
+            content: new_package_json,
+            description: "Create plugin package.json".to_string(),
         });
     }
 
