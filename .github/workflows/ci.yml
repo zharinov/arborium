@@ -244,10 +244,7 @@ jobs:
 
       - 
         name: Build rust
-        run: arborium-xtask plugins build rust
-      - 
-        name: Generate npm package.json
-        run: arborium-xtask plugins npm --version ${{ needs.generate.outputs.version }}
+        run: arborium-xtask build rust
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -277,10 +274,7 @@ jobs:
 
       - 
         name: Build javascript, html
-        run: arborium-xtask plugins build javascript html
-      - 
-        name: Generate npm package.json
-        run: arborium-xtask plugins npm --version ${{ needs.generate.outputs.version }}
+        run: arborium-xtask build javascript html
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4

@@ -15,7 +15,7 @@
 //!
 //! The new structure organizes languages into thematic groups:
 //!
-//! ```
+//! ```text
 //! langs/
 //! ├── group-birch/              # Systems languages
 //! │   ├── rust/

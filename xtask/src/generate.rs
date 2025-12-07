@@ -766,12 +766,8 @@ fn prepare_temp_structures(
     let cache = GrammarCache::new(&repo_root);
 
     // Record canonical version once, then update root files
-    version_store::write_version(&repo_root, version).map_err(|e| {
-        rootcause::Report::new(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            e.to_string(),
-        ))
-    })?;
+    version_store::write_version(&repo_root, version)
+        .map_err(|e| rootcause::Report::new(std::io::Error::other(e.to_string())))?;
     update_root_cargo_toml(&repo_root, version)?;
     generate_workspace_dependencies(&repo_root, &registry, version)?;
 

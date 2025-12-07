@@ -495,10 +495,7 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             .steps([
                 checkout(),
                 download_grammar_sources(),
-                Step::run(
-                    "Run Clippy",
-                    "cargo clippy --all-targets -- -D warnings",
-                ),
+                Step::run("Run Clippy", "cargo clippy --all-targets -- -D warnings"),
             ]),
     );
 
@@ -567,12 +564,7 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                         download_grammar_sources(),
                         Step::run(
                             format!("Build {}", display_grammars),
-                            format!("arborium-xtask plugins build {}", grammars_list),
-                        ),
-                        // Generate npm package.json with version from generate job
-                        Step::run(
-                            "Generate npm package.json",
-                            "arborium-xtask plugins npm --version ${{ needs.generate.outputs.version }}",
+                            format!("arborium-xtask build {}", grammars_list),
                         ),
                         Step::uses("Upload plugins artifact", "actions/upload-artifact@v4")
                             .with_inputs([
@@ -721,7 +713,7 @@ pub fn generate(repo_root: &Utf8Path, check: bool) -> Result<()> {
             "No plugin timings file found at {} - skipping plugin jobs",
             timings_path
         );
-        println!("Run `cargo xtask plugins build --profile` to generate timings");
+        println!("Run `cargo xtask build --profile` to generate timings");
         None
     };
 

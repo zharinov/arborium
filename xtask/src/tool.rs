@@ -135,10 +135,7 @@ impl Tool {
     /// Get the version string for this tool (if supported).
     pub fn get_version(self) -> Result<String, std::io::Error> {
         let tool_path = self.find().map_err(|_| {
-            std::io::Error::new(
-                std::io::ErrorKind::NotFound,
-                format!("{} not found in PATH", self.display_name()),
-            )
+            std::io::Error::other(format!("{} not found in PATH", self.display_name()))
         })?;
 
         let version_arg = match self {
@@ -153,10 +150,10 @@ impl Tool {
         let output = tool_path.command().arg(version_arg).output()?;
 
         if !output.status.success() {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("{} --version failed", self.display_name()),
-            ));
+            return Err(std::io::Error::other(format!(
+                "{} --version failed",
+                self.display_name()
+            )));
         }
 
         let version_output = String::from_utf8_lossy(&output.stdout);
@@ -164,10 +161,10 @@ impl Tool {
         let version = version_output.lines().next().unwrap_or("").trim();
 
         if version.is_empty() {
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("{} returned empty version", self.display_name()),
-            ));
+            return Err(std::io::Error::other(format!(
+                "{} returned empty version",
+                self.display_name()
+            )));
         }
 
         Ok(version.to_string())

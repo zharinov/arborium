@@ -153,7 +153,7 @@ enum PublishAction {
     /// Use --group to publish specific groups:
     /// - pre: shared crates that grammars depend on
     /// - post: umbrella crates that depend on grammars
-    /// - <group-name>: a specific language group (e.g., cedar, fern, birch)
+    /// - `<group-name>`: a specific language group (e.g., cedar, fern, birch)
     ///
     /// Without --group, publishes everything in order: pre, then all groups, then post.
     Crates {

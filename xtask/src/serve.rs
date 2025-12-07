@@ -1151,6 +1151,7 @@ mod tests {
                     path: "samples/example.rs".to_string(),
                     description: Some("Example code".to_string()),
                 }],
+                def_path: String::new(),
             }],
         };
 

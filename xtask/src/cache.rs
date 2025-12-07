@@ -44,10 +44,7 @@ impl GrammarCache {
 
         // Hash tree-sitter CLI version (critical for cache invalidation)
         let ts_version = Tool::TreeSitter.get_version().map_err(|e| {
-            std::io::Error::new(
-                std::io::ErrorKind::Other,
-                format!("Failed to get tree-sitter version: {}", e),
-            )
+            std::io::Error::other(format!("Failed to get tree-sitter version: {}", e))
         })?;
 
         hasher.update(b"tree-sitter-version:");
@@ -180,23 +177,27 @@ impl GrammarCache {
     }
 
     fn copy_dir_recursive(&self, src_dir: &Utf8Path, dest_dir: &Utf8Path) -> std::io::Result<()> {
-        fs::create_dir_all(dest_dir)?;
-
-        for entry in fs::read_dir(src_dir)? {
-            let entry = entry?;
-            let path = Utf8PathBuf::from_path_buf(entry.path())
-                .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
-            let name = entry.file_name().to_string_lossy().to_string();
-            let dest_path = dest_dir.join(&name);
-
-            if path.is_dir() {
-                self.copy_dir_recursive(&path, &dest_path)?;
-            } else if path.is_file() {
-                fs::copy(&path, &dest_path)?;
-            }
-        }
-        Ok(())
+        copy_dir_recursive(src_dir, dest_dir)
     }
+}
+
+fn copy_dir_recursive(src_dir: &Utf8Path, dest_dir: &Utf8Path) -> std::io::Result<()> {
+    fs::create_dir_all(dest_dir)?;
+
+    for entry in fs::read_dir(src_dir)? {
+        let entry = entry?;
+        let path = Utf8PathBuf::from_path_buf(entry.path())
+            .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
+        let name = entry.file_name().to_string_lossy().to_string();
+        let dest_path = dest_dir.join(&name);
+
+        if path.is_dir() {
+            copy_dir_recursive(&path, &dest_path)?;
+        } else if path.is_file() {
+            fs::copy(&path, &dest_path)?;
+        }
+    }
+    Ok(())
 }
 
 /// A cached grammar that can be restored.
@@ -216,21 +217,7 @@ impl CachedGrammar {
     }
 
     fn copy_dir_recursive(&self, src_dir: &Utf8Path, dest_dir: &Utf8Path) -> std::io::Result<()> {
-        for entry in fs::read_dir(src_dir)? {
-            let entry = entry?;
-            let path = Utf8PathBuf::from_path_buf(entry.path())
-                .map_err(|_| std::io::Error::other("Non-UTF8 path"))?;
-            let name = entry.file_name().to_string_lossy().to_string();
-            let dest_path = dest_dir.join(&name);
-
-            if path.is_dir() {
-                fs::create_dir_all(&dest_path)?;
-                self.copy_dir_recursive(&path, &dest_path)?;
-            } else if path.is_file() {
-                fs::copy(&path, &dest_path)?;
-            }
-        }
-        Ok(())
+        copy_dir_recursive(src_dir, dest_dir)
     }
 }
 
