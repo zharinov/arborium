@@ -45,6 +45,11 @@ pub fn deploy_website(repo_root: &Utf8Path, version: &str, dry_run: bool) -> Res
     // Generate registry.json (copy from demo or generate fresh)
     copy_registry_json(&demo_dir, &site_dir)?;
 
+    // Write CNAME file for custom domain
+    fs_err::write(site_dir.join("CNAME"), "arborium.bearcove.eu\n")
+        .into_diagnostic()
+        .context("failed to write CNAME")?;
+
     if dry_run {
         println!();
         println!("{} Dry run - would deploy:", "ℹ".blue());
@@ -67,7 +72,7 @@ pub fn deploy_website(repo_root: &Utf8Path, version: &str, dry_run: bool) -> Res
     println!(
         "  {} View at: {}",
         "→".blue(),
-        "https://bearcove.github.io/arborium/".cyan()
+        "https://arborium.bearcove.eu/".cyan()
     );
 
     Ok(())
