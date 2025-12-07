@@ -1596,25 +1596,43 @@ async function highlightCode(langId, source) {
 
 // Convert spans to highlighted HTML
 function spansToHtml(source, spans) {
-    // Sort spans by start position
-    const sortedSpans = [...spans].sort((a, b) => a.start - b.start);
+    // Deduplicate spans: for identical (start, end), keep last one (more specific)
+    const dedupedMap = new Map();
+    for (const span of spans) {
+        const key = `${span.start}:${span.end}`;
+        dedupedMap.set(key, span); // Later spans overwrite earlier ones
+    }
 
-    // Build HTML by processing spans
+    // Sort spans by (start, then longer spans first for nesting)
+    const sortedSpans = [...dedupedMap.values()].sort((a, b) => {
+        if (a.start !== b.start) return a.start - b.start;
+        return b.end - a.end; // Longer spans first at same start
+    });
+
+    // Build HTML by processing spans, handling overlaps
     let html = '';
     let lastEnd = 0;
 
     for (const span of sortedSpans) {
+        // Skip spans that are completely covered by previous output
+        if (span.end <= lastEnd) {
+            continue;
+        }
+
         // Add any unhighlighted text before this span
         if (span.start > lastEnd) {
             html += escapeHtml(source.slice(lastEnd, span.start));
         }
 
-        // Add the highlighted span using custom element (matches arborium's native HTML output)
-        const text = source.slice(span.start, span.end);
+        // Determine actual start position (may be clipped by previous span)
+        const actualStart = Math.max(span.start, lastEnd);
+
+        // Add the highlighted span using custom element
+        const text = source.slice(actualStart, span.end);
         const tag = captureToTag(span.capture);
         html += `<a-${tag}>${escapeHtml(text)}</a-${tag}>`;
 
-        lastEnd = Math.max(lastEnd, span.end);
+        lastEnd = span.end;
     }
 
     // Add any remaining unhighlighted text
