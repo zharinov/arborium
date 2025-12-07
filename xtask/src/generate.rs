@@ -123,105 +123,6 @@ struct PluginBuildRsTemplate<'a> {
     c_symbol: &'a str,
 }
 
-/// Update root Cargo.toml with the specified version
-fn update_root_cargo_toml(repo_root: &Utf8Path, version: &str) -> Result<(), Report> {
-    use regex::Regex;
-
-    let cargo_toml_path = repo_root.join("Cargo.toml");
-    let content = fs::read_to_string(&cargo_toml_path)?;
-
-    // Ensure [workspace.package] exists; create if missing.
-    let mut content = content;
-    if !content.contains("[workspace.package]") {
-        // Insert at end to avoid disturbing existing sections.
-        content.push_str("\n[workspace.package]\n");
-        content.push_str(&format!("version = \"{}\"\n", version));
-        content.push_str("edition = \"2024\"\n");
-        content.push_str("license = \"MIT OR Apache-2.0\"\n");
-        content.push_str("repository = \"https://github.com/bearcove/arborium\"\n");
-    } else {
-        // Update version inside existing workspace.package.
-        let workspace_version_re =
-            Regex::new(r#"(?m)^(\[workspace\.package\][\s\S]*?version\s*=\s*)"[^"]*""#)
-                .map_err(|e| std::io::Error::other(format!("Failed to compile regex: {e}")))?;
-        content = workspace_version_re
-            .replace(&content, format!(r#"$1"{version}""#))
-            .to_string();
-    }
-
-    // Update all version = "X.Y.Z" in [workspace.dependencies] section
-    // Match lines like: arborium-ada = { path = "...", version = "X.Y.Z" }
-    // Also matches: arborium = { path = "...", version = "X.Y.Z" }
-    let dep_version_re =
-        Regex::new(r#"(?m)^(arborium(?:-[a-z0-9_-]+)?\s*=\s*\{[^}]*version\s*=\s*)"[^"]*""#)
-            .map_err(|e| std::io::Error::other(format!("Failed to compile regex: {e}")))?;
-    let content = dep_version_re.replace_all(&content, format!(r#"$1"{version}""#));
-
-    fs::write(&cargo_toml_path, content.as_ref())?;
-    Ok(())
-}
-
-/// Generate [workspace.dependencies] section from registry
-fn generate_workspace_dependencies(
-    repo_root: &Utf8Path,
-    registry: &CrateRegistry,
-    version: &str,
-) -> Result<(), Report> {
-    let cargo_toml_path = repo_root.join("Cargo.toml");
-    let content = fs::read_to_string(&cargo_toml_path)?;
-
-    // Collect all grammar crates with their paths (sorted for deterministic output)
-    let mut crate_entries: Vec<(&str, &Utf8Path)> = registry
-        .crates
-        .values()
-        .filter(|state| state.name.starts_with("arborium-"))
-        .map(|state| (state.name.as_str(), state.crate_path.as_path()))
-        .collect();
-    crate_entries.sort_by_key(|(name, _)| *name);
-
-    // Build the [workspace.dependencies] section
-    let mut deps_section = String::from("\n[workspace.dependencies]\n");
-    // Include the umbrella crate itself
-    deps_section.push_str(&format!(
-        "arborium = {{ path = \"crates/arborium\", version = \"{}\" }}\n",
-        version
-    ));
-    for (crate_name, crate_path) in &crate_entries {
-        // Make path relative to repo root
-        let rel_path = crate_path.strip_prefix(repo_root).unwrap_or(crate_path);
-        deps_section.push_str(&format!(
-            "{} = {{ path = \"{}\", version = \"{}\" }}\n",
-            crate_name, rel_path, version
-        ));
-    }
-
-    // Check if [workspace.dependencies] already exists
-    let new_content = if let Some(start) = content.find("\n[workspace.dependencies]") {
-        // Find the next section (or end of file)
-        let after_header = start + 1; // skip the leading newline
-        let section_end = content[after_header..]
-            .find("\n[")
-            .map(|i| after_header + i)
-            .unwrap_or(content.len());
-        // Replace the section
-        format!(
-            "{}{}{}",
-            &content[..start],
-            deps_section,
-            &content[section_end..]
-        )
-    } else {
-        // Insert before [workspace.package]
-        content.replace(
-            "\n[workspace.package]",
-            &format!("{}\n[workspace.package]", deps_section),
-        )
-    };
-
-    fs::write(&cargo_toml_path, new_content)?;
-    Ok(())
-}
-
 /// Generate crate files for all or a specific grammar.
 ///
 /// This follows the 5-function generation flow from generate.md:
@@ -829,11 +730,9 @@ fn prepare_temp_structures(
         .map_err(|_| std::io::Error::other("Non-UTF8 repo root"))?;
     let cache = GrammarCache::new(&repo_root);
 
-    // Record canonical version once, then update root files
+    // Record canonical version
     version_store::write_version(&repo_root, version)
         .map_err(|e| rootcause::Report::new(std::io::Error::other(e.to_string())))?;
-    update_root_cargo_toml(&repo_root, version)?;
-    generate_workspace_dependencies(&repo_root, registry, version)?;
 
     // Prepare temp directories for all crates that have grammar.js files
     let mut prepared_temps = Vec::new();
@@ -1149,6 +1048,10 @@ fn generate_all_crates(
         )?;
         final_plan.add(plugin_plan);
     }
+
+    // Generate umbrella crate (crates/arborium/Cargo.toml)
+    let umbrella_plan = plan_umbrella_crate(prepared)?;
+    final_plan.add(umbrella_plan);
 
     Ok(final_plan)
 }
@@ -1468,6 +1371,132 @@ fn plan_plugin_crate_files(
                 description: "Create grammar/src/scanner.c".to_string(),
             });
         }
+    }
+
+    Ok(plan)
+}
+
+/// Generate the umbrella crate (crates/arborium/Cargo.toml)
+/// This aggregates all grammar crates as optional dependencies with features.
+fn plan_umbrella_crate(prepared: &PreparedStructures) -> Result<Plan, Report> {
+    let mut plan = Plan::for_crate("arborium");
+    let umbrella_path = prepared.repo_root.join("crates/arborium");
+    let cargo_toml_path = umbrella_path.join("Cargo.toml");
+
+    // Collect all grammar crates sorted by name
+    let mut grammar_crates: Vec<_> = prepared
+        .prepared_temps
+        .iter()
+        .map(|pt| {
+            let name = pt.crate_state.name.clone();
+            let crate_path = pt.crate_state.crate_path.clone();
+            let grammar_id = name.strip_prefix("arborium-").unwrap_or(&name).to_string();
+            (name, grammar_id, crate_path)
+        })
+        .collect();
+    grammar_crates.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let version = &prepared.workspace_version;
+
+    // Build Cargo.toml content
+    let mut content = String::new();
+
+    // Package section
+    content.push_str(&format!(
+        r#"[package]
+name = "arborium"
+version = "{version}"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/bearcove/arborium"
+description = "Tree-sitter syntax highlighting with HTML rendering and WASM support"
+keywords = ["tree-sitter", "syntax-highlighting", "wasm"]
+categories = ["parsing", "text-processing", "wasm"]
+links = "arborium"
+
+[features]
+default = []
+
+# All languages
+all-languages = [
+"#
+    ));
+
+    // Add all lang-* features to all-languages
+    for (_name, grammar_id, _) in &grammar_crates {
+        // Skip internal grammars
+        if grammar_id.ends_with("_inline") {
+            continue;
+        }
+        content.push_str(&format!("    \"lang-{}\",\n", grammar_id));
+    }
+    content.push_str("]\n\n");
+
+    // Individual language features
+    content.push_str("# Individual language features\n");
+    for (name, grammar_id, _) in &grammar_crates {
+        content.push_str(&format!("lang-{} = [\"dep:{}\"]\n", grammar_id, name));
+    }
+
+    // Dependencies section
+    content.push_str(&format!(
+        r#"
+[dependencies]
+tree-sitter-patched-arborium = {{ version = "0.25.10", path = "../../tree-sitter" }}
+tree-sitter-highlight-patched-arborium = {{ version = "0.25.10", path = "../../tree-sitter-highlight" }}
+arborium-theme = {{ version = "{version}", path = "../arborium-theme" }}
+
+# Optional grammar dependencies
+"#
+    ));
+
+    for (name, _, crate_path) in &grammar_crates {
+        // Calculate relative path from crates/arborium to the grammar crate
+        let rel_path = crate_path
+            .strip_prefix(&prepared.repo_root)
+            .unwrap_or(crate_path);
+        content.push_str(&format!(
+            "{} = {{ version = \"{}\", path = \"../../{}\", optional = true }}\n",
+            name, version, rel_path
+        ));
+    }
+
+    // Dev dependencies and WASM section
+    content.push_str(
+        r#"
+[dev-dependencies]
+indoc = "2"
+
+# WASM allocator (automatically enabled on wasm targets)
+[target.'cfg(target_family = "wasm")'.dependencies]
+dlmalloc = "0.2"
+"#,
+    );
+
+    // Write or update the file
+    if cargo_toml_path.exists() {
+        let old_content = fs::read_to_string(&cargo_toml_path)?;
+        if old_content != content {
+            plan.add(Operation::UpdateFile {
+                path: cargo_toml_path,
+                old_content: Some(old_content),
+                new_content: content,
+                description: "Update umbrella Cargo.toml".to_string(),
+            });
+        }
+    } else {
+        // Ensure directory exists
+        if !umbrella_path.exists() {
+            plan.add(Operation::CreateDir {
+                path: umbrella_path,
+                description: "Create umbrella crate directory".to_string(),
+            });
+        }
+        plan.add(Operation::CreateFile {
+            path: cargo_toml_path,
+            content,
+            description: "Create umbrella Cargo.toml".to_string(),
+        });
     }
 
     Ok(plan)

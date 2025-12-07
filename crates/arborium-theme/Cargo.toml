@@ -1,9 +1,9 @@
 [package]
 name = "arborium-theme"
-version.workspace = true
-edition.workspace = true
-license.workspace = true
-repository.workspace = true
+version = "0.3.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/bearcove/arborium"
 description = "Theme support for arborium syntax highlighting"
 keywords = ["syntax-highlighting", "themes", "tree-sitter"]
 categories = ["text-processing"]
