@@ -165,12 +165,19 @@
                         <h4>Script tag (zero config)</h4>
                         <p>Add this to your HTML and all <code>&lt;pre&gt;&lt;code&gt;</code> blocks get highlighted automatically:</p>
                         <pre class="code-block"><code><a-tg>&lt;script</a-tg> <a-at>src</a-at><a-p>=</a-p><a-s>"https://cdn.jsdelivr.net/npm/@arborium/arborium@{{VERSION}}/dist/arborium.iife.js"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg></code></pre>
-                        <p>Language is detected from <code>class="language-rust"</code>, <code>data-lang="rust"</code>, or auto-detected from content.</p>
+                        <p>Your code blocks should look like this:</p>
+                        <pre class="code-block"><code><a-tg>&lt;pre&gt;&lt;code</a-tg> <a-at>class</a-at><a-p>=</a-p><a-s>"language-rust"</a-s><a-tg>&gt;</a-tg>fn main() {}<a-tg>&lt;/code&gt;&lt;/pre&gt;</a-tg>
+<a-c>&lt;!-- or --&gt;</a-c>
+<a-tg>&lt;pre&gt;&lt;code</a-tg> <a-at>data-lang</a-at><a-p>=</a-p><a-s>"rust"</a-s><a-tg>&gt;</a-tg>fn main() {}<a-tg>&lt;/code&gt;&lt;/pre&gt;</a-tg>
+<a-c>&lt;!-- or just let it auto-detect --&gt;</a-c>
+<a-tg>&lt;pre&gt;&lt;code&gt;</a-tg>fn main() {}<a-tg>&lt;/code&gt;&lt;/pre&gt;</a-tg></code></pre>
                         <p>Configure via data attributes:</p>
                         <pre class="code-block"><code><a-tg>&lt;script</a-tg> <a-at>src</a-at><a-p>=</a-p><a-s>"..."</a-s>
-  <a-at>data-theme</a-at><a-p>=</a-p><a-s>"github-light"</a-s>
-  <a-at>data-selector</a-at><a-p>=</a-p><a-s>"pre code, .highlight"</a-s>
-  <a-at>data-version</a-at><a-p>=</a-p><a-s>"{{VERSION}}"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg></code></pre>
+  <a-at>data-theme</a-at><a-p>=</a-p><a-s>"github-light"</a-s>      <a-c>&lt;!-- theme name --&gt;</a-c>
+  <a-at>data-selector</a-at><a-p>=</a-p><a-s>"pre code"</a-s>        <a-c>&lt;!-- CSS selector --&gt;</a-c>
+  <a-at>data-manual</a-at>                     <a-c>&lt;!-- disable auto-highlight --&gt;</a-c>
+  <a-at>data-cdn</a-at><a-p>=</a-p><a-s>"unpkg"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg>       <a-c>&lt;!-- jsdelivr | unpkg | custom URL --&gt;</a-c></code></pre>
+                        <p>With <code>data-manual</code>, call <code>window.arborium.highlightAll()</code> when ready.</p>
                     </div>
                     <div class="get-started-option">
                         <h4>Rust (native or WASM)</h4>
@@ -263,6 +270,7 @@
                     <h4><span class="faq-icon">{{ICON:mdi:language-html5}}</span>Can I use this without Rust / just embed it on my website?</h4>
                     <div class="faq-answer">
                         <p>Yes! Use our npm package <code>@arborium/arborium</code>. It provides both an ESM module and an IIFE bundle that auto-highlights code blocks on your page.</p>
+                        <p>The IIFE bundle exposes <code>window.arborium</code> with methods like <code>highlightAll()</code>, <code>highlightElement(el, lang)</code>, and <code>detectLanguage(source)</code>.</p>
                         <p>See the "Get Started" section above for details.</p>
                     </div>
                 </div>
