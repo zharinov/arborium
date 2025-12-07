@@ -117,6 +117,10 @@ structstruck::strike! {
         #[facet(default, skip_serializing_if = Option::is_none, rename = "if")]
         pub if_condition: Option<String>,
 
+        /// Permissions for this job (for trusted publishing, etc.)
+        #[facet(default, skip_serializing_if = Option::is_none)]
+        pub permissions: Option<IndexMap<String, String>>,
+
         /// The steps to run.
         pub steps: Vec<Step>,
     }
@@ -229,6 +233,7 @@ impl Job {
             needs: None,
             outputs: None,
             if_condition: None,
+            permissions: None,
             steps: Vec::new(),
         }
     }
@@ -268,6 +273,20 @@ impl Job {
     /// Add a condition for this job.
     pub fn when(mut self, condition: impl Into<String>) -> Self {
         self.if_condition = Some(condition.into());
+        self
+    }
+
+    /// Set permissions for this job (for trusted publishing, OIDC, etc.)
+    pub fn permissions(
+        mut self,
+        perms: impl IntoIterator<Item = (impl Into<String>, impl Into<String>)>,
+    ) -> Self {
+        self.permissions = Some(
+            perms
+                .into_iter()
+                .map(|(k, v)| (k.into(), v.into()))
+                .collect(),
+        );
         self
     }
 
@@ -582,7 +601,7 @@ echo "No env imports found - WASM modules are browser-compatible""#,
     }
 
     // =========================================================================
-    // STAGE 3: Publish to crates.io (only on release)
+    // STAGE 3: Publish to crates.io (only on release, using trusted publishing)
     // =========================================================================
     jobs.insert(
         "publish-crates".into(),
@@ -591,14 +610,12 @@ echo "No env imports found - WASM modules are browser-compatible""#,
             .container(CONTAINER)
             .needs(["generate", "test-linux", "test-macos", "clippy"])
             .when(IS_RELEASE)
+            .permissions([("id-token", "write"), ("contents", "read")])
             .steps([
                 checkout(),
                 download_grammar_sources(),
                 extract_grammar_sources(),
-                Step::run("Publish to crates.io", "arborium-xtask publish crates").with_env([(
-                    "CARGO_REGISTRY_TOKEN",
-                    "${{ secrets.CARGO_REGISTRY_TOKEN }}",
-                )]),
+                Step::run("Publish to crates.io", "arborium-xtask publish crates"),
             ]),
     );
 
@@ -644,6 +661,8 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                 .container(CONTAINER)
                 .needs(npm_needs)
                 .when(IS_RELEASE)
+                // id-token for npm provenance (trusted publishing)
+                .permissions([("id-token", "write"), ("contents", "read")])
                 .steps(npm_steps),
         );
     }
