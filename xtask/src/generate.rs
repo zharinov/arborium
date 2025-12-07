@@ -113,7 +113,20 @@ struct PluginLibRsTemplate<'a> {
 #[template(path = "plugin_package.stpl.json")]
 struct PluginPackageJsonTemplate<'a> {
     grammar_id: &'a str,
+    grammar_name: &'a str,
+    description: &'a str,
     version: &'a str,
+}
+
+#[derive(TemplateSimple)]
+#[template(path = "plugin_readme.stpl.md")]
+struct PluginReadmeTemplate<'a> {
+    grammar_id: &'a str,
+    grammar_name: &'a str,
+    description: &'a str,
+    language_link: &'a str,
+    inventor: &'a str,
+    year: u16,
 }
 
 #[derive(TemplateSimple)]
@@ -655,14 +668,43 @@ fn generate_plugin_lib_rs(grammar_id: &str, grammar_crate_name: &str, wit_path: 
 }
 
 /// Generate plugin package.json content.
-fn generate_plugin_package_json(grammar_id: &str, version: &str) -> String {
+fn generate_plugin_package_json(
+    grammar_id: &str,
+    grammar_name: &str,
+    description: &str,
+    version: &str,
+) -> String {
     let template = PluginPackageJsonTemplate {
         grammar_id,
+        grammar_name,
+        description,
         version,
     };
     template
         .render_once()
         .expect("PluginPackageJsonTemplate render failed")
+}
+
+/// Generate plugin README.md content.
+fn generate_plugin_readme(
+    grammar_id: &str,
+    grammar_name: &str,
+    description: &str,
+    language_link: &str,
+    inventor: &str,
+    year: u16,
+) -> String {
+    let template = PluginReadmeTemplate {
+        grammar_id,
+        grammar_name,
+        description,
+        language_link,
+        inventor,
+        year,
+    };
+    template
+        .render_once()
+        .expect("PluginReadmeTemplate render failed")
 }
 
 /// Generate plugin build.rs content.
@@ -1282,9 +1324,29 @@ fn plan_plugin_crate_files(
         });
     }
 
+    // Extract grammar metadata for package.json and README
+    let grammar_name = &*grammar.name;
+    let grammar_description = grammar
+        .description
+        .as_ref()
+        .map(|d| d.value.as_str())
+        .unwrap_or("");
+    let language_link = grammar
+        .link
+        .as_ref()
+        .map(|l| l.value.as_str())
+        .unwrap_or("");
+    let inventor = grammar
+        .inventor
+        .as_ref()
+        .map(|i| i.value.as_str())
+        .unwrap_or("");
+    let year = grammar.year.as_ref().map(|y| y.value).unwrap_or(0);
+
     // Generate npm/package.json
     let package_json_path = npm_path.join("package.json");
-    let new_package_json = generate_plugin_package_json(grammar_id, workspace_version);
+    let new_package_json =
+        generate_plugin_package_json(grammar_id, grammar_name, grammar_description, workspace_version);
 
     if package_json_path.exists() {
         let old_content = fs::read_to_string(&package_json_path)?;
@@ -1301,6 +1363,35 @@ fn plan_plugin_crate_files(
             path: package_json_path,
             content: new_package_json,
             description: "Create plugin package.json".to_string(),
+        });
+    }
+
+    // Generate npm/README.md
+    let readme_path = npm_path.join("README.md");
+    let new_readme = generate_plugin_readme(
+        grammar_id,
+        grammar_name,
+        grammar_description,
+        language_link,
+        inventor,
+        year,
+    );
+
+    if readme_path.exists() {
+        let old_content = fs::read_to_string(&readme_path)?;
+        if old_content != new_readme {
+            plan.add(Operation::UpdateFile {
+                path: readme_path,
+                old_content: Some(old_content),
+                new_content: new_readme,
+                description: "Update plugin README.md".to_string(),
+            });
+        }
+    } else {
+        plan.add(Operation::CreateFile {
+            path: readme_path,
+            content: new_readme,
+            description: "Create plugin README.md".to_string(),
         });
     }
 

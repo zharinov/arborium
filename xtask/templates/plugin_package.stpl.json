@@ -1,7 +1,7 @@
 {
   "name": "@arborium/<%= grammar_id %>",
   "version": "<%= version %>",
-  "description": "Arborium syntax highlighting grammar for <%= grammar_id %>",
+  "description": "Syntax highlighting for <%= grammar_name %>, powered by WebAssembly",
   "type": "module",
   "main": "./grammar.js",
   "module": "./grammar.js",

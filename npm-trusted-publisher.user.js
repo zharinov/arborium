@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         NPM Trusted Publisher Auto-fill for @arborium
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      2.0
 // @description  Auto-fill trusted publisher settings for @arborium packages
 // @author       You
-// @match        https://www.npmjs.com/package/@arborium/*/access
+// @match        https://www.npmjs.com/package/@arborium/*
 // @grant        none
 // ==/UserScript==
 
@@ -16,34 +16,8 @@
         repositoryOwner: 'bearcove',
         repositoryName: 'arborium',
         workflowFilename: 'ci.yml',
-        environmentName: '', // leave empty
-        autoSubmit: false // set to true to auto-submit the form
+        environmentName: '' // leave empty
     };
-
-    function waitForElement(selector, timeout = 5000) {
-        return new Promise((resolve, reject) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                resolve(element);
-                return;
-            }
-
-            const observer = new MutationObserver((mutations, obs) => {
-                const el = document.querySelector(selector);
-                if (el) {
-                    obs.disconnect();
-                    resolve(el);
-                }
-            });
-
-            observer.observe(document.body, { childList: true, subtree: true });
-
-            setTimeout(() => {
-                observer.disconnect();
-                reject(new Error(`Element ${selector} not found within ${timeout}ms`));
-            }, timeout);
-        });
-    }
 
     function setInputValue(input, value) {
         // React inputs need special handling
@@ -53,47 +27,78 @@
         input.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    async function fillForm() {
-        console.log('[NPM Trusted Publisher] Starting auto-fill...');
+    function clickIfExists(selector) {
+        const el = document.querySelector(selector);
+        if (el) {
+            console.log(`[NPM Trusted Publisher] Clicking: ${selector}`);
+            el.click();
+            return true;
+        }
+        return false;
+    }
 
-        try {
-            // Wait for form to load
-            await waitForElement('#oidc_repositoryOwner');
+    function fillFormIfReady() {
+        const ownerInput = document.querySelector('#oidc_repositoryOwner');
+        if (!ownerInput) return false;
 
-            // Fill in the fields
-            const ownerInput = document.querySelector('#oidc_repositoryOwner');
-            const repoInput = document.querySelector('#oidc_repositoryName');
-            const workflowInput = document.querySelector('#oidc_workflowName');
-            const envInput = document.querySelector('#oidc_githubEnvironmentName');
+        const repoInput = document.querySelector('#oidc_repositoryName');
+        const workflowInput = document.querySelector('#oidc_workflowName');
+        const envInput = document.querySelector('#oidc_githubEnvironmentName');
 
-            if (ownerInput) setInputValue(ownerInput, CONFIG.repositoryOwner);
-            if (repoInput) setInputValue(repoInput, CONFIG.repositoryName);
-            if (workflowInput) setInputValue(workflowInput, CONFIG.workflowFilename);
-            if (envInput) setInputValue(envInput, CONFIG.environmentName);
+        if (ownerInput) setInputValue(ownerInput, CONFIG.repositoryOwner);
+        if (repoInput) setInputValue(repoInput, CONFIG.repositoryName);
+        if (workflowInput) setInputValue(workflowInput, CONFIG.workflowFilename);
+        if (envInput) setInputValue(envInput, CONFIG.environmentName);
 
-            console.log('[NPM Trusted Publisher] Form filled!');
+        console.log('[NPM Trusted Publisher] Form filled!');
+        return true;
+    }
 
-            // Find and highlight the submit button
-            const submitBtn = document.querySelector('button[aria-label="Set up new trusted publisher connection"]');
-            if (submitBtn) {
-                submitBtn.style.boxShadow = '0 0 10px 3px #00ff00';
+    let formFilled = false;
+    let navigated = false;
 
-                if (CONFIG.autoSubmit) {
-                    console.log('[NPM Trusted Publisher] Auto-submitting...');
-                    submitBtn.click();
-                }
+    function tick() {
+        // Only run on visible/active tab
+        if (document.hidden) return;
+
+        // If not on /access page, navigate there (only once)
+        if (!window.location.pathname.endsWith('/access')) {
+            if (!navigated) {
+                navigated = true;
+                const currentPath = window.location.pathname;
+                const accessPath = currentPath.replace(/\/?$/, '/access');
+                console.log(`[NPM Trusted Publisher] Navigating to ${accessPath}`);
+                window.location.href = accessPath;
             }
+            return;
+        }
 
-        } catch (err) {
-            console.error('[NPM Trusted Publisher] Error:', err);
+        // Click "Use security key" button if present
+        clickIfExists('button.e64d5a00');
+
+        // Click "GitHub Actions" button to reveal the form
+        clickIfExists('button[aria-label="Add Trusted Publisher connection for GitHub Actions"]');
+
+        // Try to fill the form
+        if (!formFilled && fillFormIfReady()) {
+            formFilled = true;
+        }
+
+        // Click submit button (keep trying even after formFilled)
+        if (formFilled) {
+            const submitBtn = document.querySelector('button[aria-label="Set up new trusted publisher connection"]');
+            if (submitBtn && !submitBtn.disabled) {
+                console.log('[NPM Trusted Publisher] Clicking submit...');
+                submitBtn.click();
+            }
         }
     }
 
-    // Run after page loads
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', fillForm);
-    } else {
-        // Small delay to let React render
-        setTimeout(fillForm, 1000);
-    }
+    console.log('[NPM Trusted Publisher] Script loaded, starting...');
+
+    // Run tick every 500ms forever
+    setInterval(tick, 500);
+
+    // Also run immediately
+    setTimeout(tick, 1000);
 })();
