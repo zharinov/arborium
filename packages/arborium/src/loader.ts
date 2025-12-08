@@ -12,7 +12,7 @@ import { createWasiImports, grammarTypesImport } from './wasi-shims.js';
 import type { ParseResult, ArboriumConfig, Grammar, Span, Injection } from './types.js';
 
 // Default config
-const DEFAULT_CONFIG: Required<ArboriumConfig> = {
+export const defaultConfig: Required<ArboriumConfig> = {
   manual: false,
   theme: 'tokyo-night',
   selector: 'pre code',
@@ -21,7 +21,7 @@ const DEFAULT_CONFIG: Required<ArboriumConfig> = {
 };
 
 // Merged config
-let config: Required<ArboriumConfig> = { ...DEFAULT_CONFIG };
+let config: Required<ArboriumConfig> = { ...defaultConfig };
 
 // Host module (loaded lazily)
 let hostModule: {
@@ -80,7 +80,7 @@ async function loadPluginsManifest(): Promise<void> {
   pluginsManifest = await response.json();
 
   // Populate available languages
-  availableLanguages = new Set(Object.keys(pluginsManifest));
+  availableLanguages = new Set(Object.keys(pluginsManifest!));
 }
 
 /** Load a grammar plugin */
@@ -101,13 +101,16 @@ async function loadGrammarPlugin(language: string): Promise<GrammarPlugin | null
   try {
     // Load the plugin JS and WASM
     const jsUrl = `${baseUrl}/${pluginInfo.js}`;
-    const wasmUrl = `${baseUrl}/${pluginInfo.wasm}`;
+    // Get the base directory for WASM files (same directory as the JS file)
+    const wasmBaseUrl = jsUrl.substring(0, jsUrl.lastIndexOf('/'));
 
     // Dynamically import the JS module
     const module = await import(/* @vite-ignore */ jsUrl);
 
-    // Create a getCoreModule function that fetches the WASM
-    const getCoreModule = async (_path: string): Promise<WebAssembly.Module> => {
+    // Create a getCoreModule function that fetches WASM files by path
+    // jco generates calls like getCoreModule('grammar.core.wasm'), getCoreModule('grammar.core2.wasm'), etc.
+    const getCoreModule = async (path: string): Promise<WebAssembly.Module> => {
+      const wasmUrl = `${wasmBaseUrl}/${path}`;
       const response = await fetch(wasmUrl);
       const bytes = await response.arrayBuffer();
       return WebAssembly.compile(bytes);
@@ -216,20 +219,20 @@ async function loadHost(): Promise<void> {
 
 /** Initialize arborium with config */
 export async function init(userConfig?: Partial<ArboriumConfig>): Promise<void> {
-  config = { ...DEFAULT_CONFIG, ...userConfig };
+  config = { ...defaultConfig, ...userConfig };
   await loadPluginsManifest();
   await loadHost();
 }
 
 /** Highlight source code */
-export async function highlight(language: string, source: string): Promise<string> {
+export async function highlight(language: string, source: string, _config?: ArboriumConfig): Promise<string> {
   await loadHost();
   if (!hostModule) throw new Error('Host not loaded');
   return hostModule.highlight(language, source);
 }
 
 /** Load a grammar for direct use */
-export async function loadGrammar(language: string): Promise<Grammar | null> {
+export async function loadGrammar(language: string, _config?: ArboriumConfig): Promise<Grammar | null> {
   const plugin = await loadGrammarPlugin(language);
   if (!plugin) return null;
 
@@ -327,7 +330,10 @@ function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;');
 }
 
-/** Get current config */
-export function getConfig(): Required<ArboriumConfig> {
+/** Get current config, optionally merging with overrides */
+export function getConfig(overrides?: Partial<ArboriumConfig>): Required<ArboriumConfig> {
+  if (overrides) {
+    return { ...config, ...overrides };
+  }
   return { ...config };
 }
