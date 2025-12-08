@@ -21,9 +21,10 @@ fn get_or_init_runtime() -> &'static RefCell<Option<PluginRuntime>> {
     RUNTIME.with(|r| {
         let mut runtime = r.borrow_mut();
         if runtime.is_none() {
+            // Use &* to handle both &str constants and LazyLock<String> statics
             let config = HighlightConfig::new(
                 <%= grammar_crate_name_snake %>::language(),
-                <%= grammar_crate_name_snake %>::HIGHLIGHTS_QUERY,
+                &*<%= grammar_crate_name_snake %>::HIGHLIGHTS_QUERY,
                 <%= grammar_crate_name_snake %>::INJECTIONS_QUERY,
                 <%= grammar_crate_name_snake %>::LOCALS_QUERY,
             )
