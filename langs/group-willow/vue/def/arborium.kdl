@@ -12,6 +12,12 @@ grammar {
 
     dependency "tree-sitter-html" crate="arborium-html"
 
+    queries {
+        highlights {
+            prepend crate="arborium-html"
+        }
+    }
+
     inventor "Evan You"
     year 2014
     description "Progressive JavaScript framework for UIs; official docs at <a href=\"https://vuejs.org/guide/introduction.html\">vuejs.org</a>."

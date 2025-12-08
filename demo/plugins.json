@@ -587,15 +587,6 @@
       "local_wasm": "/langs/group-moss/sparql/npm/grammar.core.wasm"
     },
     {
-      "language": "asciidoc_inline",
-      "package": "@arborium/asciidoc_inline",
-      "version": "0.3.0",
-      "cdn_js": "https://cdn.jsdelivr.net/npm/@arborium/asciidoc_inline@0.3.0/grammar.js",
-      "cdn_wasm": "https://cdn.jsdelivr.net/npm/@arborium/asciidoc_inline@0.3.0/grammar.core.wasm",
-      "local_js": "/langs/group-willow/asciidoc_inline/npm/grammar.js",
-      "local_wasm": "/langs/group-willow/asciidoc_inline/npm/grammar.core.wasm"
-    },
-    {
       "language": "x86asm",
       "package": "@arborium/x86asm",
       "version": "0.3.0",
@@ -875,5 +866,5 @@
       "local_wasm": "/langs/group-willow/diff/npm/grammar.core.wasm"
     }
   ],
-  "dev_mode": false
+  "dev_mode": true
 }

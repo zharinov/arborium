@@ -12,6 +12,12 @@ grammar {
 
     dependency "tree-sitter-javascript" crate="arborium-javascript"
 
+    queries {
+        highlights {
+            prepend crate="arborium-javascript"
+        }
+    }
+
     inventor "Facebook (Jordan Walke for React/JSX) + Microsoft (TypeScript)"
     year 2013
     description "TypeScript with JSX support for React component development"

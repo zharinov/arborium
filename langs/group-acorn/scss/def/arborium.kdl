@@ -13,6 +13,12 @@ grammar {
 
     dependency "tree-sitter-css" crate="arborium-css"
 
+    queries {
+        highlights {
+            prepend crate="arborium-css"
+        }
+    }
+
     inventor "Hampton Catlin, Natalie Weizenbaum, Chris Eppstein"
     year 2006
     description "Sass/SCSS is a CSS superset adding variables, nesting, and mixins; see the official <a href=\"https://sass-lang.com/documentation/\">documentation</a>."

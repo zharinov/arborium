@@ -19,6 +19,9 @@ path = "src/lib.rs"
 [dependencies]
 tree-sitter-patched-arborium = { path = "<%= repo_rel %>/tree-sitter" }
 arborium-sysroot = { path = "<%= shared_rel %>/arborium-sysroot" }
+<% for (dep_name, dep_path) in &highlights_prepend_deps { %>
+<%= dep_name %> = { path = "<%= dep_path %>" }
+<% } %>
 
 [dev-dependencies]
 arborium-test-harness = { path = "<%= shared_rel %>/arborium-test-harness" }

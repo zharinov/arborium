@@ -542,8 +542,8 @@ jobs:
           retention-days: "7"
 
 
-  build-plugins-willow: 
-    name: "Plugins (willow): asciidoc, asciidoc_inline, diff, jinja2, markdown, svelte, typst, vue"
+  build-plugins-willow:
+    name: "Plugins (willow): asciidoc, diff, jinja2, markdown, svelte, typst, vue"
     runs-on: depot-ubuntu-24.04-32
     container: "ghcr.io/bearcove/arborium-plugin-builder:latest"
     needs: 
@@ -564,8 +564,8 @@ jobs:
         name: Extract grammar sources
         run: tar -xvf grammar-sources.tar
       - 
-        name: Build asciidoc, asciidoc_inline, diff, jinja2, markdown, svelte, typst, vue
-        run: arborium-xtask build asciidoc asciidoc_inline diff jinja2 markdown svelte typst vue
+        name: Build asciidoc, diff, jinja2, markdown, svelte, typst, vue
+        run: arborium-xtask build asciidoc diff jinja2 markdown svelte typst vue
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4

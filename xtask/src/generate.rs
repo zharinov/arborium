@@ -53,6 +53,9 @@ struct CargoTomlTemplate<'a> {
     tag: &'a str,
     shared_rel: &'a str,
     repo_rel: &'a str,
+    /// Crates to add as dependencies for highlight query inheritance
+    /// Each entry is (crate_name, relative_path) e.g. ("arborium-c", "../../c/crate")
+    highlights_prepend_deps: Vec<(&'a str, String)>,
 }
 
 #[derive(TemplateSimple)]
@@ -71,6 +74,9 @@ struct LibRsTemplate<'a> {
     injections_exists: bool,
     locals_exists: bool,
     tests_cursed: bool,
+    /// Crate names to prepend highlights from, in order
+    /// e.g. ["arborium_c"] for C++ inheriting from C
+    highlights_prepend: Vec<String>,
 }
 
 #[derive(TemplateSimple)]
@@ -148,7 +154,7 @@ pub fn plan_generate(
     let registry = load_registry(crates_dir)?;
 
     // 2. Prepare temp structures (SHARED by validation & generation)
-    let prepared = prepare_temp_structures(&registry, crates_dir, options.name, options.version)?;
+    let prepared = prepare_temp_structures(registry, crates_dir, options.name, options.version)?;
 
     if prepared.prepared_temps.is_empty() {
         println!("No grammars to process");
@@ -403,6 +409,7 @@ fn generate_cargo_toml(
     workspace_version: &str,
     shared_rel: &str,
     repo_rel: &str,
+    highlights_prepend_deps: Vec<(&str, String)>,
 ) -> String {
     let grammar = config.grammars.first();
 
@@ -431,6 +438,7 @@ fn generate_cargo_toml(
         tag,
         shared_rel,
         repo_rel,
+        highlights_prepend_deps,
     };
     template
         .render_once()
@@ -466,6 +474,7 @@ fn generate_lib_rs(
     crate_name: &str,
     def_path: &Utf8Path,
     config: &crate::types::CrateConfig,
+    highlights_prepend: Vec<String>,
 ) -> String {
     let grammar = config.grammars.first();
     let tests_cursed = grammar.map(|g| g.tests_cursed()).unwrap_or(false);
@@ -491,6 +500,7 @@ fn generate_lib_rs(
         injections_exists,
         locals_exists,
         tests_cursed,
+        highlights_prepend,
     };
     template.render_once().expect("LibRsTemplate render failed")
 }
@@ -655,6 +665,8 @@ struct PreparedStructures {
     repo_root: Utf8PathBuf,
     cache: GrammarCache,
     workspace_version: String,
+    /// Full crate registry for path resolution (includes all crates, not just those being generated)
+    registry: CrateRegistry,
 }
 
 struct GenerationResults {
@@ -670,7 +682,7 @@ fn load_registry(crates_dir: &Utf8Path) -> Result<CrateRegistry, Report> {
 
 // 2. Prepare Temp Structures (SHARED by validation & generation)
 fn prepare_temp_structures(
-    registry: &CrateRegistry,
+    registry: CrateRegistry,
     crates_dir: &Utf8Path,
     name: Option<&str>,
     version: &str,
@@ -751,6 +763,7 @@ fn prepare_temp_structures(
         repo_root,
         cache,
         workspace_version: version.to_string(),
+        registry,
     })
 }
 
@@ -975,6 +988,80 @@ fn plan_grammar_generation_with_prepared_temp(
     Ok((plan, false)) // false = cache miss
 }
 
+/// Resolve a crate name to its path relative to another crate's directory.
+/// E.g., from cpp/crate/ to c/crate/ returns "../../c/crate"
+fn resolve_crate_relative_path(
+    from_crate_path: &Utf8Path,
+    target_crate_name: &str,
+    prepared: &PreparedStructures,
+) -> Option<String> {
+    // Find the target crate in the full registry (not just prepared temps)
+    let target_state = prepared.registry.crates.get(target_crate_name)?;
+    let target_path = &target_state.crate_path;
+
+    // Calculate relative path from from_crate_path to target_path
+    // Both paths are absolute, so we need to find common ancestor and build relative path
+    let from_components: Vec<_> = from_crate_path.components().collect();
+    let to_components: Vec<_> = target_path.components().collect();
+
+    // Find common prefix length
+    let common_len = from_components
+        .iter()
+        .zip(to_components.iter())
+        .take_while(|(a, b)| a == b)
+        .count();
+
+    // Build relative path: go up (from_components.len() - common_len) levels, then down to target
+    let up_count = from_components.len() - common_len;
+    let mut rel_parts: Vec<&str> = vec![".."; up_count];
+    for comp in &to_components[common_len..] {
+        rel_parts.push(comp.as_str());
+    }
+
+    Some(rel_parts.join("/"))
+}
+
+/// Extract highlight prepend configuration from a grammar config.
+/// Returns (deps for Cargo.toml, crate names for lib.rs)
+fn extract_highlights_prepend(
+    config: &crate::types::CrateConfig,
+    from_crate_path: &Utf8Path,
+    registry: &PreparedStructures,
+) -> (Vec<(String, String)>, Vec<String>) {
+    let mut cargo_deps = Vec::new();
+    let mut lib_prepends = Vec::new();
+
+    let grammar = match config.grammars.first() {
+        Some(g) => g,
+        None => return (cargo_deps, lib_prepends),
+    };
+
+    let queries = match &grammar.queries {
+        Some(q) => q,
+        None => return (cargo_deps, lib_prepends),
+    };
+
+    let highlights = match &queries.highlights {
+        Some(h) => h,
+        None => return (cargo_deps, lib_prepends),
+    };
+
+    for prepend in &highlights.prepend {
+        let crate_name = &prepend.crate_name.value;
+
+        // Resolve relative path for Cargo.toml
+        if let Some(rel_path) = resolve_crate_relative_path(from_crate_path, crate_name, registry) {
+            cargo_deps.push((crate_name.clone(), rel_path));
+        }
+
+        // Convert crate name to Rust identifier for lib.rs (e.g., "arborium-c" -> "arborium_c")
+        let rust_ident = crate_name.replace('-', "_");
+        lib_prepends.push(rust_ident);
+    }
+
+    (cargo_deps, lib_prepends)
+}
+
 // 5. Generate All Crates using templates (Cargo.toml, build.rs, lib.rs, README.md)
 // NOTE: This does NOT run tree-sitter - grammar generation is done in step 4
 fn generate_all_crates(
@@ -988,7 +1075,8 @@ fn generate_all_crates(
         let crate_state = &prepared_temp.crate_state;
         let config = &prepared_temp.config;
 
-        let crate_plan = plan_crate_files_only(crate_state, config, &prepared.workspace_version)?;
+        let crate_plan =
+            plan_crate_files_only(crate_state, config, &prepared.workspace_version, prepared)?;
         final_plan.add(crate_plan);
 
         // Generate plugin crate files for grammars that have generate-component enabled
@@ -1014,6 +1102,7 @@ fn plan_crate_files_only(
     crate_state: &CrateState,
     config: &crate::types::CrateConfig,
     workspace_version: &str,
+    registry: &PreparedStructures,
 ) -> Result<Plan, Report> {
     let mut plan = Plan::for_crate(&crate_state.name);
     let def_path = &crate_state.def_path;
@@ -1025,6 +1114,16 @@ fn plan_crate_files_only(
     let shared_rel = "../../../../crates";
     // repo root is 4 levels up from crate/
     let repo_rel = "../../../..";
+
+    // Extract highlights prepend configuration
+    let (cargo_prepend_deps, lib_prepend_crates) =
+        extract_highlights_prepend(config, crate_path, registry);
+
+    // Convert owned strings to references for template (Cargo.toml needs (&str, String) pairs)
+    let highlights_prepend_deps: Vec<(&str, String)> = cargo_prepend_deps
+        .iter()
+        .map(|(name, path)| (name.as_str(), path.clone()))
+        .collect();
 
     // Ensure crate directory exists
     if !crate_path.exists() {
@@ -1042,6 +1141,7 @@ fn plan_crate_files_only(
         workspace_version,
         shared_rel,
         repo_rel,
+        highlights_prepend_deps,
     );
 
     if cargo_toml_path.exists() {
@@ -1108,7 +1208,7 @@ fn plan_crate_files_only(
 
     // Generate src/lib.rs
     let lib_rs_path = crate_path.join("src/lib.rs");
-    let new_lib_rs = generate_lib_rs(&crate_state.name, def_path, config);
+    let new_lib_rs = generate_lib_rs(&crate_state.name, def_path, config, lib_prepend_crates);
 
     if lib_rs_path.exists() {
         let old_content = fs::read_to_string(&lib_rs_path)?;

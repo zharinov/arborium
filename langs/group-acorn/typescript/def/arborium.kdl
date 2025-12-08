@@ -13,6 +13,12 @@ grammar {
 
     dependency "tree-sitter-javascript" crate="arborium-javascript"
 
+    queries {
+        highlights {
+            prepend crate="arborium-javascript"
+        }
+    }
+
     inventor "Anders Hejlsberg"
     year 2012
     description "Statically typed superset of JavaScript; official handbook at <a href=\"https://www.typescriptlang.org/docs/\">typescriptlang.org</a>."

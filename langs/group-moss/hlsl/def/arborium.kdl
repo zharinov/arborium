@@ -14,6 +14,12 @@ grammar {
     dependency "tree-sitter-cpp" crate="arborium-cpp"
     dependency "tree-sitter-c" crate="arborium-c"
 
+    queries {
+        highlights {
+            prepend crate="arborium-cpp"
+        }
+    }
+
     inventor "Microsoft"
     year 2002
     description "High-Level Shading Language for DirectX; <a href=\"https://learn.microsoft.com/windows/win32/direct3dhlsl/dx-graphics-hlsl-pguide\">official reference</a>."

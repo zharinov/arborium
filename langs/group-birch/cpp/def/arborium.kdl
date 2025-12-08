@@ -13,6 +13,12 @@ grammar {
 
     dependency "tree-sitter-c" crate="arborium-c"
 
+    queries {
+        highlights {
+            prepend crate="arborium-c"
+        }
+    }
+
     inventor "Bjarne Stroustrup"
     year 1985
     description "General-purpose language extending C with zero-overhead abstractions; see Stroustrup's official overview at <a href=\"https://isocpp.org/about\">isocpp.org</a>."
