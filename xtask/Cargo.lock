@@ -52,7 +52,7 @@ dependencies = [
 
 [[package]]
 name = "arborium-theme"
-version = "0.3.0"
+version = "0.622.0"
 dependencies = [
  "toml",
 ]

@@ -13,47 +13,6 @@ use crate::util::find_repo_root;
 use crate::version_store;
 use camino::{Utf8Path, Utf8PathBuf};
 
-/// Versions of shared dependency crates, read from their Cargo.toml files.
-#[derive(Debug, Clone)]
-pub struct DependencyVersions {
-    /// Version of tree-sitter-patched-arborium
-    pub tree_sitter: String,
-    /// Version of arborium-sysroot
-    pub sysroot: String,
-    /// Version of arborium-test-harness
-    pub test_harness: String,
-}
-
-impl DependencyVersions {
-    /// Read dependency versions from Cargo.toml files in the repo.
-    pub fn load(repo_root: &Utf8Path) -> Result<Self, Report> {
-        let tree_sitter = read_crate_version(&repo_root.join("tree-sitter/Cargo.toml"))?;
-        let sysroot = read_crate_version(&repo_root.join("crates/arborium-sysroot/Cargo.toml"))?;
-        let test_harness = read_crate_version(&repo_root.join("crates/arborium-test-harness/Cargo.toml"))?;
-        Ok(Self {
-            tree_sitter,
-            sysroot,
-            test_harness,
-        })
-    }
-}
-
-/// Read the version field from a Cargo.toml file.
-fn read_crate_version(cargo_toml_path: &Utf8Path) -> Result<String, Report> {
-    let content = fs::read_to_string(cargo_toml_path)?;
-    let doc: toml::Table = content.parse().map_err(|e| {
-        std::io::Error::other(format!("Failed to parse {}: {}", cargo_toml_path, e))
-    })?;
-    let version = doc
-        .get("package")
-        .and_then(|p| p.get("version"))
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| {
-            std::io::Error::other(format!("No version found in {}", cargo_toml_path))
-        })?;
-    Ok(version.to_string())
-}
-
 /// Options for the generate command.
 pub struct GenerateOptions<'a> {
     /// Optional grammar name to regenerate (regenerates all if None)
@@ -94,12 +53,6 @@ struct CargoTomlTemplate<'a> {
     tag: &'a str,
     shared_rel: &'a str,
     repo_rel: &'a str,
-    /// Version of tree-sitter-patched-arborium crate
-    tree_sitter_version: &'a str,
-    /// Version of arborium-sysroot crate
-    sysroot_version: &'a str,
-    /// Version of arborium-test-harness crate
-    test_harness_version: &'a str,
     /// Crates to add as dependencies for highlight query inheritance
     highlights_prepend_deps: &'a [HighlightDep],
 }
@@ -575,7 +528,6 @@ fn generate_cargo_toml(
     shared_rel: &str,
     repo_rel: &str,
     highlights_prepend_deps: &[HighlightDep],
-    dep_versions: &DependencyVersions,
 ) -> String {
     let grammar = config.grammars.first();
 
@@ -604,9 +556,6 @@ fn generate_cargo_toml(
         tag,
         shared_rel,
         repo_rel,
-        tree_sitter_version: &dep_versions.tree_sitter,
-        sysroot_version: &dep_versions.sysroot,
-        test_harness_version: &dep_versions.test_harness,
         highlights_prepend_deps,
     };
     template
@@ -830,8 +779,6 @@ struct PreparedStructures {
     workspace_version: String,
     /// Full crate registry for path resolution (includes all crates, not just those being generated)
     registry: CrateRegistry,
-    /// Versions of shared dependency crates
-    dep_versions: DependencyVersions,
 }
 
 struct GenerationResults {
@@ -923,16 +870,12 @@ fn prepare_temp_structures(
         });
     }
 
-    // Load dependency versions from Cargo.toml files
-    let dep_versions = DependencyVersions::load(&repo_root)?;
-
     Ok(PreparedStructures {
         prepared_temps,
         repo_root,
         cache,
         workspace_version: version.to_string(),
         registry,
-        dep_versions,
     })
 }
 
@@ -1301,6 +1244,10 @@ fn generate_all_crates(
     let umbrella_plan = plan_umbrella_crate(prepared)?;
     final_plan.add(umbrella_plan);
 
+    // Update shared crates to use the workspace version
+    let shared_plan = plan_shared_crates(prepared, mode)?;
+    final_plan.add(shared_plan);
+
     Ok(final_plan)
 }
 
@@ -1344,7 +1291,6 @@ fn plan_crate_files_only(
         shared_rel,
         repo_rel,
         &highlight_prepends.cargo_deps,
-        &registry.dep_versions,
     );
 
     if cargo_toml_path.exists() {
@@ -1745,17 +1691,16 @@ all-languages = [
     }
 
     // Dependencies section
-    // Note: path-only dependencies (no version) since there's no workspace
-    content.push_str(
+    content.push_str(&format!(
         r#"
 [dependencies]
-tree-sitter-patched-arborium = { path = "../../tree-sitter" }
-arborium-theme = { path = "../arborium-theme" }
-arborium-highlight = { path = "../arborium-highlight", features = ["tree-sitter"] }
+tree-sitter-patched-arborium = {{ version = "{version}", path = "../../tree-sitter" }}
+arborium-theme = {{ version = "{version}", path = "../arborium-theme" }}
+arborium-highlight = {{ version = "{version}", path = "../arborium-highlight", features = ["tree-sitter"] }}
 
 # Optional grammar dependencies
-"#,
-    );
+"#
+    ));
 
     for (name, _, crate_path) in &grammar_crates {
         // Calculate relative path from crates/arborium to the grammar crate
@@ -1763,8 +1708,8 @@ arborium-highlight = { path = "../arborium-highlight", features = ["tree-sitter"
             .strip_prefix(&prepared.repo_root)
             .unwrap_or(crate_path);
         content.push_str(&format!(
-            "{} = {{ path = \"../../{}\", optional = true }}\n",
-            name, rel_path
+            "{} = {{ version = \"{}\", path = \"../../{}\", optional = true }}\n",
+            name, version, rel_path
         ));
     }
 
@@ -1807,4 +1752,165 @@ dlmalloc = "0.2"
     }
 
     Ok(plan)
+}
+
+/// Update shared crates (arborium-theme, arborium-highlight, etc.) to use the workspace version.
+/// These crates are not generated from arborium.kdl but need their versions kept in sync.
+fn plan_shared_crates(prepared: &PreparedStructures, mode: PlanMode) -> Result<Plan, Report> {
+    let mut plan = Plan::for_crate("shared-crates");
+    let version = &prepared.workspace_version;
+    let repo_root = &prepared.repo_root;
+
+    // Update arborium-theme
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-theme/Cargo.toml"),
+        version,
+        &[],
+        mode,
+    )?;
+
+    // Update arborium-highlight (depends on arborium-theme and tree-sitter)
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-highlight/Cargo.toml"),
+        version,
+        &[
+            ("arborium-theme", version),
+            ("tree-sitter-patched-arborium", version),
+        ],
+        mode,
+    )?;
+
+    // Update arborium-sysroot
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-sysroot/Cargo.toml"),
+        version,
+        &[],
+        mode,
+    )?;
+
+    // Update arborium-test-harness (depends on arborium-highlight, arborium-theme, tree-sitter)
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-test-harness/Cargo.toml"),
+        version,
+        &[
+            ("arborium-highlight", version),
+            ("arborium-theme", version),
+            ("tree-sitter-patched-arborium", version),
+        ],
+        mode,
+    )?;
+
+    // Update tree-sitter-patched-arborium
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("tree-sitter/Cargo.toml"),
+        version,
+        &[],
+        mode,
+    )?;
+
+    // Update arborium-host (depends on arborium-highlight)
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-host/Cargo.toml"),
+        version,
+        &[("arborium-highlight", version)],
+        mode,
+    )?;
+
+    // Update arborium-plugin-runtime (depends on tree-sitter, arborium-wire)
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-plugin-runtime/Cargo.toml"),
+        version,
+        &[
+            ("tree-sitter-patched-arborium", version),
+            ("arborium-wire", version),
+        ],
+        mode,
+    )?;
+
+    // Update arborium-wire
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-wire/Cargo.toml"),
+        version,
+        &[],
+        mode,
+    )?;
+
+    // Update arborium-query (depends on tree-sitter, arborium-sysroot, arborium-test-harness)
+    update_cargo_toml_version(
+        &mut plan,
+        &repo_root.join("crates/arborium-query/Cargo.toml"),
+        version,
+        &[
+            ("tree-sitter-patched-arborium", version),
+            ("arborium-sysroot", version),
+            ("arborium-test-harness", version),
+        ],
+        mode,
+    )?;
+
+    Ok(plan)
+}
+
+/// Update a Cargo.toml file's version and optionally update dependency versions.
+fn update_cargo_toml_version(
+    plan: &mut Plan,
+    cargo_toml_path: &Utf8Path,
+    new_version: &str,
+    dep_updates: &[(&str, &str)],
+    mode: PlanMode,
+) -> Result<(), Report> {
+    if !cargo_toml_path.exists() {
+        return Ok(());
+    }
+
+    let old_content = fs::read_to_string(cargo_toml_path)?;
+    let mut new_content = old_content.clone();
+
+    // Update package version using regex
+    let version_re = regex::Regex::new(r#"(?m)^version\s*=\s*"[^"]+""#).unwrap();
+    new_content = version_re
+        .replace(&new_content, format!(r#"version = "{}""#, new_version))
+        .to_string();
+
+    // Update dependency versions
+    for (dep_name, dep_version) in dep_updates {
+        // Match patterns like: dep_name = { version = "x.y.z", ... }
+        let dep_re = regex::Regex::new(&format!(
+            r#"({}\s*=\s*\{{\s*version\s*=\s*")[^"]+""#,
+            regex::escape(dep_name)
+        ))
+        .unwrap();
+        new_content = dep_re
+            .replace(&new_content, format!(r#"${{1}}{}""#, dep_version))
+            .to_string();
+    }
+
+    if old_content != new_content {
+        let old_for_diff = if mode.is_dry_run() {
+            Some(old_content)
+        } else {
+            None
+        };
+
+        plan.add(Operation::UpdateFile {
+            path: cargo_toml_path.to_owned(),
+            old_content: old_for_diff,
+            new_content,
+            description: format!(
+                "Update {} to version {}",
+                cargo_toml_path.file_name().unwrap_or("Cargo.toml"),
+                new_version
+            ),
+        });
+    }
+
+    Ok(())
 }

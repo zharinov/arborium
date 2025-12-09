@@ -1,6 +1,6 @@
 [package]
 name = "arborium-highlight"
-version = "0.1.0"
+version = "0.622.0"
 edition = "2024"
 rust-version = "1.85"
 description = "Unified syntax highlighting for arborium - works with both static Rust grammars and WASM plugins"
@@ -19,6 +19,6 @@ default = []
 tree-sitter = ["dep:tree-sitter-patched-arborium", "dep:streaming-iterator"]
 
 [dependencies]
-arborium-theme = { version = "0.3.0", path = "../arborium-theme" }
-tree-sitter-patched-arborium = { version = "0.25.10", path = "../../tree-sitter", optional = true }
+arborium-theme = { version = "0.622.0", path = "../arborium-theme" }
+tree-sitter-patched-arborium = { version = "0.622.0", path = "../../tree-sitter", optional = true }
 streaming-iterator = { version = "0.1", optional = true }
