@@ -255,7 +255,57 @@ See **Release Flow** above for the full tag + CI story.
 | npmjs.com | `@arborium/arborium` (bundle) | 1 |
 | npmjs.com | `@arborium/{lang}` (per-language WASM plugins) | 98 |
 
-## TODO
+## Integrations
+
+These projects use arborium for syntax highlighting:
+
+| Integration | Description | Status |
+|------------|-------------|--------|
+| **miette-arborium** | Syntax highlighting for [miette](https://crates.io/crates/miette) error diagnostics | Published |
+| **dodeca** | Static site generator ([website](https://dodeca.bearcove.eu/), [GitHub](https://github.com/bearcove/dodeca)) | In use |
+| **docs.rs** | Via `--html-in-header` for TOML/shell highlighting in rustdoc | Documented |
+
+## Roadmap to 1.0
+
+### Done
+
+- [x] Core Rust library with 69+ language grammars
+- [x] Theme system with 15+ bundled themes (Catppuccin, Dracula, Tokyo Night, etc.)
+- [x] HTML rendering with compact custom elements (`<a-k>` vs `<span class="keyword">`)
+- [x] ANSI output for terminal applications
+- [x] miette integration for error reporting
+- [x] Browser IIFE drop-in script (auto-highlights code blocks)
+- [x] Browser ESM module for bundlers
+- [x] WASM compilation target (`wasm32-unknown-unknown`)
+- [x] docs.rs integration via `--html-in-header`
+- [x] IIFE skips already-highlighted blocks (docs.rs compatibility)
+
+### In Progress
+
+- [ ] WASM component plugin system (Phase 4 of WASMPLUG.md)
+  - [x] WIT interfaces defined (`grammar.wit`, `host.wit`)
+  - [x] Plugin runtime crate (`arborium-plugin-runtime`)
+  - [x] Host component started (`arborium-host`)
+  - [ ] Dynamic grammar loading from bytes
+  - [ ] Injection dependency resolution in browser
+
+### Blocking 1.0
+
+- [ ] **Language injection in browser** - HTML→JS→SQL nesting works in Rust but
+      not yet in WASM host component
+- [ ] **Visual regression tests** - Playwright infrastructure exists but needs
+      integration with CI
+- [ ] **API stability review** - Document public API surface, deprecation policy
+
+### Nice to Have (post-1.0)
+
+- [ ] Standalone CLI tool for highlighting files
+- [ ] Plugin discovery/registry mechanism (dynamic grammar loading)
+- [ ] Performance benchmarks and optimization pass
+- [ ] Incremental parsing with `apply-edit` support
+- [ ] Sample files for all ~98 grammars (see `docs/samples_todo.md`)
+
+## Publishing TODO
 
 - [ ] Finalize ~10 hand-crafted animal groups (squirrel, deer, fox, bear, wolf,
       otter, …) and document which languages live where
