@@ -228,6 +228,22 @@
                             <a href="https://docs.rs/arborium-theme">docs.rs</a>
                         </p>
                     </div>
+                    <div class="integration-item">
+                        <h4>{{ICON:mdi:file-document-outline}} dodeca</h4>
+                        <p>A static site generator that uses arborium for syntax highlighting. Markdown to HTML with beautiful code blocks.</p>
+                        <p class="integration-links">
+                            <a href="https://dodeca.bearcove.eu/">Website</a> ·
+                            <a href="https://github.com/bearcove/dodeca">GitHub</a>
+                        </p>
+                    </div>
+                    <div class="integration-item">
+                        <h4>{{ICON:mdi:book-open-page-variant}} docs.rs</h4>
+                        <p>Highlight TOML, shell, and other languages in your rustdoc. Create <code>arborium-header.html</code>:</p>
+                        <pre class="code-block"><code><a-tg>&lt;script</a-tg> <a-at>defer</a-at> <a-at>src</a-at><a-p>=</a-p><a-s>"https://cdn.jsdelivr.net/npm/@arborium/arborium/dist/arborium.iife.js"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg></code></pre>
+                        <p>Then in <code>Cargo.toml</code>:</p>
+                        <pre class="code-block"><code><a-p>[</a-p><a-v>package.metadata.docs.rs</a-v><a-p>]</a-p>
+<a-v>rustdoc-args</a-v> <a-o>=</a-o> <a-p>[</a-p><a-s>"--html-in-header"</a-s><a-p>,</a-p> <a-s>"arborium-header.html"</a-s><a-p>]</a-p></code></pre>
+                    </div>
                 </div>
             </div>
 
