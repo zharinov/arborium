@@ -352,13 +352,10 @@ fn read_crate_info(crate_dir: &Utf8Path) -> Result<(String, String)> {
     Ok((name, version))
 }
 
-/// Extract a string value from TOML (simple regex-based extraction).
-fn extract_toml_string(toml: &str, key: &str) -> Option<String> {
-    let pattern = format!(r#"(?m)^{}\s*=\s*"([^"]*)""#, regex::escape(key));
-    let re = regex::Regex::new(&pattern).ok()?;
-    re.captures(toml)
-        .and_then(|caps| caps.get(1))
-        .map(|m| m.as_str().to_string())
+/// Extract a string value from TOML.
+fn extract_toml_string(toml_str: &str, key: &str) -> Option<String> {
+    let doc: toml_edit::DocumentMut = toml_str.parse().ok()?;
+    doc.get(key)?.as_str().map(|s| s.to_string())
 }
 
 /// Check if a crate version already exists on crates.io.
@@ -779,13 +776,10 @@ fn read_package_info(package_dir: &Utf8Path) -> Result<(String, String)> {
     Ok((name, version))
 }
 
-/// Extract a string value from JSON (simple regex-based extraction).
-fn extract_json_string(json: &str, key: &str) -> Option<String> {
-    let pattern = format!(r#""{}"\s*:\s*"([^"]*)""#, regex::escape(key));
-    let re = regex::Regex::new(&pattern).ok()?;
-    re.captures(json)
-        .and_then(|caps| caps.get(1))
-        .map(|m| m.as_str().to_string())
+/// Extract a string value from JSON.
+fn extract_json_string(json_str: &str, key: &str) -> Option<String> {
+    let value: serde_json::Value = serde_json::from_str(json_str).ok()?;
+    value.get(key)?.as_str().map(|s| s.to_string())
 }
 
 /// Check if a package version already exists on npm.

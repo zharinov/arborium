@@ -430,7 +430,7 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                 // Generate with version (from tag or 0.0.0-dev for non-release)
                 Step::run(
                     "Generate grammar sources",
-                    "arborium-xtask gen --version ${{ steps.version.outputs.version }}",
+                    "arborium-xtask gen --version ${{ steps.version.outputs.version }} --quiet",
                 ),
                 // Create tarball for CI jobs (fast tar)
                 // Note: no root Cargo.toml/lock - each crate is standalone

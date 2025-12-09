@@ -70,6 +70,10 @@ enum Command {
         /// Number of parallel jobs for tree-sitter generation (default: 16)
         #[facet(args::named, args::short = 'j', default)]
         jobs: Option<usize>,
+
+        /// Suppress verbose plan output (only show summary)
+        #[facet(args::named, args::short = 'q', default)]
+        quiet: bool,
     },
 
     /// Build and serve the WASM demo locally
@@ -263,6 +267,7 @@ fn main() {
             version,
             no_fail_fast,
             jobs,
+            quiet,
         } => {
             use std::time::Instant;
             let total_start = Instant::now();
@@ -293,7 +298,7 @@ fn main() {
             let result = generate::plan_generate(&crates_dir, options);
             match result {
                 Ok(plans) => {
-                    if let Err(e) = plans.run(dry_run) {
+                    if let Err(e) = plans.run_with_options(dry_run, quiet) {
                         eprintln!("Error: {}", e);
                         std::process::exit(1);
                     }

@@ -1755,137 +1755,75 @@ fn plan_shared_crates(prepared: &PreparedStructures, mode: PlanMode) -> Result<P
     let version = &prepared.workspace_version;
     let repo_root = &prepared.repo_root;
 
-    // Update arborium-theme
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-theme/Cargo.toml"),
-        version,
-        &[],
-        mode,
-    )?;
+    // Update all shared crates - dependencies are auto-detected
+    let shared_crates = [
+        "arborium-theme",
+        "arborium-highlight",
+        "arborium-sysroot",
+        "arborium-test-harness",
+        "arborium-tree-sitter",
+        "arborium-host",
+        "arborium-plugin-runtime",
+        "arborium-wire",
+        "arborium-query",
+    ];
 
-    // Update arborium-highlight (depends on arborium-theme and tree-sitter)
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-highlight/Cargo.toml"),
-        version,
-        &[
-            ("arborium-theme", version),
-            ("arborium-tree-sitter", version),
-        ],
-        mode,
-    )?;
-
-    // Update arborium-sysroot
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-sysroot/Cargo.toml"),
-        version,
-        &[],
-        mode,
-    )?;
-
-    // Update arborium-test-harness (depends on arborium-highlight, arborium-theme, tree-sitter)
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-test-harness/Cargo.toml"),
-        version,
-        &[
-            ("arborium-highlight", version),
-            ("arborium-theme", version),
-            ("arborium-tree-sitter", version),
-        ],
-        mode,
-    )?;
-
-    // Update arborium-tree-sitter
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-tree-sitter/Cargo.toml"),
-        version,
-        &[],
-        mode,
-    )?;
-
-    // Update arborium-host (depends on arborium-highlight)
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-host/Cargo.toml"),
-        version,
-        &[("arborium-highlight", version)],
-        mode,
-    )?;
-
-    // Update arborium-plugin-runtime (depends on tree-sitter, arborium-wire)
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-plugin-runtime/Cargo.toml"),
-        version,
-        &[
-            ("arborium-tree-sitter", version),
-            ("arborium-wire", version),
-        ],
-        mode,
-    )?;
-
-    // Update arborium-wire
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-wire/Cargo.toml"),
-        version,
-        &[],
-        mode,
-    )?;
-
-    // Update arborium-query (depends on tree-sitter, arborium-sysroot, arborium-test-harness)
-    update_cargo_toml_version(
-        &mut plan,
-        &repo_root.join("crates/arborium-query/Cargo.toml"),
-        version,
-        &[
-            ("arborium-tree-sitter", version),
-            ("arborium-sysroot", version),
-            ("arborium-test-harness", version),
-        ],
-        mode,
-    )?;
+    for crate_name in shared_crates {
+        update_cargo_toml_version(
+            &mut plan,
+            &repo_root.join(format!("crates/{}/Cargo.toml", crate_name)),
+            version,
+            mode,
+        )?;
+    }
 
     Ok(plan)
 }
 
-/// Update a Cargo.toml file's version and optionally update dependency versions.
+/// Update a Cargo.toml file's version and all arborium-* dependency versions.
 fn update_cargo_toml_version(
     plan: &mut Plan,
     cargo_toml_path: &Utf8Path,
     new_version: &str,
-    dep_updates: &[(&str, &str)],
     mode: PlanMode,
 ) -> Result<(), Report> {
+    use toml_edit::{DocumentMut, Item, Value};
+
     if !cargo_toml_path.exists() {
         return Ok(());
     }
 
     let old_content = fs::read_to_string(cargo_toml_path)?;
-    let mut new_content = old_content.clone();
+    let mut doc: DocumentMut = old_content
+        .parse()
+        .map_err(|e| std::io::Error::other(format!("Failed to parse {}: {}", cargo_toml_path, e)))?;
 
-    // Update package version using regex
-    let version_re = regex::Regex::new(r#"(?m)^version\s*=\s*"[^"]+""#).unwrap();
-    new_content = version_re
-        .replace(&new_content, format!(r#"version = "{}""#, new_version))
-        .to_string();
-
-    // Update dependency versions
-    for (dep_name, dep_version) in dep_updates {
-        // Match patterns like: dep_name = { version = "x.y.z", ... }
-        let dep_re = regex::Regex::new(&format!(
-            r#"({}\s*=\s*\{{\s*version\s*=\s*")[^"]+""#,
-            regex::escape(dep_name)
-        ))
-        .unwrap();
-        new_content = dep_re
-            .replace(&new_content, format!(r#"${{1}}{}""#, dep_version))
-            .to_string();
+    // Update package version
+    if let Some(package) = doc.get_mut("package") {
+        if let Some(version) = package.get_mut("version") {
+            *version = Item::Value(Value::from(new_version));
+        }
     }
+
+    // Update arborium-* dependencies in all dependency sections
+    let dep_sections = ["dependencies", "dev-dependencies", "build-dependencies"];
+    for section_name in dep_sections {
+        if let Some(deps) = doc.get_mut(section_name) {
+            if let Some(table) = deps.as_table_mut() {
+                for (name, value) in table.iter_mut() {
+                    if name.get().starts_with("arborium-") {
+                        if let Some(dep_table) = value.as_table_like_mut() {
+                            if dep_table.contains_key("version") {
+                                dep_table.insert("version", Item::Value(Value::from(new_version)));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let new_content = doc.to_string();
 
     if old_content != new_content {
         let old_for_diff = if mode.is_dry_run() {

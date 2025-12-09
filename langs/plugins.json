@@ -1,12 +1,12 @@
 {
-  "generated_at": "2025-12-08T23:54:32.403452+00:00",
+  "generated_at": "2025-12-09T01:58:40.662331+00:00",
   "entries": [
     {
-      "language": "glsl",
-      "package": "@arborium/glsl",
-      "version": "1.2.3",
-      "cdn_js": "https://cdn.jsdelivr.net/npm/@arborium/glsl@1.2.3/grammar.js",
-      "cdn_wasm": "https://cdn.jsdelivr.net/npm/@arborium/glsl@1.2.3/grammar.core.wasm",
+      "language": "c",
+      "package": "@arborium/c",
+      "version": "0.622.0",
+      "cdn_js": "https://cdn.jsdelivr.net/npm/@arborium/c@0.622.0/grammar.js",
+      "cdn_wasm": "https://cdn.jsdelivr.net/npm/@arborium/c@0.622.0/grammar.core.wasm",
       "local_js": "/dist/plugins-e2e/grammar.js",
       "local_wasm": "/dist/plugins-e2e/grammar.core.wasm"
     }

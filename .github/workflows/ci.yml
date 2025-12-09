@@ -41,7 +41,7 @@ jobs:
 
       - 
         name: Generate grammar sources
-        run: "set -e\narborium-xtask gen --version ${{ steps.version.outputs.version }}"
+        run: "set -e\narborium-xtask gen --version ${{ steps.version.outputs.version }} --quiet"
       - 
         name: Create grammar sources tarball
         run: "set -e\ntar -cvf grammar-sources.tar crates/ langs/ version.json"

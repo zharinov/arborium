@@ -524,11 +524,53 @@ impl PlanSet {
 
     /// Display and optionally execute the plans.
     pub fn run(&self, dry_run: bool) -> Result<(), ExecuteError> {
-        self.display(dry_run);
-        if !dry_run && !self.is_empty() {
-            println!();
-            self.execute()?;
+        self.run_with_options(dry_run, false)
+    }
+
+    /// Display and optionally execute the plans, with quiet mode support.
+    pub fn run_with_options(&self, dry_run: bool, quiet: bool) -> Result<(), ExecuteError> {
+        if !quiet {
+            self.display(dry_run);
+        } else if !self.is_empty() {
+            // In quiet mode, just show a summary
+            println!(
+                "{} {} operation(s) across {} crate(s)",
+                if dry_run { "Would apply" } else { "Applying" },
+                self.total_operations(),
+                self.plans.len()
+            );
         }
+
+        if !dry_run && !self.is_empty() {
+            if !quiet {
+                println!();
+            }
+            self.execute_quiet(quiet)?;
+        }
+        Ok(())
+    }
+
+    /// Execute all plans, optionally in quiet mode.
+    fn execute_quiet(&self, quiet: bool) -> Result<(), ExecuteError> {
+        use std::time::Instant;
+        let start = Instant::now();
+
+        for plan in &self.plans {
+            if !quiet {
+                if let Some(ref name) = plan.crate_name {
+                    println!("Processing {}...", name);
+                }
+            }
+            plan.execute()?;
+        }
+
+        let elapsed = start.elapsed();
+        println!(
+            "\n{} {} operation(s) completed in {:.2}s",
+            "●".green(),
+            self.total_operations(),
+            elapsed.as_secs_f64()
+        );
         Ok(())
     }
 }
