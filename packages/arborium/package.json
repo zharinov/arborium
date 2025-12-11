@@ -78,7 +78,8 @@
     "copy:host": "cp ../../demo/pkg/arborium_host.js ../../demo/pkg/arborium_host_bg.wasm dist/",
     "dev": "vite",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build && test -f dist/arborium.iife.js || (echo 'ERROR: dist/arborium.iife.js missing!' && exit 1)"
   },
   "type": "module",
   "types": "./dist/arborium.d.ts",
