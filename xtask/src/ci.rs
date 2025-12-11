@@ -667,6 +667,10 @@ echo "No env imports found - WASM modules are browser-compatible""#,
                 "find dist/plugins -name 'package.json' | head -20",
             ),
             Step::run(
+                "Install main package dependencies",
+                "cd packages/arborium && npm ci",
+            ),
+            Step::run(
                 "Publish to npm",
                 "arborium-xtask publish npm -o dist/plugins",
             )

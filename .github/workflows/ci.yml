@@ -701,6 +701,9 @@ jobs:
         name: List plugins
         run: "set -e\nfind dist/plugins -name 'package.json' | head -20"
       - 
+        name: Install main package dependencies
+        run: "set -e\ncd packages/arborium && npm ci"
+      - 
         name: Publish to npm
         run: "set -e\narborium-xtask publish npm -o dist/plugins"
         env: 

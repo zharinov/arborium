@@ -1576,7 +1576,7 @@ fn plan_crate_files_only(
 fn plan_plugin_crate_files(
     crate_state: &CrateState,
     config: &crate::types::CrateConfig,
-    repo_root: &Utf8Path,
+    _repo_root: &Utf8Path,
     workspace_version: &str,
 ) -> Result<Plan, Report> {
     let mut plan = Plan::for_crate(format!("{}-plugin", crate_state.name));
@@ -1604,7 +1604,9 @@ fn plan_plugin_crate_files(
         .parent()
         .expect("crate_path should have parent");
     let npm_path = lang_dir.join("npm");
-    let wit_path = repo_root.join("wit/grammar.wit");
+    // Use relative path from npm/ to wit/grammar.wit
+    // npm/ is at langs/group-*/lang/npm/, so: npm -> lang -> group-* -> langs -> repo-root -> wit
+    let wit_path = "../../../../wit/grammar.wit";
 
     // Ensure npm directory exists
     if !npm_path.exists() {
@@ -1616,7 +1618,7 @@ fn plan_plugin_crate_files(
 
     // Generate npm/Cargo.toml
     let cargo_toml_path = npm_path.join("Cargo.toml");
-    let new_cargo_toml = generate_plugin_cargo_toml(grammar_id, crate_name, wit_path.as_str());
+    let new_cargo_toml = generate_plugin_cargo_toml(grammar_id, crate_name, wit_path);
 
     if cargo_toml_path.exists() {
         let old_content = fs::read_to_string(&cargo_toml_path)?;
@@ -1638,7 +1640,7 @@ fn plan_plugin_crate_files(
 
     // Generate npm/src/lib.rs
     let lib_rs_path = npm_path.join("src/lib.rs");
-    let new_lib_rs = generate_plugin_lib_rs(grammar_id, crate_name, wit_path.as_str());
+    let new_lib_rs = generate_plugin_lib_rs(grammar_id, crate_name, wit_path);
 
     if lib_rs_path.exists() {
         let old_content = fs::read_to_string(&lib_rs_path)?;
