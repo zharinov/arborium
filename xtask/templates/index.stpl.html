@@ -15,6 +15,14 @@
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
             rel="stylesheet"
         />
+        <link
+            rel="preload"
+            href="IosevkaFtl-Regular.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link rel="preload" href="IosevkaFtl-Bold.woff2" as="font" type="font/woff2" crossorigin />
         <link rel="stylesheet" href="styles.css" />
         <%- theme_css_link %>
     </head>
@@ -250,23 +258,13 @@
                                 <code>&lt;pre&gt;&lt;code&gt;</code> blocks get highlighted
                                 automatically:
                             </p>
-                            <pre
-                                class="code-block"
-                            ><code class="language-html">&lt;script src="https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js"&gt;&lt;/script&gt;</code></pre>
+                            <pre class="code-block"><code><%- code.script_tag %></code></pre>
                             <p>Your code blocks should look like this:</p>
                             <pre
                                 class="code-block"
-                            ><code class="language-html">&lt;pre&gt;&lt;code class="language-rust"&gt;fn main() {}&lt;/code&gt;&lt;/pre&gt;
-&lt;!-- or --&gt;
-&lt;pre&gt;&lt;code data-lang="rust"&gt;fn main() {}&lt;/code&gt;&lt;/pre&gt;
-&lt;!-- or just let it auto-detect --&gt;
-&lt;pre&gt;&lt;code&gt;fn main() {}&lt;/code&gt;&lt;/pre&gt;</code></pre>
+                            ><code><%- code.code_block_examples %></code></pre>
                             <p>Configure via data attributes:</p>
-                            <pre class="code-block"><code class="language-html">&lt;script src="..."
-  data-theme="github-light"      &lt;!-- theme name --&gt;
-  data-selector="pre code"        &lt;!-- CSS selector --&gt;
-  data-manual                     &lt;!-- disable auto-highlight --&gt;
-  data-cdn="unpkg"&gt;&lt;/script&gt;       &lt;!-- jsdelivr | unpkg | custom URL --&gt;</code></pre>
+                            <pre class="code-block"><code><%- code.data_attributes %></code></pre>
                             <p>
                                 With <code>data-manual</code>, call
                                 <code>window.arborium.highlightAll()</code> when ready.
@@ -276,22 +274,14 @@
                         <div class="get-started-option">
                             <h4>Rust (native or WASM)</h4>
                             <p>Add to your <code>Cargo.toml</code>:</p>
-                            <pre
-                                class="code-block"
-                            ><code class="language-toml">arborium = { version = "<%- version %>", features = ["lang-rust"] }</code></pre>
+                            <pre class="code-block"><code><%- code.cargo_toml %></code></pre>
                             <p>Then highlight code:</p>
-                            <pre
-                                class="code-block"
-                            ><code class="language-rust">let html = arborium::highlight("rust", source, &amp;theme);</code></pre>
+                            <pre class="code-block"><code><%- code.rust_highlight %></code></pre>
                         </div>
                         <div class="get-started-option">
                             <h4>npm (ESM)</h4>
                             <p>For bundlers or manual control:</p>
-                            <pre
-                                class="code-block"
-                            ><code class="language-javascript">import { loadGrammar, highlight } from '@arborium/arborium';
-
-const html = await highlight('rust', sourceCode);</code></pre>
+                            <pre class="code-block"><code><%- code.js_esm %></code></pre>
                             <p>Grammars are loaded on-demand from jsdelivr (configurable).</p>
                         </div>
                     </div>
@@ -306,14 +296,9 @@ const html = await highlight('rust', sourceCode);</code></pre>
                                 Highlight TOML, shell, and other languages in your rustdoc. Create
                                 <code>arborium-header.html</code>:
                             </p>
-                            <pre
-                                class="code-block"
-                            ><code class="language-html">&lt;script defer src="https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js"&gt;&lt;/script&gt;</code></pre>
+                            <pre class="code-block"><code><%- code.docsrs_script %></code></pre>
                             <p>Then in <code>Cargo.toml</code>:</p>
-                            <pre
-                                class="code-block"
-                            ><code class="language-toml">[package.metadata.docs.rs]
-rustdoc-args = ["--html-in-header", "arborium-header.html"]</code></pre>
+                            <pre class="code-block"><code><%- code.docsrs_cargo %></code></pre>
                             <p class="integration-links">
                                 <a href="https://docs.rs/arborium-docsrs-demo/">See it in action</a>
                             </p>
@@ -326,13 +311,7 @@ rustdoc-args = ["--html-in-header", "arborium-header.html"]</code></pre>
                                 diagnostics. Beautiful, accurate highlighting in your CLI error
                                 messages.
                             </p>
-                            <pre
-                                class="code-block"
-                            ><code class="language-rust">use miette::GraphicalReportHandler;
-use miette_arborium::ArboriumHighlighter;
-
-let handler = GraphicalReportHandler::new()
-    .with_syntax_highlighting(ArboriumHighlighter::new());</code></pre>
+                            <pre class="code-block"><code><%- code.miette_example %></code></pre>
                             <p class="integration-links">
                                 <a href="https://crates.io/crates/miette-arborium">crates.io</a> ·
                                 <a href="https://docs.rs/miette-arborium">docs.rs</a>
@@ -412,7 +391,8 @@ let handler = GraphicalReportHandler::new()
                     </div>
                     <div class="faq-item">
                         <h4>
-                            <span class="faq-icon"><%- icons["mdi:forest"] %></span>Why "arborium"?
+                            <span class="faq-icon"><%- icons["mdi:forest"] %></span>Why the name
+                            "arborium"?
                         </h4>
                         <div class="faq-answer">
                             <p>
@@ -478,38 +458,6 @@ let handler = GraphicalReportHandler::new()
                                 The tradeoff is worth it: you get real parsing (not regex hacks)
                                 that handles edge cases correctly and recovers gracefully from
                                 syntax errors.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4>
-                            <span class="faq-icon"><%- icons["mdi:language-html5"] %></span>Can I
-                            use this without Rust / just embed it on my website?
-                        </h4>
-                        <div class="faq-answer">
-                            <p>
-                                Yes! Use our npm package <code>@arborium/arborium</code>. It
-                                provides both an ESM module and an IIFE bundle that auto-highlights
-                                code blocks on your page.
-                            </p>
-                            <p>
-                                The IIFE bundle exposes <code>window.arborium</code> with methods
-                                like <code>highlightAll()</code>,
-                                <code>highlightElement(el, lang)</code>, and
-                                <code>detectLanguage(source)</code>.
-                            </p>
-                            <p>See the "Get Started" section above for details.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4>
-                            <span class="faq-icon"><%- icons["mdi:cloud-download-outline"] %></span
-                            >Could a ready-to-embed kit load grammars on-demand?
-                        </h4>
-                        <div class="faq-answer">
-                            <p>
-                                Yes! That's what the IIFE bundle does. It detects languages in your
-                                code blocks and fetches grammars from jsdelivr as needed.
                             </p>
                         </div>
                     </div>
@@ -611,41 +559,6 @@ let handler = GraphicalReportHandler::new()
                     block.appendChild(btn);
                 });
             })();
-        </script>
-        <script type="module">
-            // Highlight code blocks in the cards using arborium
-            async function highlightCodeBlocks() {
-                // Wait for the host to be available
-                const maxWait = 10000;
-                const start = Date.now();
-                while (!window.arboriumHost && Date.now() - start < maxWait) {
-                    await new Promise((r) => setTimeout(r, 100));
-                }
-                if (!window.arboriumHost) {
-                    console.warn("arboriumHost not available, code blocks not highlighted");
-                    return;
-                }
-
-                // Import the highlight function from the host module
-                const hostModule = await import("/pkg/arborium_host.js");
-                await hostModule.default("/pkg/arborium_host_bg.wasm");
-
-                // Highlight each code block
-                for (const block of document.querySelectorAll(".code-block code")) {
-                    const lang = block.className.replace("language-", "") || null;
-                    if (!lang) continue;
-
-                    const source = block.textContent;
-                    try {
-                        const html = await hostModule.highlight(lang, source);
-                        block.innerHTML = html;
-                        block.dataset.highlighted = "true";
-                    } catch (e) {
-                        console.warn(`Failed to highlight ${lang}:`, e);
-                    }
-                }
-            }
-            highlightCodeBlocks();
         </script>
     </body>
 </html>

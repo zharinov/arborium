@@ -4,7 +4,7 @@
     src: url("IosevkaFtl-Regular.woff2") format("woff2");
     font-weight: 400;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
 }
 
 @font-face {
@@ -12,7 +12,7 @@
     src: url("IosevkaFtl-Bold.woff2") format("woff2");
     font-weight: 700;
     font-style: normal;
-    font-display: swap;
+    font-display: block;
 }
 
 /* Theme variables */
@@ -3064,11 +3064,11 @@ footer a:hover {
     background: color-mix(in srgb, var(--bg) 80%, transparent);
     border: 1px solid color-mix(in srgb, var(--fg) 15%, transparent);
     border-radius: 4px;
-    padding: 0.5rem 0.75rem;
+    padding: 0.4rem 0.6rem;
     margin: 0.5rem 0;
     overflow-x: auto;
     font-family: "Iosevka", "SF Mono", "Fira Code", "Consolas", monospace;
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     line-height: 1.4;
 }
 
@@ -3222,7 +3222,7 @@ pre:has(code[data-highlighted]) code {
 }
 
 .integration-item .code-block {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
 }
 
 .integration-links {

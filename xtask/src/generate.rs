@@ -142,9 +142,7 @@ struct DocsrsDemoCargoTomlTemplate<'a> {
 
 #[derive(TemplateSimple)]
 #[template(path = "docsrs_demo_header.stpl.html")]
-struct DocsrsDemoHeaderTemplate<'a> {
-    version: &'a str,
-}
+struct DocsrsDemoHeaderTemplate {}
 
 #[derive(TemplateSimple)]
 #[template(path = "docsrs_demo_lib.stpl.rs")]
@@ -2108,7 +2106,7 @@ fn plan_docsrs_demo_crate(prepared: &PreparedStructures, mode: PlanMode) -> Resu
 
     // Generate arborium-header.html
     let header_path = demo_path.join("arborium-header.html");
-    let new_header = DocsrsDemoHeaderTemplate { version }
+    let new_header = DocsrsDemoHeaderTemplate {}
         .render_once()
         .expect("DocsrsDemoHeaderTemplate render failed");
     plan_file_update(

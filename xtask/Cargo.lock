@@ -45,10 +45,85 @@ dependencies = [
 ]
 
 [[package]]
+name = "arborium"
+version = "1.0.1"
+dependencies = [
+ "arborium-highlight",
+ "arborium-html",
+ "arborium-javascript",
+ "arborium-rust",
+ "arborium-theme",
+ "arborium-toml",
+ "arborium-tree-sitter",
+ "dlmalloc",
+]
+
+[[package]]
+name = "arborium-highlight"
+version = "1.0.1"
+dependencies = [
+ "arborium-theme",
+ "arborium-tree-sitter",
+ "streaming-iterator",
+]
+
+[[package]]
+name = "arborium-html"
+version = "1.0.1"
+dependencies = [
+ "arborium-sysroot",
+ "arborium-tree-sitter",
+ "cc",
+]
+
+[[package]]
+name = "arborium-javascript"
+version = "1.0.1"
+dependencies = [
+ "arborium-sysroot",
+ "arborium-tree-sitter",
+ "cc",
+]
+
+[[package]]
+name = "arborium-rust"
+version = "1.0.1"
+dependencies = [
+ "arborium-sysroot",
+ "arborium-tree-sitter",
+ "cc",
+]
+
+[[package]]
+name = "arborium-sysroot"
+version = "1.0.1"
+
+[[package]]
 name = "arborium-theme"
 version = "1.0.1"
 dependencies = [
  "toml",
+]
+
+[[package]]
+name = "arborium-toml"
+version = "1.0.1"
+dependencies = [
+ "arborium-sysroot",
+ "arborium-tree-sitter",
+ "cc",
+]
+
+[[package]]
+name = "arborium-tree-sitter"
+version = "1.0.1"
+dependencies = [
+ "arborium-sysroot",
+ "cc",
+ "regex",
+ "regex-syntax",
+ "streaming-iterator",
+ "tree-sitter-language",
 ]
 
 [[package]]
@@ -264,6 +339,17 @@ name = "crossbeam-utils"
 version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
+
+[[package]]
+name = "dlmalloc"
+version = "0.2.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6738d2e996274e499bc7b0d693c858b7720b9cd2543a0643a3087e6cb0a4fa16"
+dependencies = [
+ "cfg-if",
+ "libc",
+ "windows-sys 0.61.2",
+]
 
 [[package]]
 name = "either"
@@ -1416,6 +1502,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
+name = "streaming-iterator"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b2231b7c3057d5e4ad0156fb3dc807d900806020c5ffa3ee6ff2c8c76fb8520"
+
+[[package]]
 name = "strsim"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1698,6 +1790,10 @@ dependencies = [
  "tracing-core",
  "tracing-log",
 ]
+
+[[package]]
+name = "tree-sitter-language"
+version = "0.1.5"
 
 [[package]]
 name = "triomphe"
@@ -2118,6 +2214,7 @@ checksum = "f17a85883d4e6d00e8a97c586de764dabcc06133f7f1d55dce5cdc070ad7fe59"
 name = "xtask"
 version = "0.1.0"
 dependencies = [
+ "arborium",
  "arborium-theme",
  "blake3",
  "camino",

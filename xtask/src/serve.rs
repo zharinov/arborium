@@ -31,7 +31,20 @@ struct IndexHtmlTemplate<'a> {
     icons: &'a BTreeMap<String, String>,
     theme_swatches: &'a str,
     theme_css_link: &'a str,
-    version: &'a str,
+    code: &'a CodeBlocks,
+}
+
+/// Pre-highlighted code blocks for the index page
+struct CodeBlocks {
+    script_tag: String,
+    code_block_examples: String,
+    data_attributes: String,
+    cargo_toml: String,
+    rust_highlight: String,
+    js_esm: String,
+    docsrs_script: String,
+    docsrs_cargo: String,
+    miette_example: String,
 }
 
 // Sailfish template for iife-demo.html
@@ -627,162 +640,15 @@ fn serialize_icon_cache(icons: &BTreeMap<String, String>) -> String {
     facet_json::to_string_pretty(icons)
 }
 
-/// Theme metadata for generating swatches
-struct ThemeInfo {
-    id: &'static str,
-    name: &'static str,
-    variant: &'static str,
-    bg: &'static str,
+/// Convert a theme name to a CSS-friendly ID (kebab-case, lowercase)
+fn theme_name_to_id(name: &str) -> String {
+    name.to_lowercase().replace(' ', "-").replace('é', "e") // Handle "Rosé Pine"
 }
-
-/// All themes with their metadata (must match CSS and app.js)
-const THEMES: &[ThemeInfo] = &[
-    // Catppuccin family
-    ThemeInfo {
-        id: "mocha",
-        name: "Catppuccin Mocha",
-        variant: "dark",
-        bg: "#1e1e2e",
-    },
-    ThemeInfo {
-        id: "macchiato",
-        name: "Catppuccin Macchiato",
-        variant: "dark",
-        bg: "#24273a",
-    },
-    ThemeInfo {
-        id: "frappe",
-        name: "Catppuccin Frappe",
-        variant: "dark",
-        bg: "#303446",
-    },
-    ThemeInfo {
-        id: "latte",
-        name: "Catppuccin Latte",
-        variant: "light",
-        bg: "#eff1f5",
-    },
-    // Popular dark themes
-    ThemeInfo {
-        id: "tokyo-night",
-        name: "Tokyo Night",
-        variant: "dark",
-        bg: "#1a1b26",
-    },
-    ThemeInfo {
-        id: "dracula",
-        name: "Dracula",
-        variant: "dark",
-        bg: "#282a36",
-    },
-    ThemeInfo {
-        id: "monokai",
-        name: "Monokai Pro",
-        variant: "dark",
-        bg: "#2d2a2e",
-    },
-    ThemeInfo {
-        id: "one-dark",
-        name: "One Dark",
-        variant: "dark",
-        bg: "#282c34",
-    },
-    ThemeInfo {
-        id: "nord",
-        name: "Nord",
-        variant: "dark",
-        bg: "#2e3440",
-    },
-    ThemeInfo {
-        id: "gruvbox-dark",
-        name: "Gruvbox Dark",
-        variant: "dark",
-        bg: "#282828",
-    },
-    ThemeInfo {
-        id: "rose-pine-moon",
-        name: "Rosé Pine Moon",
-        variant: "dark",
-        bg: "#232136",
-    },
-    ThemeInfo {
-        id: "kanagawa-dragon",
-        name: "Kanagawa Dragon",
-        variant: "dark",
-        bg: "#181616",
-    },
-    ThemeInfo {
-        id: "cobalt2",
-        name: "Cobalt2",
-        variant: "dark",
-        bg: "#193549",
-    },
-    ThemeInfo {
-        id: "zenburn",
-        name: "Zenburn",
-        variant: "dark",
-        bg: "#3f3f3f",
-    },
-    ThemeInfo {
-        id: "melange-dark",
-        name: "Melange Dark",
-        variant: "dark",
-        bg: "#292522",
-    },
-    ThemeInfo {
-        id: "monokai-aqua",
-        name: "Monokai Aqua",
-        variant: "dark",
-        bg: "#222222",
-    },
-    ThemeInfo {
-        id: "desert256",
-        name: "Desert256",
-        variant: "dark",
-        bg: "#000000",
-    },
-    // GitHub
-    ThemeInfo {
-        id: "github-dark",
-        name: "GitHub Dark",
-        variant: "dark",
-        bg: "#0d1117",
-    },
-    ThemeInfo {
-        id: "github-light",
-        name: "GitHub Light",
-        variant: "light",
-        bg: "#ffffff",
-    },
-    // Light themes
-    ThemeInfo {
-        id: "gruvbox-light",
-        name: "Gruvbox Light",
-        variant: "light",
-        bg: "#fbf1c7",
-    },
-    ThemeInfo {
-        id: "alabaster",
-        name: "Alabaster",
-        variant: "light",
-        bg: "#f7f7f7",
-    },
-    ThemeInfo {
-        id: "dayfox",
-        name: "Dayfox",
-        variant: "light",
-        bg: "#f6f2ee",
-    },
-    ThemeInfo {
-        id: "melange-light",
-        name: "Melange Light",
-        variant: "light",
-        bg: "#f1f1f1",
-    },
-];
 
 /// Generate HTML for theme swatches in the "Theme support" section
 fn generate_theme_swatches() -> String {
+    use arborium_theme::builtin;
+
     let mut html = String::new();
 
     // Sample code snippet (Rust) for each theme preview
@@ -792,16 +658,23 @@ fn generate_theme_swatches() -> String {
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p>"#;
 
-    for theme in THEMES {
+    for theme in builtin::all() {
+        let id = theme_name_to_id(&theme.name);
+        let variant = if theme.is_dark { "dark" } else { "light" };
+        let bg = theme
+            .background
+            .map(|c| c.to_hex())
+            .unwrap_or_else(|| "#1e1e2e".to_string());
+
         html.push_str(&format!(
             r#"<div class="theme-preview" data-variant="{variant}" data-theme="{id}">
     <pre style="background: {bg}; padding: 0.75rem; border-radius: 6px;"><code>{code}</code></pre>
     <span class="theme-name">{name}</span>
 </div>
 "#,
-            id = theme.id,
-            variant = theme.variant,
-            bg = theme.bg,
+            id = id,
+            variant = variant,
+            bg = bg,
             name = theme.name,
             code = sample_code,
         ));
@@ -810,18 +683,85 @@ fn generate_theme_swatches() -> String {
     html
 }
 
+/// Highlight a code snippet using arborium
+fn highlight_code(lang: &str, source: &str) -> String {
+    use arborium::Highlighter;
+    let mut highlighter = Highlighter::new();
+    highlighter
+        .highlight_to_html(lang, source)
+        .unwrap_or_else(|_| source.to_string())
+}
+
+/// Generate all pre-highlighted code blocks for the index page
+fn generate_code_blocks() -> CodeBlocks {
+    CodeBlocks {
+        script_tag: highlight_code(
+            "html",
+            r#"<script src="https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js"></script>"#,
+        ),
+        code_block_examples: highlight_code(
+            "html",
+            r#"<pre><code class="language-rust">fn main() {}</code></pre>
+<!-- or -->
+<pre><code data-lang="rust">fn main() {}</code></pre>
+<!-- or just let it auto-detect -->
+<pre><code>fn main() {}</code></pre>"#,
+        ),
+        data_attributes: highlight_code(
+            "html",
+            r#"<script src="..."
+  data-theme="github-light"      <!-- theme name -->
+  data-selector="pre code"        <!-- CSS selector -->
+  data-manual                     <!-- disable auto-highlight -->
+  data-cdn="unpkg"></script>       <!-- jsdelivr | unpkg | custom URL -->"#,
+        ),
+        cargo_toml: highlight_code(
+            "toml",
+            r#"arborium = { version = "1", features = ["lang-rust"] }"#,
+        ),
+        rust_highlight: highlight_code(
+            "rust",
+            r#"let html = arborium::highlight("rust", source, &theme);"#,
+        ),
+        js_esm: highlight_code(
+            "javascript",
+            r#"import { loadGrammar, highlight } from '@arborium/arborium';
+
+const html = await highlight('rust', sourceCode);"#,
+        ),
+        docsrs_script: highlight_code(
+            "html",
+            r#"<script defer src="https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js"></script>"#,
+        ),
+        docsrs_cargo: highlight_code(
+            "toml",
+            r#"[package.metadata.docs.rs]
+rustdoc-args = ["--html-in-header", "arborium-header.html"]"#,
+        ),
+        miette_example: highlight_code(
+            "rust",
+            r#"use miette::GraphicalReportHandler;
+use miette_arborium::ArboriumHighlighter;
+
+let handler = GraphicalReportHandler::new()
+    .with_syntax_highlighting(ArboriumHighlighter::new());"#,
+        ),
+    }
+}
+
 fn generate_index_html(demo_dir: &Path, icons: &BTreeMap<String, String>) -> Result<(), String> {
     let output_path = demo_dir.join("index.html");
 
     // Generate theme swatches
     let swatches_html = generate_theme_swatches();
     let theme_css_link = "\n    <link rel=\"stylesheet\" href=\"/pkg/themes.generated.css\">";
+    let code_blocks = generate_code_blocks();
 
     let template = IndexHtmlTemplate {
         icons,
         theme_swatches: &swatches_html,
         theme_css_link,
-        version: "1",
+        code: &code_blocks,
     };
 
     let html = template.render_once().map_err(|e| e.to_string())?;

@@ -15,6 +15,14 @@
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
             rel="stylesheet"
         />
+        <link
+            rel="preload"
+            href="IosevkaFtl-Regular.woff2"
+            as="font"
+            type="font/woff2"
+            crossorigin
+        />
+        <link rel="preload" href="IosevkaFtl-Bold.woff2" as="font" type="font/woff2" crossorigin />
         <link rel="stylesheet" href="styles.css" />
         
     <link rel="stylesheet" href="/pkg/themes.generated.css">
@@ -246,25 +254,21 @@
                                 <code>&lt;pre&gt;&lt;code&gt;</code> blocks get highlighted
                                 automatically:
                             </p>
-                            <pre
-                                class="code-block"
-                            ><code><a-tg>&lt;script</a-tg> <a-at>src</a-at><a-p>=</a-p><a-s>"https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg></code></pre>
+                            <pre class="code-block"><code><a-p>&lt;</a-p><a-tg>script</a-tg> <a-at>src</a-at>=&quot;<a-s>https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js</a-s>&quot;<a-p>&gt;&lt;/</a-p><a-tg>script</a-tg><a-p>&gt;</a-p></code></pre>
                             <p>Your code blocks should look like this:</p>
                             <pre
                                 class="code-block"
-                            ><code><a-tg>&lt;pre&gt;&lt;code</a-tg> <a-at>class</a-at><a-p>=</a-p><a-s>"language-rust"</a-s><a-tg>&gt;</a-tg>fn main() {}<a-tg>&lt;/code&gt;&lt;/pre&gt;</a-tg>
+                            ><code><a-p>&lt;</a-p><a-tg>pre</a-tg><a-p>&gt;&lt;</a-p><a-tg>code</a-tg> <a-at>class</a-at>=&quot;<a-s>language-rust</a-s>&quot;<a-p>&gt;</a-p>fn main() {}<a-p>&lt;/</a-p><a-tg>code</a-tg><a-p>&gt;&lt;/</a-p><a-tg>pre</a-tg><a-p>&gt;</a-p>
 <a-c>&lt;!-- or --&gt;</a-c>
-<a-tg>&lt;pre&gt;&lt;code</a-tg> <a-at>data-lang</a-at><a-p>=</a-p><a-s>"rust"</a-s><a-tg>&gt;</a-tg>fn main() {}<a-tg>&lt;/code&gt;&lt;/pre&gt;</a-tg>
+<a-p>&lt;</a-p><a-tg>pre</a-tg><a-p>&gt;&lt;</a-p><a-tg>code</a-tg> <a-at>data-lang</a-at>=&quot;<a-s>rust</a-s>&quot;<a-p>&gt;</a-p>fn main() {}<a-p>&lt;/</a-p><a-tg>code</a-tg><a-p>&gt;&lt;/</a-p><a-tg>pre</a-tg><a-p>&gt;</a-p>
 <a-c>&lt;!-- or just let it auto-detect --&gt;</a-c>
-<a-tg>&lt;pre&gt;&lt;code&gt;</a-tg>fn main() {}<a-tg>&lt;/code&gt;&lt;/pre&gt;</a-tg></code></pre>
+<a-p>&lt;</a-p><a-tg>pre</a-tg><a-p>&gt;&lt;</a-p><a-tg>code</a-tg><a-p>&gt;</a-p>fn main() {}<a-p>&lt;/</a-p><a-tg>code</a-tg><a-p>&gt;&lt;/</a-p><a-tg>pre</a-tg><a-p>&gt;</a-p></code></pre>
                             <p>Configure via data attributes:</p>
-                            <pre
-                                class="code-block"
-                            ><code><a-tg>&lt;script</a-tg> <a-at>src</a-at><a-p>=</a-p><a-s>"..."</a-s>
-  <a-at>data-theme</a-at><a-p>=</a-p><a-s>"github-light"</a-s>      <a-c>&lt;!-- theme name --&gt;</a-c>
-  <a-at>data-selector</a-at><a-p>=</a-p><a-s>"pre code"</a-s>        <a-c>&lt;!-- CSS selector --&gt;</a-c>
+                            <pre class="code-block"><code><a-p>&lt;</a-p><a-tg>script</a-tg> <a-at>src</a-at>=&quot;<a-s>...</a-s>&quot;
+  <a-at>data-theme</a-at>=&quot;<a-s>github-light</a-s>&quot;      <a-c>&lt;!-- theme name --&gt;</a-c>
+  <a-at>data-selector</a-at>=&quot;<a-s>pre code</a-s>&quot;        <a-c>&lt;!-- CSS selector --&gt;</a-c>
   <a-at>data-manual</a-at>                     <a-c>&lt;!-- disable auto-highlight --&gt;</a-c>
-  <a-at>data-cdn</a-at><a-p>=</a-p><a-s>"unpkg"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg>       <a-c>&lt;!-- jsdelivr | unpkg | custom URL --&gt;</a-c></code></pre>
+  <a-at>data-cdn</a-at>=&quot;<a-s>unpkg</a-s>&quot;<a-p>&gt;&lt;/</a-p><a-tg>script</a-tg><a-p>&gt;</a-p>       <a-c>&lt;!-- jsdelivr | unpkg | custom URL --&gt;</a-c></code></pre>
                             <p>
                                 With <code>data-manual</code>, call
                                 <code>window.arborium.highlightAll()</code> when ready.
@@ -274,22 +278,16 @@
                         <div class="get-started-option">
                             <h4>Rust (native or WASM)</h4>
                             <p>Add to your <code>Cargo.toml</code>:</p>
-                            <pre
-                                class="code-block"
-                            ><code>arborium = { version = "1", features = ["lang-rust"] }</code></pre>
+                            <pre class="code-block"><code><a-pr>arborium</a-pr> <a-o>=</a-o> <a-p>{</a-p> <a-pr>version</a-pr> <a-o>=</a-o> <a-s>&quot;1&quot;</a-s><a-p>,</a-p> <a-pr>features</a-pr> <a-o>=</a-o> <a-p>[</a-p><a-s>&quot;lang-rust&quot;</a-s><a-p>]</a-p> <a-p>}</a-p></code></pre>
                             <p>Then highlight code:</p>
-                            <pre
-                                class="code-block"
-                            ><code><a-k>let</a-k> html <a-o>=</a-o> arborium<a-p>::</a-p>highlight(<a-s>"rust"</a-s>, source, <a-o>&amp;</a-o>theme)<a-p>;</a-p></code></pre>
+                            <pre class="code-block"><code><a-k>let</a-k> html = arborium<a-p>::</a-p><a-f>highlight</a-f><a-p>(</a-p><a-s>&quot;rust&quot;</a-s><a-p>,</a-p> source<a-p>,</a-p> <a-o>&amp;</a-o>theme<a-p>);</a-p></code></pre>
                         </div>
                         <div class="get-started-option">
                             <h4>npm (ESM)</h4>
                             <p>For bundlers or manual control:</p>
-                            <pre
-                                class="code-block"
-                            ><code><a-k>import</a-k> { loadGrammar, highlight } <a-k>from</a-k> <a-s>'@arborium/arborium'</a-s><a-p>;</a-p>
+                            <pre class="code-block"><code><a-k>import</a-k> <a-p>{</a-p> <a-v>loadGrammar</a-v><a-p>,</a-p> <a-v>highlight</a-v> <a-p>}</a-p> <a-k>from</a-k> <a-s>&#39;@arborium/arborium&#39;</a-s><a-p>;</a-p>
 
-<a-k>const</a-k> html <a-o>=</a-o> <a-k>await</a-k> highlight(<a-s>'rust'</a-s>, sourceCode)<a-p>;</a-p></code></pre>
+<a-k>const</a-k> <a-v>html</a-v> <a-o>=</a-o> <a-k>await</a-k> <a-v>highlight</a-v><a-p>(</a-p><a-s>&#39;rust&#39;</a-s><a-p>,</a-p> <a-v>sourceCode</a-v><a-p>);</a-p></code></pre>
                             <p>Grammars are loaded on-demand from jsdelivr (configurable).</p>
                         </div>
                     </div>
@@ -304,14 +302,10 @@
                                 Highlight TOML, shell, and other languages in your rustdoc. Create
                                 <code>arborium-header.html</code>:
                             </p>
-                            <pre
-                                class="code-block"
-                            ><code><a-tg>&lt;script</a-tg> <a-at>defer</a-at> <a-at>src</a-at><a-p>=</a-p><a-s>"https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js"</a-s><a-tg>&gt;&lt;/script&gt;</a-tg></code></pre>
+                            <pre class="code-block"><code><a-p>&lt;</a-p><a-tg>script</a-tg> <a-at>defer</a-at> <a-at>src</a-at>=&quot;<a-s>https://cdn.jsdelivr.net/npm/@arborium/arborium@1/dist/arborium.iife.js</a-s>&quot;<a-p>&gt;&lt;/</a-p><a-tg>script</a-tg><a-p>&gt;</a-p></code></pre>
                             <p>Then in <code>Cargo.toml</code>:</p>
-                            <pre
-                                class="code-block"
-                            ><code><a-p>[</a-p><a-v>package.metadata.docs.rs</a-v><a-p>]</a-p>
-<a-v>rustdoc-args</a-v> <a-o>=</a-o> <a-p>[</a-p><a-s>"--html-in-header"</a-s><a-p>,</a-p> <a-s>"arborium-header.html"</a-s><a-p>]</a-p></code></pre>
+                            <pre class="code-block"><code><a-p>[</a-p><a-pr>package</a-pr><a-p>.</a-p><a-pr>metadata</a-pr><a-p>.</a-p><a-pr>docs</a-pr><a-p>.</a-p><a-pr>rs</a-pr><a-p>]</a-p>
+<a-pr>rustdoc-args</a-pr> <a-o>=</a-o> <a-p>[</a-p><a-s>&quot;--html-in-header&quot;</a-s><a-p>,</a-p> <a-s>&quot;arborium-header.html&quot;</a-s><a-p>]</a-p></code></pre>
                             <p class="integration-links">
                                 <a href="https://docs.rs/arborium-docsrs-demo/">See it in action</a>
                             </p>
@@ -324,13 +318,11 @@
                                 diagnostics. Beautiful, accurate highlighting in your CLI error
                                 messages.
                             </p>
-                            <pre
-                                class="code-block"
-                            ><code><a-k>use</a-k> miette<a-p>::</a-p>GraphicalReportHandler<a-p>;</a-p>
-<a-k>use</a-k> miette_arborium<a-p>::</a-p>ArboriumHighlighter<a-p>;</a-p>
+                            <pre class="code-block"><code><a-k>use</a-k> miette<a-p>::</a-p><a-cr>GraphicalReportHandler</a-cr><a-p>;</a-p>
+<a-k>use</a-k> miette_arborium<a-p>::</a-p><a-cr>ArboriumHighlighter</a-cr><a-p>;</a-p>
 
-<a-k>let</a-k> handler <a-o>=</a-o> GraphicalReportHandler<a-p>::</a-p>new()
-    <a-p>.</a-p>with_syntax_highlighting(ArboriumHighlighter<a-p>::</a-p>new())<a-p>;</a-p></code></pre>
+<a-k>let</a-k> handler = <a-cr>GraphicalReportHandler</a-cr><a-p>::</a-p><a-f>new</a-f><a-p>()</a-p>
+    <a-p>.</a-p><a-pr>with_syntax_highlighting</a-pr><a-p>(</a-p><a-cr>ArboriumHighlighter</a-cr><a-p>::</a-p><a-f>new</a-f><a-p>());</a-p></code></pre>
                             <p class="integration-links">
                                 <a href="https://crates.io/crates/miette-arborium">crates.io</a> ·
                                 <a href="https://docs.rs/miette-arborium">docs.rs</a>
@@ -374,40 +366,33 @@
                         <strong>ANSI</strong> output.
                     </p>
                     <p class="theme-list-label">Bundled themes:</p>
-                    <div class="theme-swatches"><div class="theme-preview" data-variant="dark" data-theme="mocha">
+                    <div class="theme-swatches"><div class="theme-preview" data-variant="dark" data-theme="catppuccin-mocha">
     <pre style="background: #1e1e2e; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Catppuccin Mocha</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="macchiato">
-    <pre style="background: #24273a; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Catppuccin Macchiato</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="frappe">
-    <pre style="background: #303446; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Catppuccin Frappe</span>
-</div>
-<div class="theme-preview" data-variant="light" data-theme="latte">
+<div class="theme-preview" data-variant="light" data-theme="catppuccin-latte">
     <pre style="background: #eff1f5; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Catppuccin Latte</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="tokyo-night">
-    <pre style="background: #1a1b26; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="catppuccin-frappe">
+    <pre style="background: #303446; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Tokyo Night</span>
+    <span class="theme-name">Catppuccin Frappé</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="catppuccin-macchiato">
+    <pre style="background: #24273a; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Catppuccin Macchiato</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="dracula">
     <pre style="background: #282a36; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -416,19 +401,12 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Dracula</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="monokai">
-    <pre style="background: #2d2a2e; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="tokyo-night">
+    <pre style="background: #1a1b26; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Monokai Pro</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="one-dark">
-    <pre style="background: #282c34; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">One Dark</span>
+    <span class="theme-name">Tokyo Night</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="nord">
     <pre style="background: #2e3440; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -437,61 +415,12 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Nord</span>
 </div>
-<div class="theme-preview" data-variant="dark" data-theme="gruvbox-dark">
-    <pre style="background: #282828; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="one-dark">
+    <pre style="background: #282c34; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Gruvbox Dark</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="rose-pine-moon">
-    <pre style="background: #232136; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Rosé Pine Moon</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="kanagawa-dragon">
-    <pre style="background: #181616; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Kanagawa Dragon</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="cobalt2">
-    <pre style="background: #193549; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Cobalt2</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="zenburn">
-    <pre style="background: #3f3f3f; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Zenburn</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="melange-dark">
-    <pre style="background: #292522; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Melange Dark</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="monokai-aqua">
-    <pre style="background: #222222; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Monokai Aqua</span>
-</div>
-<div class="theme-preview" data-variant="dark" data-theme="desert256">
-    <pre style="background: #000000; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
-    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
-    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
-<a-p>}</a-p></code></pre>
-    <span class="theme-name">Desert256</span>
+    <span class="theme-name">One Dark</span>
 </div>
 <div class="theme-preview" data-variant="dark" data-theme="github-dark">
     <pre style="background: #0d1117; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -507,6 +436,13 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">GitHub Light</span>
 </div>
+<div class="theme-preview" data-variant="dark" data-theme="gruvbox-dark">
+    <pre style="background: #282828; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Gruvbox Dark</span>
+</div>
 <div class="theme-preview" data-variant="light" data-theme="gruvbox-light">
     <pre style="background: #fbf1c7; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
@@ -514,19 +450,68 @@
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Gruvbox Light</span>
 </div>
-<div class="theme-preview" data-variant="light" data-theme="alabaster">
-    <pre style="background: #f7f7f7; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="monokai">
+    <pre style="background: #2d2a2e; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Alabaster</span>
+    <span class="theme-name">Monokai</span>
 </div>
-<div class="theme-preview" data-variant="light" data-theme="dayfox">
-    <pre style="background: #f6f2ee; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+<div class="theme-preview" data-variant="dark" data-theme="kanagawa-dragon">
+    <pre style="background: #181616; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
     <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
-    <span class="theme-name">Dayfox</span>
+    <span class="theme-name">Kanagawa Dragon</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="rose-pine-moon">
+    <pre style="background: #232136; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Rosé Pine Moon</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="ayu-dark">
+    <pre style="background: #0d1017; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Ayu Dark</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="ayu-light">
+    <pre style="background: #fafafa; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Ayu Light</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="solarized-dark">
+    <pre style="background: #002b36; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Solarized Dark</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="solarized-light">
+    <pre style="background: #fdf6e3; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Solarized Light</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="ef-melissa-dark">
+    <pre style="background: #352718; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">EF Melissa Dark</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="melange-dark">
+    <pre style="background: #292522; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Melange Dark</span>
 </div>
 <div class="theme-preview" data-variant="light" data-theme="melange-light">
     <pre style="background: #f1f1f1; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
@@ -534,6 +519,41 @@
     <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
 <a-p>}</a-p></code></pre>
     <span class="theme-name">Melange Light</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="light-owl">
+    <pre style="background: #fbfbfb; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Light Owl</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="lucius-light">
+    <pre style="background: #eeeeee; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Lucius Light</span>
+</div>
+<div class="theme-preview" data-variant="light" data-theme="docsrs-light">
+    <pre style="background: #f5f5f5; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Docsrs Light</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="docsrs-dark">
+    <pre style="background: #2a2a2a; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Docsrs Dark</span>
+</div>
+<div class="theme-preview" data-variant="dark" data-theme="docsrs-ayu">
+    <pre style="background: #191f26; padding: 0.75rem; border-radius: 6px;"><code><a-k>fn</a-k> <a-f>main</a-f><a-p>()</a-p> <a-p>{</a-p>
+    <a-k>let</a-k> <a-v>x</a-v> <a-o>=</a-o> <a-n>42</a-n><a-p>;</a-p>
+    <a-fb>println!</a-fb><a-p>(</a-p><a-s>"Hello"</a-s><a-p>)</a-p><a-p>;</a-p>
+<a-p>}</a-p></code></pre>
+    <span class="theme-name">Docsrs Ayu</span>
 </div>
 </div>
                     <p>
@@ -571,7 +591,8 @@
                     </div>
                     <div class="faq-item">
                         <h4>
-                            <span class="faq-icon"><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M16 12L9 2L2 12h1.86L0 18h7v4h4v-4h7l-3.86-6zm4.14 0H22L15 2l-2.39 3.41L17.92 13h-1.95l3.22 5H24zM13 19h4v3h-4z"/></svg></span>Why "arborium"?
+                            <span class="faq-icon"><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M16 12L9 2L2 12h1.86L0 18h7v4h4v-4h7l-3.86-6zm4.14 0H22L15 2l-2.39 3.41L17.92 13h-1.95l3.22 5H24zM13 19h4v3h-4z"/></svg></span>Why the name
+                            "arborium"?
                         </h4>
                         <div class="faq-answer">
                             <p>
@@ -637,38 +658,6 @@
                                 The tradeoff is worth it: you get real parsing (not regex hacks)
                                 that handles edge cases correctly and recovers gracefully from
                                 syntax errors.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4>
-                            <span class="faq-icon"><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="m12 17.56l4.07-1.13l.55-6.1H9.38L9.2 8.3h7.6l.2-1.99H7l.56 6.01h6.89l-.23 2.58l-2.22.6l-2.22-.6l-.14-1.66h-2l.29 3.19zM4.07 3h15.86L18.5 19.2L12 21l-6.5-1.8z"/></svg></span>Can I
-                            use this without Rust / just embed it on my website?
-                        </h4>
-                        <div class="faq-answer">
-                            <p>
-                                Yes! Use our npm package <code>@arborium/arborium</code>. It
-                                provides both an ESM module and an IIFE bundle that auto-highlights
-                                code blocks on your page.
-                            </p>
-                            <p>
-                                The IIFE bundle exposes <code>window.arborium</code> with methods
-                                like <code>highlightAll()</code>,
-                                <code>highlightElement(el, lang)</code>, and
-                                <code>detectLanguage(source)</code>.
-                            </p>
-                            <p>See the "Get Started" section above for details.</p>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <h4>
-                            <span class="faq-icon"><svg  width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M6.5 20q-2.28 0-3.89-1.57Q1 16.85 1 14.58q0-1.95 1.17-3.48q1.18-1.53 3.08-1.95q.43-1.8 2.13-3.42Q9.07 4.1 11 4.1q.83 0 1.41.59q.59.59.59 1.41v6.05l1.6-1.55L16 12l-4 4l-4-4l1.4-1.4l1.6 1.55V6.1q-1.9.35-2.95 1.84T7 11h-.5q-1.45 0-2.47 1.03Q3 13.05 3 14.5T4.03 17q1.02 1 2.47 1h12q1.05 0 1.77-.73q.73-.72.73-1.77t-.73-1.77Q19.55 13 18.5 13H17v-2q0-1.2-.55-2.24Q15.9 7.73 15 7V4.68q1.85.87 2.93 2.58Q19 9 19 11q1.73.2 2.86 1.5q1.14 1.28 1.14 3q0 1.88-1.31 3.19T18.5 20M12 11.05"/></svg></span
-                            >Could a ready-to-embed kit load grammars on-demand?
-                        </h4>
-                        <div class="faq-answer">
-                            <p>
-                                Yes! That's what the IIFE bundle does. It detects languages in your
-                                code blocks and fetches grammars from jsdelivr as needed.
                             </p>
                         </div>
                     </div>
