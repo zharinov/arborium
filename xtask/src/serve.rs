@@ -814,7 +814,10 @@ fn generate_index_html(demo_dir: &Path, icons: &BTreeMap<String, String>) -> Res
     html = html.replace("{{THEME_SWATCHES}}", &swatches_html);
 
     // Inject theme CSS link
-    html = html.replace("{{THEME_CSS_LINK}}", "\n    <link rel=\"stylesheet\" href=\"/pkg/themes.generated.css\">");
+    html = html.replace(
+        "{{THEME_CSS_LINK}}",
+        "\n    <link rel=\"stylesheet\" href=\"/pkg/themes.generated.css\">",
+    );
 
     fs::write(&output_path, &html).map_err(|e| e.to_string())?;
     Ok(())

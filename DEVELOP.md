@@ -18,6 +18,9 @@ Arborium consists of several types of crates:
 - Each grammar is an independent crate (e.g., `arborium-rust`, `arborium-svelte`)
 - Only depends on pre-group crates, **not on other grammar crates**
 - Organized into groups: acorn, birch, cedar, fern, hazel, maple, moss, pine, sage, willow
+- All grammar crates (and their corresponding WASM plugin crates in `npm/`) share a single
+  workspace defined in `langs/Cargo.toml`, which `cargo xtask gen` regenerates. This keeps
+  compilation artifacts under one `target/` when running `cargo --manifest-path langs/Cargo.toml build --workspace`.
 
 **Post-group crates** (publish last):
 - `crates/arborium` - Umbrella crate with feature flags for all grammars
@@ -95,8 +98,10 @@ cargo xtask publish npm
 
 1. Create the grammar definition in `langs/group-<name>/<lang>/def/`
 2. Run `cargo xtask gen` to generate crate files
-3. Run `cargo xtask build <lang>` to build the WASM plugin
-4. Test with `cargo xtask serve`
+3. Build or test the generated crates through the shared workspace, e.g.:
+   `cargo --manifest-path langs/Cargo.toml check -p arborium-<lang>`
+4. Run `cargo xtask build <lang>` to build the WASM plugin
+5. Test with `cargo xtask serve`
 
 ### Modifying xtask
 
