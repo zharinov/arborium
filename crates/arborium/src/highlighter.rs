@@ -122,6 +122,18 @@ impl Highlighter {
         writer.write_all(html.as_bytes())?;
         Ok(())
     }
+
+    /// Highlight source code and return ANSI-colored text.
+    ///
+    /// This uses the theme system to generate proper 24-bit color ANSI codes.
+    pub fn highlight_to_ansi(
+        &mut self,
+        language: &str,
+        source: &str,
+        theme: &arborium_theme::Theme,
+    ) -> Result<String, HighlightError> {
+        Ok(self.inner.highlight_to_ansi(language, source, theme)?)
+    }
 }
 
 #[cfg(test)]
