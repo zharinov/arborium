@@ -77,7 +77,7 @@
     "build": "vite build && vite build --config vite.config.iife.ts && tsc --emitDeclarationOnly && npm run copy:host",
     "build:esm": "vite build",
     "build:iife": "vite build --config vite.config.iife.ts",
-    "copy:host": "cp ../../component-demo/host/arborium_host.js ../../component-demo/host/arborium_host*.wasm dist/",
+    "copy:host": "cp ../../demo/pkg/arborium_host.js ../../demo/pkg/arborium_host*.wasm dist/",
     "dev": "vite",
     "gen:manifest": "cd ../.. && cargo xtask gen-manifest",
     "prepublishOnly": "npm run gen:manifest && npm run build && test -f dist/arborium.iife.js || (echo 'ERROR: dist/arborium.iife.js missing!' && exit 1)",
