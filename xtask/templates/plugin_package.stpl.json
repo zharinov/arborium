@@ -35,8 +35,8 @@
   "author": "Amos Wenger <amos@bearcove.eu>",
   "license": "MIT OR Apache-2.0",
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bearcove/arborium.git"
+  "type": "git",
+  "url": "https://github.com/bearcove/arborium"
   },
   "homepage": "https://github.com/bearcove/arborium",
   "bugs": {
