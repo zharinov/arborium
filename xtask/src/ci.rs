@@ -415,7 +415,12 @@ pub fn build_workflow(config: &CiConfig) -> Workflow {
                 Step::run(
                     "Parse version",
                     r#"set -e
-VERSION="1.0.0"
+# Read default version from version.json
+if [ -f version.json ]; then
+  VERSION=$(jq -r '.version' version.json)
+else
+  VERSION="1.0.0"
+fi
 IS_RELEASE="false"
 
 if [[ "$GITHUB_REF" == refs/tags/* ]]; then
