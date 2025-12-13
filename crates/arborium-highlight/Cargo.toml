@@ -11,9 +11,6 @@ repository = "https://github.com/bearcove/arborium"
 homepage = "https://github.com/bearcove/arborium"
 keywords = ["syntax-highlighting", "tree-sitter", "wasm"]
 categories = ["text-processing"]
-# This crate is internal to arborium and not published separately.
-# Users should depend on the main `arborium` crate instead.
-publish = false
 
 [features]
 default = []
@@ -30,4 +27,3 @@ arborium-tree-sitter = { version = "2.0.0", path = "../arborium-tree-sitter", op
 streaming-iterator = { version = "0.1", optional = true }
 unicode-width = { version = "0.1", optional = true }
 terminal_size = { version = "0.4", optional = true }
-
