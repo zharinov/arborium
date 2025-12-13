@@ -57,18 +57,18 @@ impl Processor {
             .unwrap_or(&self.options.input_dir);
 
         // If output_dir is different from input_dir, copy everything first
-        if let Some(ref out) = self.options.output_dir {
-            if out != &self.options.input_dir {
-                // Create output directory if it doesn't exist
-                if !out.exists() {
-                    fs::create_dir_all(out)?;
-                }
-
-                // Copy contents using fs_extra (handles symlinks, permissions, etc.)
-                let options = CopyOptions::new().overwrite(true).copy_inside(true);
-                dir::copy(&self.options.input_dir, out, &options)
-                    .map_err(|e| ProcessError::Io(std::io::Error::other(e.to_string())))?;
+        if let Some(ref out) = self.options.output_dir
+            && out != &self.options.input_dir
+        {
+            // Create output directory if it doesn't exist
+            if !out.exists() {
+                fs::create_dir_all(out)?;
             }
+
+            // Copy contents using fs_extra (handles symlinks, permissions, etc.)
+            let options = CopyOptions::new().overwrite(true).copy_inside(true);
+            dir::copy(&self.options.input_dir, out, &options)
+                .map_err(|e| ProcessError::Io(std::io::Error::other(e.to_string())))?;
         }
 
         // Step 1: Find and patch the rustdoc CSS file

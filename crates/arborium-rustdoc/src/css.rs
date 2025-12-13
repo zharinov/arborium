@@ -64,12 +64,11 @@ fn generate_theme_css_for_rustdoc(theme: &arborium_theme::Theme, selector_prefix
     // Build a map from tag -> style for parent lookups
     let mut tag_to_style: HashMap<&str, &arborium_theme::Style> = HashMap::new();
     for (i, def) in HIGHLIGHTS.iter().enumerate() {
-        if !def.tag.is_empty() {
-            if let Some(style) = theme.style(i) {
-                if !style.is_empty() {
-                    tag_to_style.insert(def.tag, style);
-                }
-            }
+        if !def.tag.is_empty()
+            && let Some(style) = theme.style(i)
+            && !style.is_empty()
+        {
+            tag_to_style.insert(def.tag, style);
         }
     }
 

@@ -210,10 +210,11 @@ pub fn transform_html(
 /// Extract language name from a class attribute like "language-toml" or "language-json".
 fn extract_language_from_class(class: &str) -> Option<String> {
     for part in class.split_whitespace() {
-        if let Some(lang) = part.strip_prefix("language-") {
-            if !lang.is_empty() && lang != "rust" {
-                return Some(lang.to_string());
-            }
+        if let Some(lang) = part.strip_prefix("language-")
+            && !lang.is_empty()
+            && lang != "rust"
+        {
+            return Some(lang.to_string());
         }
     }
     None
