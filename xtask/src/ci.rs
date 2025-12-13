@@ -143,6 +143,10 @@ structstruck::strike! {
         #[facet(default, skip_serializing_if = Option::is_none)]
         pub run: Option<String>,
 
+        /// The shell to use for the command.
+        #[facet(default, skip_serializing_if = Option::is_none)]
+        pub shell: Option<String>,
+
         /// Inputs for the action.
         #[facet(default, skip_serializing_if = Option::is_none)]
         pub with: Option<IndexMap<String, String>>,
@@ -172,6 +176,7 @@ impl Step {
             name: Some(name.into()),
             uses: Some(action.into()),
             run: None,
+            shell: None,
             with: None,
             env: None,
             id: None,
@@ -193,6 +198,7 @@ impl Step {
             name: Some(name.into()),
             uses: None,
             run: Some(cmd),
+            shell: Some("bash".into()),
             with: None,
             env: None,
             id: None,

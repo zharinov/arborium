@@ -37,6 +37,7 @@ jobs:
       - 
         name: Parse version
         run: "set -e\nVERSION=\"1.0.0\"\nIS_RELEASE=\"false\"\n\nif [[ \"$GITHUB_REF\" == refs/tags/* ]]; then\n  TAG=\"${GITHUB_REF#refs/tags/}\"\n  TAG=\"${TAG#v}\"\n\n  # Only publish on semver-ish tags (optionally with prerelease/build suffix).\n  if [[ \"$TAG\" =~ ^[0-9]+\\.[0-9]+\\.[0-9]+([-.].*)?$ ]]; then\n    VERSION=\"$TAG\"\n    IS_RELEASE=\"true\"\n  fi\nfi\n\necho \"version=$VERSION\" >> $GITHUB_OUTPUT\necho \"is_release=$IS_RELEASE\" >> $GITHUB_OUTPUT\necho \"Version: $VERSION (release: $IS_RELEASE)\""
+        shell: bash
         id: version
       - 
         name: Restore grammar generation cache
@@ -49,12 +50,15 @@ jobs:
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Generate grammar sources
         run: "set -e\narborium-xtask gen --version ${{ steps.version.outputs.version }} --quiet"
+        shell: bash
       - 
         name: Create grammar sources tarball
         run: "set -e\ntar -cvf grammar-sources.tar crates/ langs/ version.json"
+        shell: bash
       - 
         name: Upload grammar sources
         uses: actions/upload-artifact@v4
@@ -85,6 +89,7 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Rust cache
         uses: Swatinem/rust-cache@v2
@@ -94,18 +99,23 @@ jobs:
       - 
         name: Build
         run: "set -e\ncargo build --manifest-path crates/arborium/Cargo.toml --verbose"
+        shell: bash
       - 
         name: Run tests
         run: "set -e\ncargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"
+        shell: bash
       - 
         name: Build with all features
         run: "set -e\ncargo build --manifest-path crates/arborium/Cargo.toml --all-features --verbose"
+        shell: bash
       - 
         name: Build arborium-rustdoc
         run: "set -e\ncargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
+        shell: bash
       - 
         name: Test arborium-rustdoc
         run: "set -e\ncargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
+        shell: bash
 
   test-macos: 
     name: Test (macOS)
@@ -127,6 +137,7 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Install Rust
         uses: dtolnay/rust-toolchain@stable
@@ -145,15 +156,19 @@ jobs:
       - 
         name: Build
         run: "set -e\ncargo build --manifest-path crates/arborium/Cargo.toml --verbose"
+        shell: bash
       - 
         name: Run tests
         run: "set -e\ncargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"
+        shell: bash
       - 
         name: Build arborium-rustdoc
         run: "set -e\ncargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
+        shell: bash
       - 
         name: Test arborium-rustdoc
         run: "set -e\ncargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
+        shell: bash
 
   clippy: 
     name: Clippy
@@ -176,12 +191,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Run Clippy
         run: "set -e\ncargo clippy --manifest-path crates/arborium/Cargo.toml --all-targets -- -D warnings"
+        shell: bash
       - 
         name: Run Clippy on arborium-rustdoc
         run: "set -e\ncargo clippy --manifest-path crates/arborium-rustdoc/Cargo.toml --all-targets -- -D warnings"
+        shell: bash
 
   docs: 
     name: Documentation
@@ -204,9 +222,11 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build docs
         run: "set -e\ncargo doc --manifest-path crates/arborium/Cargo.toml --no-deps"
+        shell: bash
         env: 
           RUSTDOCFLAGS: "-D warnings"
 
@@ -232,12 +252,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build css, html, javascript, json, scss, tsx, typescript, xml
         run: "set -e\narborium-xtask build css html javascript json scss tsx typescript xml -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -268,12 +291,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build asm, c, cpp, d, go, objc, rust, x86asm, zig
         run: "set -e\narborium-xtask build asm c cpp d go objc rust x86asm zig -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -304,12 +330,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build clojure, java, kotlin, scala
         run: "set -e\narborium-xtask build clojure java kotlin scala -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -340,12 +369,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build agda, commonlisp, elixir, elm, erlang, gleam, haskell, idris, lean, ocaml, scheme
         run: "set -e\narborium-xtask build agda commonlisp elixir elm erlang gleam haskell idris lean ocaml scheme -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -376,12 +408,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build awk, bash, batch, fish, lua, perl, php, powershell, python, ruby, zsh
         run: "set -e\narborium-xtask build awk bash batch fish lua perl php powershell python ruby zsh -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -412,12 +447,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build caddy, cmake, dockerfile, dot, graphql, hcl, ini, jq, kdl, meson, nginx, ninja, nix, query, ron, sql, ssh-config, toml, yaml
         run: "set -e\narborium-xtask build caddy cmake dockerfile dot graphql hcl ini jq kdl meson nginx ninja nix query ron sql ssh-config toml yaml -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -448,12 +486,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build ada, glsl, hlsl, julia, matlab, prolog, r, sparql, tlaplus, verilog, vhdl
         run: "set -e\narborium-xtask build ada glsl hlsl julia matlab prolog r sparql tlaplus verilog vhdl -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -484,12 +525,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build capnp, dart, devicetree, rescript, starlark, swift, textproto, thrift, uiua, yuri
         run: "set -e\narborium-xtask build capnp dart devicetree rescript starlark swift textproto thrift uiua yuri -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -520,12 +564,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build c-sharp, elisp, fsharp, postscript, vb, vim
         run: "set -e\narborium-xtask build c-sharp elisp fsharp postscript vb vim -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -556,12 +603,15 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Build asciidoc, diff, jinja2, markdown, svelte, typst, vue
         run: "set -e\narborium-xtask build asciidoc diff jinja2 markdown svelte typst vue -o dist/plugins"
+        shell: bash
       - 
         name: Upload plugins artifact
         uses: actions/upload-artifact@v4
@@ -600,9 +650,11 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Authenticate with crates.io
         uses: rust-lang/crates-io-auth-action@v1
@@ -610,6 +662,7 @@ jobs:
       - 
         name: Publish to crates.io
         run: "set -e\narborium-xtask publish crates"
+        shell: bash
         env: 
           CARGO_REGISTRY_TOKEN: ${{ steps.crates-io-auth.outputs.token }}
 
@@ -650,9 +703,11 @@ jobs:
       - 
         name: Extract grammar sources
         run: "set -e\ntar -xvf grammar-sources.tar"
+        shell: bash
       - 
         name: Build xtask
         run: "set -e\ncargo build --manifest-path xtask/Cargo.toml --release && cp xtask/target/release/xtask /usr/local/bin/arborium-xtask"
+        shell: bash
       - 
         name: Download plugins group acorn
         uses: actions/download-artifact@v4
@@ -726,11 +781,14 @@ jobs:
       - 
         name: List plugins
         run: "set -e\nfind dist/plugins -name 'package.json' | head -20"
+        shell: bash
       - 
         name: Install main package dependencies
         run: "set -e\ncd packages/arborium && npm ci"
+        shell: bash
       - 
         name: Publish to npm
         run: "set -e\narborium-xtask publish npm -o dist/plugins"
+        shell: bash
 
 
