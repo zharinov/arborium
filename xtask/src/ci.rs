@@ -371,8 +371,12 @@ pub mod runners {
 
 const CONTAINER: &str = "ghcr.io/bearcove/arborium-plugin-builder:latest";
 
-/// Condition: this is a release (tag push).
-const IS_RELEASE: &str = "startsWith(github.ref, 'refs/tags/v')";
+/// Condition: this is a release (tag push with a valid version).
+///
+/// We intentionally gate publishing on the parsed version output from the
+/// `generate` job so we can support both `vX.Y.Z` and `X.Y.Z` tags while
+/// avoiding accidental publishes on arbitrary tags.
+const IS_RELEASE: &str = "needs.generate.outputs.is_release == 'true'";
 
 /// Configuration for workflow generation.
 #[derive(Default)]
@@ -405,16 +409,20 @@ pub fn build_workflow(config: &CiConfig) -> Workflow {
                 Step::run(
                     "Parse version",
                     r#"set -e
-case "$GITHUB_REF" in
-  refs/tags/v*)
-    VERSION="${GITHUB_REF#refs/tags/v}"
+VERSION="1.0.0"
+IS_RELEASE="false"
+
+if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+  TAG="${GITHUB_REF#refs/tags/}"
+  TAG="${TAG#v}"
+
+  # Only publish on semver-ish tags (optionally with prerelease/build suffix).
+  if [[ "$TAG" =~ ^[0-9]+\.[0-9]+\.[0-9]+([-.].*)?$ ]]; then
+    VERSION="$TAG"
     IS_RELEASE="true"
-    ;;
-  *)
-    VERSION="1.0.0"
-    IS_RELEASE="false"
-    ;;
-esac
+  fi
+fi
+
 echo "version=$VERSION" >> $GITHUB_OUTPUT
 echo "is_release=$IS_RELEASE" >> $GITHUB_OUTPUT
 echo "Version: $VERSION (release: $IS_RELEASE)""#,
@@ -671,7 +679,12 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
         on: On {
             push: Some(PushTrigger {
                 branches: Some(vec!["main".into()]),
-                tags: Some(vec!["v*".into()]),
+                tags: Some(vec![
+                    // Historical + documented tag format.
+                    "v*".into(),
+                    // Allow bare semver tags like `2.0.0`.
+                    "[0-9]*.[0-9]*.[0-9]*".into(),
+                ]),
             }),
             pull_request: Some(PullRequestTrigger {
                 branches: Some(vec!["main".into()]),

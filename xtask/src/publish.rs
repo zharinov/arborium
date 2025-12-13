@@ -469,6 +469,9 @@ pub fn publish_npm(
     if group.is_none() {
         let main_package = repo_root.join("packages/arborium");
         if main_package.exists() && main_package.join("package.json").exists() {
+            // The main package bundles the browser host artifacts built by wasm-pack.
+            // Those outputs are gitignored, so CI must generate them before publishing.
+            ensure_main_npm_package_host_artifacts(repo_root)?;
             println!("  Publishing main package @arborium/arborium...");
             match publish_single_npm_package(&main_package, &canonical_version, dry_run)? {
                 NpmPublishResult::Published => published += 1,
@@ -1329,6 +1332,9 @@ fn publish_single_npm_package(
     if dry_run {
         args.push("--dry-run");
     }
+    if !dry_run && should_use_npm_provenance() {
+        args.push("--provenance");
+    }
 
     let output = Command::new("npm")
         .args(&args)
@@ -1362,4 +1368,33 @@ fn publish_single_npm_package(
         name,
         stderr
     ))
+}
+
+fn should_use_npm_provenance() -> bool {
+    // When running under GitHub Actions with `permissions: id-token: write`, this
+    // env var is available and npm can generate provenance / use trusted publishing.
+    std::env::var_os("ACTIONS_ID_TOKEN_REQUEST_URL").is_some()
+}
+
+fn ensure_main_npm_package_host_artifacts(repo_root: &Utf8Path) -> Result<()> {
+    // wasm-pack output (gitignored, so it won't exist on a fresh checkout).
+    let demo_pkg = repo_root.join("demo/pkg");
+    let host_js = demo_pkg.join("arborium_host.js");
+    let host_wasm = demo_pkg.join("arborium_host_bg.wasm");
+
+    if host_js.exists() && host_wasm.exists() {
+        return Ok(());
+    }
+
+    crate::build::build_host(repo_root)?;
+
+    if !host_js.exists() || !host_wasm.exists() {
+        return Err(miette::miette!(
+            "Expected arborium-host artifacts missing after build: {}, {}",
+            host_js,
+            host_wasm
+        ));
+    }
+
+    Ok(())
 }
