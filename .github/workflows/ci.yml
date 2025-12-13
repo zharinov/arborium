@@ -100,6 +100,12 @@ jobs:
       - 
         name: Build with all features
         run: "set -e\ncargo build --manifest-path crates/arborium/Cargo.toml --all-features --verbose"
+      - 
+        name: Build arborium-rustdoc
+        run: "set -e\ncargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
+      - 
+        name: Test arborium-rustdoc
+        run: "set -e\ncargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
 
   test-macos: 
     name: Test (macOS)
@@ -142,6 +148,12 @@ jobs:
       - 
         name: Run tests
         run: "set -e\ncargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"
+      - 
+        name: Build arborium-rustdoc
+        run: "set -e\ncargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
+      - 
+        name: Test arborium-rustdoc
+        run: "set -e\ncargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"
 
   clippy: 
     name: Clippy
@@ -167,6 +179,9 @@ jobs:
       - 
         name: Run Clippy
         run: "set -e\ncargo clippy --manifest-path crates/arborium/Cargo.toml --all-targets -- -D warnings"
+      - 
+        name: Run Clippy on arborium-rustdoc
+        run: "set -e\ncargo clippy --manifest-path crates/arborium-rustdoc/Cargo.toml --all-targets -- -D warnings"
 
   docs: 
     name: Documentation

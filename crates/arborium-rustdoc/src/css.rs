@@ -7,8 +7,11 @@
 use arborium_theme::builtin;
 use std::fmt::Write;
 
+/// Theme provider function type.
+type ThemeProvider = fn() -> &'static arborium_theme::Theme;
+
 /// Rustdoc's built-in themes and their corresponding arborium theme.
-const RUSTDOC_THEMES: &[(&str, fn() -> &'static arborium_theme::Theme)] = &[
+const RUSTDOC_THEMES: &[(&str, ThemeProvider)] = &[
     ("light", builtin::rustdoc_light),
     ("dark", builtin::rustdoc_dark),
     ("ayu", builtin::rustdoc_ayu),

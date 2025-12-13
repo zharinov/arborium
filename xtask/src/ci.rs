@@ -485,6 +485,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                     "Build with all features",
                     "cargo build --manifest-path crates/arborium/Cargo.toml --all-features --verbose",
                 ),
+                Step::run("Build arborium-rustdoc", "cargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
+                Step::run("Test arborium-rustdoc", "cargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
             ]),
     );
 
@@ -504,6 +506,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                 install_nextest(),
                 Step::run("Build", "cargo build --manifest-path crates/arborium/Cargo.toml --verbose"),
                 Step::run("Run tests", "cargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"),
+                Step::run("Build arborium-rustdoc", "cargo build --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
+                Step::run("Test arborium-rustdoc", "cargo test --manifest-path crates/arborium-rustdoc/Cargo.toml --verbose"),
             ]),
     );
 
@@ -520,6 +524,7 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                 download_grammar_sources(),
                 extract_grammar_sources(),
                 Step::run("Run Clippy", "cargo clippy --manifest-path crates/arborium/Cargo.toml --all-targets -- -D warnings"),
+                Step::run("Run Clippy on arborium-rustdoc", "cargo clippy --manifest-path crates/arborium-rustdoc/Cargo.toml --all-targets -- -D warnings"),
             ]),
     );
 

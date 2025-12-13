@@ -66,12 +66,8 @@ impl Processor {
 
                 // Copy contents using fs_extra (handles symlinks, permissions, etc.)
                 let options = CopyOptions::new().overwrite(true).copy_inside(true);
-                dir::copy(&self.options.input_dir, out, &options).map_err(|e| {
-                    ProcessError::Io(std::io::Error::new(
-                        std::io::ErrorKind::Other,
-                        e.to_string(),
-                    ))
-                })?;
+                dir::copy(&self.options.input_dir, out, &options)
+                    .map_err(|e| ProcessError::Io(std::io::Error::other(e.to_string())))?;
             }
         }
 

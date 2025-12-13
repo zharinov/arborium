@@ -2,7 +2,7 @@
 //!
 //! Transforms rustdoc HTML to add syntax highlighting for non-Rust code blocks.
 
-use arborium::Highlighter;
+use arborium::{Error as ArboriumError, Highlighter};
 use lol_html::html_content::ContentType;
 use lol_html::{ElementContentHandlers, HtmlRewriter, Selector, Settings};
 use std::borrow::Cow;
@@ -62,24 +62,26 @@ pub fn transform_html(
                     // Handler for <pre class="language-*"> - extract language
                     (
                         Cow::<Selector>::Owned("pre[class*='language-']".parse().unwrap()),
-                        ElementContentHandlers::default().element(move |el: &mut lol_html::html_content::Element| {
-                            let mut state = state_for_pre.borrow_mut();
+                        ElementContentHandlers::default().element(
+                            move |el: &mut lol_html::html_content::Element| {
+                                let mut state = state_for_pre.borrow_mut();
 
-                            let class = el.get_attribute("class").unwrap_or_default();
+                                let class = el.get_attribute("class").unwrap_or_default();
 
-                            // Skip if it has "rust" class (already highlighted by rustdoc)
-                            // Use word boundary check to avoid false positives like "language-rustscript"
-                            if class.split_whitespace().any(|c| c == "rust") {
-                                state.result.blocks_skipped += 1;
-                                state.current_lang = None;
-                                return Ok(());
-                            }
+                                // Skip if it has "rust" class (already highlighted by rustdoc)
+                                // Use word boundary check to avoid false positives like "language-rustscript"
+                                if class.split_whitespace().any(|c| c == "rust") {
+                                    state.result.blocks_skipped += 1;
+                                    state.current_lang = None;
+                                    return Ok(());
+                                }
 
-                            // Extract language from class
-                            state.current_lang = extract_language_from_class(&class);
+                                // Extract language from class
+                                state.current_lang = extract_language_from_class(&class);
 
-                            Ok(())
-                        }),
+                                Ok(())
+                            },
+                        ),
                     ),
                     // Handler for <code> inside language pre - collect text and replace
                     (
@@ -118,17 +120,15 @@ pub fn transform_html(
 
                                             // Highlight the code
                                             let highlighter = state.highlighter.as_mut().unwrap();
-                                            match highlighter.highlight_to_html(&lang, &decoded) {
+                                            match highlighter.highlight(&lang, &decoded) {
                                                 Ok(highlighted) => {
                                                     // Insert highlighted content before </code>
                                                     end.before(&highlighted, ContentType::Html);
                                                     state.result.blocks_highlighted += 1;
                                                 }
-                                                Err(
-                                                    arborium::highlighter::HighlightError::UnsupportedLanguage(
-                                                        _,
-                                                    ),
-                                                ) => {
+                                                Err(ArboriumError::UnsupportedLanguage {
+                                                    ..
+                                                }) => {
                                                     // Language not supported - keep original
                                                     if !state
                                                         .result
