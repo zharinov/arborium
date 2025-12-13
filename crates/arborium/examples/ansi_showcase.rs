@@ -8,7 +8,7 @@ use arborium_highlight::AnsiOptions;
 
 type ThemeShowcase = (
     &'static str,
-    fn() -> &'static arborium_theme::Theme,
+    fn() -> arborium_theme::Theme,
     &'static str,
     &'static str,
 );
@@ -97,7 +97,7 @@ $radius: 0.5rem;
     for (theme_name, theme_fn, lang, code) in showcase {
         println!("  {theme_name} — {lang}\n");
 
-        let theme = theme_fn().clone();
+        let theme = theme_fn();
         let config = arborium::Config::default();
         let options = AnsiOptions {
             use_theme_base_style: true,

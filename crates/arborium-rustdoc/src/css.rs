@@ -8,7 +8,7 @@ use arborium_theme::builtin;
 use std::fmt::Write;
 
 /// Theme provider function type.
-type ThemeProvider = fn() -> &'static arborium_theme::Theme;
+type ThemeProvider = fn() -> arborium_theme::Theme;
 
 /// Rustdoc's built-in themes and their corresponding arborium theme.
 const RUSTDOC_THEMES: &[(&str, ThemeProvider)] = &[
@@ -47,7 +47,7 @@ pub fn generate_rustdoc_theme_css() -> String {
 
         // Use the theme's to_css method but we need to adjust the selector
         // to target our code blocks specifically
-        let theme_css = generate_theme_css_for_rustdoc(theme, &selector);
+        let theme_css = generate_theme_css_for_rustdoc(&theme, &selector);
         css.push_str(&theme_css);
     }
 
