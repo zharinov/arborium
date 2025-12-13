@@ -55,6 +55,26 @@ impl Color {
     pub fn to_hex(&self) -> String {
         format!("#{:02x}{:02x}{:02x}", self.r, self.g, self.b)
     }
+
+    /// Lighten the color by a factor (0.0 to 1.0).
+    pub fn lighten(&self, factor: f32) -> Self {
+        let factor = factor.clamp(0.0, 1.0);
+        Self {
+            r: (self.r as f32 + (255.0 - self.r as f32) * factor).round() as u8,
+            g: (self.g as f32 + (255.0 - self.g as f32) * factor).round() as u8,
+            b: (self.b as f32 + (255.0 - self.b as f32) * factor).round() as u8,
+        }
+    }
+
+    /// Darken the color by a factor (0.0 to 1.0).
+    pub fn darken(&self, factor: f32) -> Self {
+        let factor = factor.clamp(0.0, 1.0);
+        Self {
+            r: (self.r as f32 * (1.0 - factor)).round() as u8,
+            g: (self.g as f32 * (1.0 - factor)).round() as u8,
+            b: (self.b as f32 * (1.0 - factor)).round() as u8,
+        }
+    }
 }
 
 /// Text style modifiers.
@@ -304,9 +324,45 @@ impl Theme {
         // Background and foreground
         if let Some(bg) = &self.background {
             writeln!(css, "  background: {};", bg.to_hex()).unwrap();
+            writeln!(css, "  --bg: {};", bg.to_hex()).unwrap();
+            // Surface is background adjusted toward opposite (lighter for dark, darker for light)
+            let surface = if self.is_dark {
+                bg.lighten(0.08)
+            } else {
+                bg.darken(0.05)
+            };
+            writeln!(css, "  --surface: {};", surface.to_hex()).unwrap();
         }
         if let Some(fg) = &self.foreground {
             writeln!(css, "  color: {};", fg.to_hex()).unwrap();
+            writeln!(css, "  --fg: {};", fg.to_hex()).unwrap();
+        }
+
+        // Find indices for accent and muted colors
+        let function_idx = HIGHLIGHTS.iter().position(|h| h.name == "function");
+        let keyword_idx = HIGHLIGHTS.iter().position(|h| h.name == "keyword");
+        let comment_idx = HIGHLIGHTS.iter().position(|h| h.name == "comment");
+
+        // --accent: use function color, fallback to keyword, fallback to foreground
+        let accent_color = function_idx
+            .and_then(|i| self.styles[i].fg.as_ref())
+            .or_else(|| keyword_idx.and_then(|i| self.styles[i].fg.as_ref()))
+            .or(self.foreground.as_ref());
+        if let Some(accent) = accent_color {
+            writeln!(css, "  --accent: {};", accent.to_hex()).unwrap();
+        }
+
+        // --muted: use comment color, fallback to faded foreground
+        let muted_color = comment_idx.and_then(|i| self.styles[i].fg.as_ref());
+        if let Some(muted) = muted_color {
+            writeln!(css, "  --muted: {};", muted.to_hex()).unwrap();
+        } else if let Some(fg) = &self.foreground {
+            let muted = if self.is_dark {
+                fg.darken(0.3)
+            } else {
+                fg.lighten(0.3)
+            };
+            writeln!(css, "  --muted: {};", muted.to_hex()).unwrap();
         }
 
         // Build a map from tag -> style for parent lookups

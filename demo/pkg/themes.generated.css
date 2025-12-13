@@ -2,7 +2,12 @@
 /* Source: https://github.com/catppuccin/catppuccin */
 [data-theme="catppuccin-mocha"] {
   background: #1e1e2e;
+  --bg: #1e1e2e;
+  --surface: #30303f;
   color: #cdd6f4;
+  --fg: #cdd6f4;
+  --accent: #89b4fa;
+  --muted: #6c7086;
   a-at { color: #f9e2af; }
   a-co { color: #fab387; }
   a-cb { color: #fab387; }
@@ -74,7 +79,12 @@
 /* Source: https://github.com/catppuccin/catppuccin */
 [data-theme="catppuccin-latte"] {
   background: #eff1f5;
+  --bg: #eff1f5;
+  --surface: #e3e5e9;
   color: #4c4f69;
+  --fg: #4c4f69;
+  --accent: #1e66f5;
+  --muted: #9ca0b0;
   a-at { color: #df8e1d; }
   a-co { color: #fe640b; }
   a-cb { color: #fe640b; }
@@ -146,7 +156,12 @@
 /* Source: https://github.com/catppuccin/catppuccin */
 [data-theme="catppuccin-frappe"] {
   background: #303446;
+  --bg: #303446;
+  --surface: #414455;
   color: #c6d0f5;
+  --fg: #c6d0f5;
+  --accent: #8caaee;
+  --muted: #737994;
   a-at { color: #e5c890; }
   a-co { color: #ef9f76; }
   a-cb { color: #ef9f76; }
@@ -218,7 +233,12 @@
 /* Source: https://github.com/catppuccin/catppuccin */
 [data-theme="catppuccin-macchiato"] {
   background: #24273a;
+  --bg: #24273a;
+  --surface: #36384a;
   color: #cad3f5;
+  --fg: #cad3f5;
+  --accent: #8aadf4;
+  --muted: #6e738d;
   a-at { color: #eed49f; }
   a-co { color: #f5a97f; }
   a-cb { color: #f5a97f; }
@@ -290,7 +310,12 @@
 /* Source: https://draculatheme.com */
 [data-theme="dracula"] {
   background: #282a36;
+  --bg: #282a36;
+  --surface: #393b46;
   color: #f8f8f2;
+  --fg: #f8f8f2;
+  --accent: #50fa7b;
+  --muted: #6272a4;
   a-at { color: #50fa7b; }
   a-co { color: #bd93f9; }
   a-cb { color: #bd93f9; }
@@ -362,7 +387,12 @@
 /* Source: https://github.com/enkia/tokyo-night-vscode-theme */
 [data-theme="tokyo-night"] {
   background: #1a1b26;
+  --bg: #1a1b26;
+  --surface: #2c2d37;
   color: #c0caf5;
+  --fg: #c0caf5;
+  --accent: #7aa2f7;
+  --muted: #565f89;
   a-at { color: #e0af68; }
   a-co { color: #ff9e64; }
   a-cb { color: #ff9e64; }
@@ -434,7 +464,12 @@
 /* Source: https://www.nordtheme.com */
 [data-theme="nord"] {
   background: #2e3440;
+  --bg: #2e3440;
+  --surface: #3f444f;
   color: #eceff4;
+  --fg: #eceff4;
+  --accent: #88c0d0;
+  --muted: #616e88;
   a-at { color: #8fbcbb; }
   a-co { color: #b48ead; }
   a-cb { color: #b48ead; }
@@ -506,7 +541,12 @@
 /* Source: https://github.com/atom/one-dark-syntax */
 [data-theme="one-dark"] {
   background: #282c34;
+  --bg: #282c34;
+  --surface: #393d44;
   color: #abb2bf;
+  --fg: #abb2bf;
+  --accent: #61afef;
+  --muted: #5c6370;
   a-at { color: #d19a66; }
   a-co { color: #d19a66; }
   a-cb { color: #d19a66; }
@@ -578,7 +618,12 @@
 /* Source: https://github.com/primer/github-vscode-theme */
 [data-theme="github-dark"] {
   background: #0d1117;
+  --bg: #0d1117;
+  --surface: #20242a;
   color: #c9d1d9;
+  --fg: #c9d1d9;
+  --accent: #d2a8ff;
+  --muted: #8b949e;
   a-at { color: #79c0ff; }
   a-co { color: #79c0ff; }
   a-cb { color: #79c0ff; }
@@ -650,7 +695,12 @@
 /* Source: https://github.com/primer/github-vscode-theme */
 [data-theme="github-light"] {
   background: #ffffff;
+  --bg: #ffffff;
+  --surface: #f2f2f2;
   color: #24292f;
+  --fg: #24292f;
+  --accent: #8250df;
+  --muted: #6e7781;
   a-at { color: #0550ae; }
   a-co { color: #0550ae; }
   a-cb { color: #0550ae; }
@@ -722,7 +772,12 @@
 /* Source: https://github.com/morhetz/gruvbox */
 [data-theme="gruvbox-dark"] {
   background: #282828;
+  --bg: #282828;
+  --surface: #393939;
   color: #ebdbb2;
+  --fg: #ebdbb2;
+  --accent: #8ec07c;
+  --muted: #928374;
   a-at { color: #fabd2f; }
   a-co { color: #d3869b; }
   a-cb { color: #d3869b; }
@@ -794,7 +849,12 @@
 /* Source: https://github.com/morhetz/gruvbox */
 [data-theme="gruvbox-light"] {
   background: #fbf1c7;
+  --bg: #fbf1c7;
+  --surface: #eee5bd;
   color: #3c3836;
+  --fg: #3c3836;
+  --accent: #427b58;
+  --muted: #928374;
   a-at { color: #b57614; }
   a-co { color: #8f3f71; }
   a-cb { color: #8f3f71; }
@@ -866,7 +926,12 @@
 /* Source: https://monokai.pro */
 [data-theme="monokai"] {
   background: #2d2a2e;
+  --bg: #2d2a2e;
+  --surface: #3e3b3f;
   color: #fcfcfa;
+  --fg: #fcfcfa;
+  --accent: #a9dc76;
+  --muted: #727072;
   a-at { color: #a9dc76; }
   a-co { color: #ab9df2; }
   a-cb { color: #ab9df2; }
@@ -938,7 +1003,12 @@
 /* Source: https://github.com/rebelot/kanagawa.nvim */
 [data-theme="kanagawa-dragon"] {
   background: #181616;
+  --bg: #181616;
+  --surface: #2a2929;
   color: #c5c9c5;
+  --fg: #c5c9c5;
+  --accent: #8ba4b0;
+  --muted: #625e5a;
   a-at { color: #c4b28a; }
   a-co { color: #b6927b; }
   a-cb { color: #b6927b; }
@@ -1010,7 +1080,12 @@
 /* Source: https://rosepinetheme.com */
 [data-theme="rose-pine-moon"] {
   background: #232136;
+  --bg: #232136;
+  --surface: #353346;
   color: #e0def4;
+  --fg: #e0def4;
+  --accent: #ea9a97;
+  --muted: #6e6a86;
   a-at { color: #f6c177; }
   a-co { color: #f6c177; }
   a-cb { color: #f6c177; }
@@ -1082,7 +1157,12 @@
 /* Source: https://github.com/ayu-theme/ayu-colors */
 [data-theme="ayu-dark"] {
   background: #0d1017;
+  --bg: #0d1017;
+  --surface: #20232a;
   color: #bfbdb6;
+  --fg: #bfbdb6;
+  --accent: #ffb454;
+  --muted: #626a73;
   a-co { color: #d2a6ff; }
   a-cb { color: #d2a6ff; }
   a-fb { color: #ffb454; }
@@ -1150,7 +1230,12 @@
 /* Source: https://github.com/ayu-theme/ayu-colors */
 [data-theme="ayu-light"] {
   background: #fafafa;
+  --bg: #fafafa;
+  --surface: #eeeeee;
   color: #5c6166;
+  --fg: #5c6166;
+  --accent: #f2ae49;
+  --muted: #8a9199;
   a-co { color: #a37acc; }
   a-cb { color: #a37acc; }
   a-fb { color: #f2ae49; }
@@ -1218,7 +1303,12 @@
 /* Source: https://ethanschoonover.com/solarized/ */
 [data-theme="solarized-dark"] {
   background: #002b36;
+  --bg: #002b36;
+  --surface: #143c46;
   color: #839496;
+  --fg: #839496;
+  --accent: #268bd2;
+  --muted: #586e75;
   a-at { color: #b58900; }
   a-co { color: #2aa198; }
   a-cb { color: #2aa198; }
@@ -1290,7 +1380,12 @@
 /* Source: https://ethanschoonover.com/solarized/ */
 [data-theme="solarized-light"] {
   background: #fdf6e3;
+  --bg: #fdf6e3;
+  --surface: #f0ead8;
   color: #657b83;
+  --fg: #657b83;
+  --accent: #268bd2;
+  --muted: #93a1a1;
   a-at { color: #b58900; }
   a-co { color: #2aa198; }
   a-cb { color: #2aa198; }
@@ -1362,7 +1457,12 @@
 /* Source: https://protesilaos.com/emacs/ef-themes */
 [data-theme="ef-melissa-dark"] {
   background: #352718;
+  --bg: #352718;
+  --surface: #45382a;
   color: #e8e4b1;
+  --fg: #e8e4b1;
+  --accent: #c6a2fe;
+  --muted: #90918a;
   a-at { color: #e4b53f; }
   a-co { color: #6fcad0; }
   a-cb { color: #6fcad0; }
@@ -1434,7 +1534,12 @@
 /* Source: https://github.com/savq/melange-nvim */
 [data-theme="melange-dark"] {
   background: #292522;
+  --bg: #292522;
+  --surface: #3a3634;
   color: #ece1d7;
+  --fg: #ece1d7;
+  --accent: #a3a9ce;
+  --muted: #867462;
   a-at { color: #c1a78e; }
   a-co { color: #cf9bc2; }
   a-cb { color: #cf9bc2; }
@@ -1506,7 +1611,12 @@
 /* Source: https://github.com/savq/melange-nvim */
 [data-theme="melange-light"] {
   background: #f1f1f1;
+  --bg: #f1f1f1;
+  --surface: #e5e5e5;
   color: #54433a;
+  --fg: #54433a;
+  --accent: #465aa4;
+  --muted: #7d6658;
   a-at { color: #bc5c00; }
   a-co { color: #904180; }
   a-cb { color: #904180; }
@@ -1578,7 +1688,12 @@
 /* Source: https://github.com/sdras/night-owl-vscode-theme */
 [data-theme="light-owl"] {
   background: #fbfbfb;
+  --bg: #fbfbfb;
+  --surface: #eeeeee;
   color: #403f53;
+  --fg: #403f53;
+  --accent: #4876d6;
+  --muted: #989fb1;
   a-at { color: #4876d6; font-style: italic; }
   a-co { color: #4876d6; }
   a-cb { color: #4876d6; }
@@ -1650,7 +1765,12 @@
 /* Source: https://github.com/jonathanfilip/vim-lucius */
 [data-theme="lucius-light"] {
   background: #eeeeee;
+  --bg: #eeeeee;
+  --surface: #e2e2e2;
   color: #444444;
+  --fg: #444444;
+  --accent: #008700;
+  --muted: #808080;
   a-at { color: #008787; }
   a-co { color: #af5f00; }
   a-cb { color: #af5f00; }
@@ -1722,7 +1842,12 @@
 /* Source: https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/light.css */
 [data-theme="rustdoc-light"] {
   background: #f5f5f5;
+  --bg: #f5f5f5;
+  --surface: #e9e9e9;
   color: #24292e;
+  --fg: #24292e;
+  --accent: #ad7c37;
+  --muted: #8e908c;
   a-at { color: #c82829; }
   a-co { color: #c82829; }
   a-cb { color: #c82829; }
@@ -1794,7 +1919,12 @@
 /* Source: https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/dark.css */
 [data-theme="rustdoc-dark"] {
   background: #2a2a2a;
+  --bg: #2a2a2a;
+  --surface: #3b3b3b;
   color: #dddddd;
+  --fg: #dddddd;
+  --accent: #2bab63;
+  --muted: #8d8d8b;
   a-at { color: #ee6868; }
   a-co { color: #ee6868; }
   a-cb { color: #ee6868; }
@@ -1866,7 +1996,12 @@
 /* Source: https://github.com/rust-lang/rust/blob/master/src/librustdoc/html/static/css/themes/ayu.css */
 [data-theme="rustdoc-ayu"] {
   background: #191f26;
+  --bg: #191f26;
+  --surface: #2b3137;
   color: #c5c5c5;
+  --fg: #c5c5c5;
+  --accent: #fdd687;
+  --muted: #788797;
   a-at { color: #e6e1cf; }
   a-co { color: #ff7733; }
   a-cb { color: #ff7733; }
@@ -1938,7 +2073,12 @@
 /* Source: https://github.com/EdenEast/nightfox.nvim */
 [data-theme="dayfox"] {
   background: #f6f2ee;
+  --bg: #f6f2ee;
+  --surface: #eae6e2;
   color: #3d2b5a;
+  --fg: #3d2b5a;
+  --accent: #2848a9;
+  --muted: #837a72;
   a-at { color: #955f61; }
   a-co { color: #287980; }
   a-cb { color: #287980; }
@@ -2010,7 +2150,12 @@
 /* Source: https://github.com/tonsky/vscode-theme-alabaster */
 [data-theme="alabaster"] {
   background: #f7f7f7;
+  --bg: #f7f7f7;
+  --surface: #ebebeb;
   color: #000000;
+  --fg: #000000;
+  --accent: #325cc0;
+  --muted: #aa3731;
   a-at { color: #7a3e9d; }
   a-co { color: #7a3e9d; }
   a-cb { color: #7a3e9d; }
@@ -2082,7 +2227,12 @@
 /* Source: https://github.com/wesbos/cobalt2-vscode */
 [data-theme="cobalt2"] {
   background: #193549;
+  --bg: #193549;
+  --surface: #2b4558;
   color: #ffffff;
+  --fg: #ffffff;
+  --accent: #ffc600;
+  --muted: #0088ff;
   a-at { color: #ffc600; }
   a-co { color: #ff628c; }
   a-cb { color: #ff628c; }
@@ -2154,7 +2304,12 @@
 /* Source: https://github.com/jnurmine/Zenburn */
 [data-theme="zenburn"] {
   background: #3f3f3f;
+  --bg: #3f3f3f;
+  --surface: #4e4e4e;
   color: #dcdccc;
+  --fg: #dcdccc;
+  --accent: #efef8f;
+  --muted: #7f9f7f;
   a-at { color: #dfaf8f; }
   a-co { color: #dca3a3; }
   a-cb { color: #dca3a3; }
@@ -2226,7 +2381,12 @@
 /* Source: https://github.com/vim-scripts/desert256.vim */
 [data-theme="desert256"] {
   background: #000000;
+  --bg: #000000;
+  --surface: #141414;
   color: #cccccc;
+  --fg: #cccccc;
+  --accent: #f0e68c;
+  --muted: #87ceeb;
   a-at { color: #cd5c5c; }
   a-co { color: #ffa0a0; }
   a-cb { color: #ffa0a0; }
