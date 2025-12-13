@@ -38,7 +38,7 @@ This package contains:
 
 - `grammar.js` - ES module that loads the WebAssembly grammar
 - `grammar.d.ts` - TypeScript type definitions
-- `grammar.core.wasm` - The tree-sitter grammar compiled to WebAssembly
+- `grammar_bg.wasm` - The tree-sitter grammar compiled to WebAssembly
 
 ## About Arborium
 

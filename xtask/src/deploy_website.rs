@@ -234,11 +234,11 @@ fn generate_plugins_json(
             package,
             version: version.to_string(),
             cdn_js: format!("{}/grammar.js", cdn_base),
-            cdn_wasm: format!("{}/grammar.core.wasm", cdn_base),
+            cdn_wasm: format!("{}/grammar_bg.wasm", cdn_base),
             // Local paths for reference (used in dev mode)
             local_js: format!("/langs/group-{}/{}/npm/grammar.js", group_name, lang_name),
             local_wasm: format!(
-                "/langs/group-{}/{}/npm/grammar.core.wasm",
+                "/langs/group-{}/{}/npm/grammar_bg.wasm",
                 group_name, lang_name
             ),
             size_bytes,

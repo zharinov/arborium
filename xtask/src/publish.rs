@@ -895,7 +895,7 @@ fn topological_sort_grammar_crates(
                 continue;
             }
 
-            // Add dependencies from grammar config
+            // Add dependencies from grammar config (compile-time deps)
             for dep in &grammar.dependencies {
                 // dep.krate is like "arborium-c"
                 if crate_paths.contains_key(&dep.krate) {
@@ -903,6 +903,16 @@ fn topological_sort_grammar_crates(
                         .get_mut(&crate_name)
                         .unwrap()
                         .push(dep.krate.clone());
+                }
+            }
+
+            // Add injection dependencies (e.g., HTML depends on CSS/JS)
+            if let Some(ref injections) = grammar.injections {
+                for lang_id in &injections.values {
+                    let dep_crate = format!("arborium-{}", lang_id);
+                    if crate_paths.contains_key(&dep_crate) {
+                        dependencies.get_mut(&crate_name).unwrap().push(dep_crate);
+                    }
                 }
             }
         }

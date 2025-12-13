@@ -252,7 +252,7 @@
 
       const getCoreModule = async (path) => {
         // Resolve the path relative to the plugin directory
-        // path can be 'grammar.core.wasm' or '../shared/shim.core2.wasm'
+        // path can be 'grammar_bg.wasm' or '../shared/shim.core2.wasm'
         let url;
         if (path.startsWith('../')) {
           // Shared module - resolve relative to plugins dir
