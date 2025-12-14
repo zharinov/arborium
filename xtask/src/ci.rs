@@ -342,15 +342,18 @@ pub mod common {
             .with_inputs([("tool", "cargo-nextest")])
     }
 
-    /// Download grammar sources from artifact.
-    pub fn download_grammar_sources() -> Step {
-        Step::uses("Download grammar sources", "actions/download-artifact@v4")
-            .with_inputs([("name", "grammar-sources"), ("path", ".")])
+    /// Download generate output from artifact.
+    pub fn download_generate_output() -> Step {
+        Step::uses("Download generate output", "actions/download-artifact@v4")
+            .with_inputs([("name", "generate-output"), ("path", ".")])
     }
 
-    /// Extract grammar sources tarball.
-    pub fn extract_grammar_sources() -> Step {
-        Step::run("Extract grammar sources", "tar -xvf grammar-sources.tar")
+    /// Make xtask executable after download (permissions not preserved in artifacts).
+    pub fn make_xtask_executable() -> Step {
+        Step::run(
+            "Make xtask executable",
+            "chmod +x xtask/target/release/xtask",
+        )
     }
 }
 
@@ -406,14 +409,11 @@ pub fn build_workflow(config: &CiConfig) -> Workflow {
                 Step::run(
                     "Parse version",
                     r#"set -e
-# Read default version from version.json
-if [ -f version.json ]; then
-  VERSION=$(jq -r '.version' version.json)
-else
-  VERSION="1.0.0"
-fi
+# Default to dev version (matches xtask default)
+VERSION="0.0.0"
 IS_RELEASE="false"
 
+# On tag push, use the tag as version
 if [[ "$GITHUB_REF" == refs/tags/* ]]; then
   TAG="${GITHUB_REF#refs/tags/}"
   TAG="${TAG#v}"
@@ -440,23 +440,23 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                         ),
                         ("restore-keys", "grammar-cache-v1000-"),
                     ]),
-                // Generate with version (from tag or 0.0.0-dev for non-release)
+                // Build xtask (not pre-baked in container, built fresh from source)
+                Step::run(
+                    "Build xtask",
+                    "cargo build --release --manifest-path xtask/Cargo.toml",
+                ),
+                // Generate with version (from tag or 0.0.0 for non-release)
                 Step::run(
                     "Generate grammar sources",
-                    "arborium-xtask gen --version ${{ steps.version.outputs.version }} --quiet",
+                    "./xtask/target/release/xtask gen --version ${{ steps.version.outputs.version }} --quiet",
                 ),
-                // Create tarball for CI jobs (fast tar)
+                // Upload generated files for downstream jobs
                 // Note: no root Cargo.toml/lock - each crate is standalone
-                // Include version.json so all downstream jobs see the same
-                // release version that was used for generation.
-                Step::run(
-                    "Create grammar sources tarball",
-                    "tar -cvf grammar-sources.tar crates/ langs/ version.json",
-                ),
-                Step::uses("Upload grammar sources", "actions/upload-artifact@v4")
+                // Includes xtask binary so downstream jobs don't need to rebuild it.
+                Step::uses("Upload generate output", "actions/upload-artifact@v4")
                     .with_inputs([
-                        ("name", "grammar-sources"),
-                        ("path", "grammar-sources.tar"),
+                        ("name", "generate-output"),
+                        ("path", "crates/\nlangs/\nxtask/target/release/xtask"),
                         ("retention-days", "1"),
                     ]),
             ]),
@@ -476,8 +476,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .needs(["generate"])
             .steps([
                 checkout(),
-                download_grammar_sources(),
-                extract_grammar_sources(),
+                download_generate_output(),
+                make_xtask_executable(),
                 rust_cache(),
                 Step::run("Build", "cargo build --manifest-path crates/arborium/Cargo.toml --verbose"),
                 Step::run("Run tests", "cargo nextest run --manifest-path crates/arborium/Cargo.toml --verbose --no-tests=pass"),
@@ -499,8 +499,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .needs(["generate"])
             .steps([
                 checkout(),
-                download_grammar_sources(),
-                extract_grammar_sources(),
+                download_generate_output(),
+                make_xtask_executable(),
                 install_rust(),
                 rust_cache(),
                 install_nextest(),
@@ -521,8 +521,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .needs(["generate"])
             .steps([
                 checkout(),
-                download_grammar_sources(),
-                extract_grammar_sources(),
+                download_generate_output(),
+                make_xtask_executable(),
                 Step::run("Run Clippy", "cargo clippy --manifest-path crates/arborium/Cargo.toml --all-targets -- -D warnings"),
                 Step::run("Run Clippy on arborium-rustdoc", "cargo clippy --manifest-path crates/arborium-rustdoc/Cargo.toml --all-targets -- -D warnings"),
             ]),
@@ -538,8 +538,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .needs(["generate"])
             .steps([
                 checkout(),
-                download_grammar_sources(),
-                extract_grammar_sources(),
+                download_generate_output(),
+                make_xtask_executable(),
                 Step::run(
                     "Build docs",
                     "cargo doc --manifest-path crates/arborium/Cargo.toml --no-deps",
@@ -572,11 +572,14 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
                     .needs(["generate"])
                     .steps([
                         checkout(),
-                        download_grammar_sources(),
-                        extract_grammar_sources(),
+                        download_generate_output(),
+                        make_xtask_executable(),
                         Step::run(
                             format!("Build {}", display_grammars),
-                            format!("arborium-xtask build {} -o dist/plugins", grammars_list),
+                            format!(
+                                "./xtask/target/release/xtask build {} -o dist/plugins",
+                                grammars_list
+                            ),
                         ),
                         Step::uses("Upload plugins artifact", "actions/upload-artifact@v4")
                             .with_inputs([
@@ -602,15 +605,19 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             .permissions([("id-token", "write"), ("contents", "read")])
             .steps([
                 checkout(),
-                download_grammar_sources(),
-                extract_grammar_sources(),
+                download_generate_output(),
+                make_xtask_executable(),
                 // Exchange OIDC token for crates.io access token
                 Step::uses(
                     "Authenticate with crates.io",
                     "rust-lang/crates-io-auth-action@v1",
                 )
                 .with_id("crates-io-auth"),
-                Step::run("Publish to crates.io", "arborium-xtask publish crates").with_env([(
+                Step::run(
+                    "Publish to crates.io",
+                    "./xtask/target/release/xtask publish crates",
+                )
+                .with_env([(
                     "CARGO_REGISTRY_TOKEN",
                     "${{ steps.crates-io-auth.outputs.token }}",
                 )]),
@@ -626,8 +633,8 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
 
         let mut npm_steps = vec![
             checkout(),
-            download_grammar_sources(),
-            extract_grammar_sources(),
+            download_generate_output(),
+            make_xtask_executable(),
         ];
 
         // Download all plugin artifacts
@@ -656,7 +663,7 @@ echo "Version: $VERSION (release: $IS_RELEASE)""#,
             // No NODE_AUTH_TOKEN needed - OIDC trusted publishing uses id-token permission
             Step::run(
                 "Publish to npm",
-                "arborium-xtask publish npm -o dist/plugins",
+                "./xtask/target/release/xtask publish npm -o dist/plugins",
             ),
         ]);
 
