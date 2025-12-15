@@ -1266,6 +1266,16 @@ description = "Tree-sitter syntax highlighting with HTML rendering and WASM supp
 keywords = ["tree-sitter", "syntax-highlighting", "wasm"]
 categories = ["parsing", "text-processing", "wasm"]
 links = "arborium"
+readme = "../../README.md"
+# Include generated files that are in .gitignore
+include = [
+    "src/**/*.rs",
+    "src/stubs.c",
+    "build.rs",
+    "examples/**/*.rs",
+    "tests/**/*.rs",
+    "arborium-header.html",
+]
 
 [features]
 default = []
