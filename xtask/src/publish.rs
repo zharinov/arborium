@@ -50,6 +50,7 @@ const POST_CRATES: &[&str] = &[
     "crates/arborium",
     // Depends on arborium
     "crates/miette-arborium",
+    "crates/arborium-cli",
 ];
 
 /// Name of the file that contains the grammar content hash
